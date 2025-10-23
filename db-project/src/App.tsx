@@ -1,10 +1,12 @@
-import "./App.css";
+import GreenButton from "./components/GreenButton";
+import WhiteButton from "./components/WhiteButton";
+import Home from "./components/Home"
 
 function App() {
   return (
-    <div className="w-[200px] h-[200px] bg-[#1a5d3e] flex items-center justify-center text-white text-xl font-medium">
-      CrimeLens.
-    </div>
+    <section>
+      <Home/>
+    </section>
   );
 }
 
