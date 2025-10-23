@@ -1,11 +1,9 @@
-import GreenButton from "./components/GreenButton";
-import WhiteButton from "./components/WhiteButton";
-import Home from "./components/Home"
+import Login from "./components/Login"
 
 function App() {
   return (
     <section>
-      <Home/>
+      <Login/>
     </section>
   );
 }
