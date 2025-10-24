@@ -17,10 +17,10 @@ const Login = () => {
         {/* White Outline Buttons */}
         <div className="flex flex-col w-full space-y-4 gap-y-4">
           <WhiteButton label="Create a new Police Agent" />
-          <hr className="border-t-2 border-[#ebebeb] mx-4" />
+          <hr className="border-t-2 border-[#d9d9d9] mx-4" />
           <WhiteButton label="Login as an Administrator" />
           <WhiteButton label="Login as a Police Agent"/>
-          <hr className="border-t-2 border-[#ebebeb] mx-4" />
+          <hr className="border-t-2 border-[#d9d9d9] mx-4" />
           <GreenButton label="Back to Home"/>
         </div>
 
