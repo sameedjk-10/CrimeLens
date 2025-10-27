@@ -34,3 +34,6 @@ const startServer = async () => {
 
 // Run the async startup
 startServer();
+
+import authRoutes from "./routes/authRoutes.js";
+app.use("/api/auth", authRoutes);
