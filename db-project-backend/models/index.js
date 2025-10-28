@@ -72,11 +72,13 @@ Victim.belongsToMany(Crime, {
 Crime.belongsToMany(Criminal, {
   through: CrimeToCriminal,
   foreignKey: "crime_id",
+  as: "criminals",
   onDelete: "CASCADE",
 });
 Criminal.belongsToMany(Crime, {
   through: CrimeToCriminal,
   foreignKey: "criminal_id",
+  as: "crimes",
   onDelete: "CASCADE",
 });
 
@@ -128,5 +130,8 @@ const db = {
   UploadLog,
   AuditLog,
 };
+
+
+db.sequelize = sequelize; //Optional Improvement : You can add db.Sequelize = Sequelize; at the end if you ever need Sequelize’s utilities elsewhere, (Not necessary unless you need Sequelize operators outside.)
 
 export default db;

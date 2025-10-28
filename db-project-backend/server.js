@@ -1,11 +1,13 @@
 import express from "express";
 import dotenv from "dotenv";
 import db from "./models/index.js"; // Import centralized model loader
+import adminRoutes from "./routes/adminRoutes.js";
 
 dotenv.config();
 
 const app = express();
 app.use(express.json());
+app.use("/api/admin", adminRoutes);
 
 // Destructure sequelize from db
 const { sequelize } = db;
@@ -34,3 +36,12 @@ const startServer = async () => {
 
 // Run the async startup
 startServer();
+
+import authRoutes from "./routes/authRoutes.js";
+app.use("/api/auth", authRoutes);
+
+// ✅ Handle any unhandled promise rejections
+process.on("unhandledRejection", (err) => {
+  console.error("Unhandled promise rejection:", err);
+  process.exit(1);
+});
