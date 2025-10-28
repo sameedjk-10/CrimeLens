@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import LogowithText from "../assets/LogowithText.svg";
 import GreenButton from "./GreenButton";
 import { ICONS } from "../assets/icons";
-import MeetCreatorsCrad from "./MeetCreatorsCards";
 import MeetCreatorsCard from "./MeetCreatorsCards";
 
 interface SidebarProps {
