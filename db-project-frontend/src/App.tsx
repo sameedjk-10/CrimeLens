@@ -1,17 +1,14 @@
-import Home from "./components/Home";
-import Login from "./components/Login";
-import LoginCreate from "./components/LoginCreate";
-import LoginPolice from "./components/LoginPolice";
-import LoginAdmin from "./components/LoginAdmin";
+import Dashboard from "./components/Dashboard";
+
+
 
 function App() {
   return (
     <section>
-      <Home/>
-      <Login/>
-      <LoginCreate/>
-      <LoginPolice/>
-      <LoginAdmin/>
+      
+      <Dashboard version="admin"/>
+     
+      
     </section>
   );
 }
