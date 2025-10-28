@@ -1,0 +1,19 @@
+// config/multerConfig.js
+import multer from "multer";
+
+const memoryStorage = multer.memoryStorage();
+
+const fileFilter = (req, file, cb) => {
+  const allowed = [".csv", ".txt"];
+  const name = file.originalname || "";
+  const ext = name.slice(name.lastIndexOf(".")).toLowerCase();
+  if (allowed.includes(ext)) cb(null, true);
+  else cb(new Error("Only CSV/TXT files are allowed"));
+};
+
+export const upload = multer({
+  storage: memoryStorage,
+  fileFilter,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB limit (adjust if needed)
+});
+export default upload;
