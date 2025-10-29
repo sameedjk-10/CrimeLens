@@ -10,7 +10,7 @@ interface DashboardProps {
 
 const Dashboard = ({ version }: DashboardProps) => {
   return (
-    <section className="flex flex-row items-start p-4">
+    <section className="flex flex-row items-start p-4 h-180">
       <div>
         <Sidebar version={version} />
       </div>
@@ -24,7 +24,7 @@ const Dashboard = ({ version }: DashboardProps) => {
               <div className="font-outfit font-semibold text-4xl text-black flex items-start">
                 Dashboard
               </div>
-              <div className="font-outfit text-md text-[#A0A0A0] flex items-start mb-2">
+              <div className="font-outfit text-md text-[#A0A0A0] flex items-start mb">
                 Monitor live updates on crime density, red zones, and incident
                 patterns across the city.
               </div>
@@ -118,7 +118,7 @@ const Dashboard = ({ version }: DashboardProps) => {
 
         {/* THE CRIME MAP AND STUFF */}
         <div
-          className="ml-4 p-4 rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.5)] h-[405px]"
+          className="ml-4 p-4 rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.5)] h-[412px]"
           style={{
             backgroundImage: `url(${MapBackground})`,
             backgroundSize: "cover",

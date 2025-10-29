@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import LogowithText from "../assets/LogowithText.svg";
 import GreenButton from "./GreenButton";
 import { ICONS } from "../assets/icons";
-import MeetCreatorsCrad from "./MeetCreatorsCards";
 import MeetCreatorsCard from "./MeetCreatorsCards";
 
 interface SidebarProps {
@@ -27,13 +26,48 @@ const Sidebar = ({ version, onNavigate }: SidebarProps) => {
 
   // Define menu sets for each version
   const allMenus: MenuItem[] = [
-    { label: "Dashboard", icon: ICONS.DashboardIcon, activeIcon: ICONS.DashboardIcon_Active, route: "/dashboard" },
-    { label: "Verify Agent", icon: ICONS.VerifyAgentIcon, activeIcon: ICONS.VerifyAgentIcon_Active, route: "/verify-agent" },
-    { label: "Agent Records", icon: ICONS.AgentRecordsIcon, activeIcon: ICONS.AgentRecordsIcon_Active, route: "/agent-records" },
-    { label: "Verify Report", icon: ICONS.VerifyReportIcon, activeIcon: ICONS.VerifyReportIcon_Active, route: "/verify-report" },
-    { label: "Crime Records", icon: ICONS.CrimeRecordsIcon, activeIcon: ICONS.CrimeRecordsIcon_Active, route: "/crime-records" },
-    { label: "Report Crime", icon: ICONS.ReportCrimeIcon, activeIcon: ICONS.ReportCrimeIcon_Active, route: "/report-crime" },
-    { label: "Give Feedback", icon: ICONS.GiveFeedbackIcon, activeIcon: ICONS.GiveFeedbackIcon_Active, route: "/feedback" },
+    {
+      label: "Dashboard",
+      icon: ICONS.DashboardIcon,
+      activeIcon: ICONS.DashboardIcon_Active,
+      route: "/dashboard",
+    },
+    {
+      label: "Verify Agent",
+      icon: ICONS.VerifyAgentIcon,
+      activeIcon: ICONS.VerifyAgentIcon_Active,
+      route: "/verify-agent",
+    },
+    {
+      label: "Agent Records",
+      icon: ICONS.AgentRecordsIcon,
+      activeIcon: ICONS.AgentRecordsIcon_Active,
+      route: "/agent-records",
+    },
+    {
+      label: "Verify Report",
+      icon: ICONS.VerifyReportIcon,
+      activeIcon: ICONS.VerifyReportIcon_Active,
+      route: "/verify-report",
+    },
+    {
+      label: "Crime Records",
+      icon: ICONS.CrimeRecordsIcon,
+      activeIcon: ICONS.CrimeRecordsIcon_Active,
+      route: "/crime-records",
+    },
+    {
+      label: "Report Crime",
+      icon: ICONS.ReportCrimeIcon,
+      activeIcon: ICONS.ReportCrimeIcon_Active,
+      route: "/report-crime",
+    },
+    {
+      label: "Give Feedback",
+      icon: ICONS.GiveFeedbackIcon,
+      activeIcon: ICONS.GiveFeedbackIcon_Active,
+      route: "/feedback",
+    },
   ];
 
   // Filter based on version
@@ -45,7 +79,9 @@ const Sidebar = ({ version, onNavigate }: SidebarProps) => {
     );
   else if (version === "police")
     filteredMenus = allMenus.filter((m) =>
-      ["Dashboard", "Verify Report", "Crime Records", "Give Feedback"].includes(m.label)
+      ["Dashboard", "Verify Report", "Crime Records", "Give Feedback"].includes(
+        m.label
+      )
     );
   else if (version === "user")
     filteredMenus = allMenus.filter((m) =>
@@ -56,14 +92,17 @@ const Sidebar = ({ version, onNavigate }: SidebarProps) => {
     version === "admin" || version === "police" ? "Logout" : "Back to Home";
 
   return (
-    <div className="flex flex-col justify-between h-180 w-68 bg-[#fefefe] rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.15)] py-6 px-4">
+    <div className="flex flex-col justify-between h-180 w-68 bg-[#fefefe] rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.15)] py-4 px-4">
+      {/* Top Section */}
       <div>
         {/* Logo */}
-        <div className="flex items-center gap-2 mb-8 px-2">
+        <div className="flex items-center gap-2 px-2">
           <img src={LogowithText} alt="CrimeLens Logo" className="h-10" />
         </div>
 
-        <p className="text-xs text-gray-400 mb-4 px-2 font-outfit font-medium">MENU</p>
+        <p className="text-xs text-gray-400 mb-4 px-2 mt-4 font-outfit font-medium">
+          MENU
+        </p>
 
         {/* Menu Items */}
         <nav className="flex flex-col gap-3">
@@ -100,11 +139,11 @@ const Sidebar = ({ version, onNavigate }: SidebarProps) => {
         <div className="flex justify-center">
           <GreenButton label={buttonText} width={220} />
         </div>
+      </div>
 
-        <div className="mt-34">
-          <MeetCreatorsCard />
-        </div>
-
+      {/* Bottom Section — Now stays at the bottom */}
+      <div className="mt-auto">
+        <MeetCreatorsCard />
       </div>
     </div>
   );

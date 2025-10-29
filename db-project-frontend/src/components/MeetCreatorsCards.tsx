@@ -5,7 +5,7 @@ import MainBackground from "../assets/MainBackground.png";
 const MeetCreatorsCard = () => {
   return (
     <div
-      className="relative w-full max-w-[260px]  rounded-2xl overflow-hidden shadow-[0_0_15px_rgba(0,0,0,0.15)]"
+      className="relative w-full max-w-[260px] rounded-2xl overflow-hidden shadow-[0_0_15px_rgba(0,0,0,0.15)]"
       style={{
         backgroundImage: `url(${MainBackground})`,
         backgroundSize: "cover",
