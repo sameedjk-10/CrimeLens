@@ -1,5 +1,6 @@
 import ArrowButton from "./ArrowButton";
 import StatsCardLiveIcon from "./StatsCardLiveIcon";
+import SphereMarker from "./SphereMarker";
 
 interface StatsCardProps {
   title: string;
@@ -11,12 +12,17 @@ interface StatsCardProps {
   height?: string;
   mainTextColor?: string;
   smallTextColor?: string;
+  LiveButton?: number | null;
   arrowProps?: {
     size?: number;
     bgColor?: string;
     iconColor?: string;
     hoverBgColor?: string;
     hoverIconColor?: string;
+  };
+  sphereProps?: {
+    diameter: number;
+    bgColor: string;
   };
 }
 
@@ -30,7 +36,9 @@ const StatsCard = ({
   height = "h-[160px]",
   mainTextColor = "text-black",
   smallTextColor = "text-green-600",
+  LiveButton = null,
   arrowProps,
+  sphereProps,
 }: StatsCardProps) => {
   return (
     <div
@@ -44,9 +52,17 @@ const StatsCard = ({
       }
     >
       {/* Top Section */}
-      <div className="flex justify-between items-start">
+      <div className="flex justify-between items-start ">
         <p className={`text-base font-medium ${mainTextColor}`}>{title}</p>
-        <ArrowButton {...arrowProps} />
+        <div className="rounded">
+          {arrowProps ? (
+            <ArrowButton {...arrowProps} />
+          ) : sphereProps ? (
+            <div className="p-2">
+              <SphereMarker {...sphereProps} />
+            </div>
+          ) : null}
+        </div>
       </div>
 
       {/* Middle Section */}
@@ -56,7 +72,9 @@ const StatsCard = ({
 
       {/* Bottom Section */}
       <div className="flex items-center gap-2">
-        <StatsCardLiveIcon colorClass={smallTextColor} size={12} />
+        {LiveButton ? (
+          <StatsCardLiveIcon colorClass={smallTextColor} size={12} />
+        ) : null}
         <p className={`text-sm font-medium ${smallTextColor}`}>{subText}</p>
       </div>
     </div>

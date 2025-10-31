@@ -15,7 +15,7 @@ const Dashboard = ({ version }: DashboardProps) => {
         <Sidebar version={version} />
       </div>
 
-      <div className="flex flex-col gap-y-4">
+      <div className="flex flex-col gap-y-4  ml-68">
         {/* STATS CARDS AND STUFF */}
         <div className="ml-4 bg-[#fefefe] p-4 rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.15)] flex flex-col gap-y-2">
           <div className="flex flex-row justify-between items-start w-full">
@@ -51,6 +51,7 @@ const Dashboard = ({ version }: DashboardProps) => {
               height="h-[180px]"
               mainTextColor="text-[#ffffff]"
               smallTextColor="text-[#D9D9D9]"
+              LiveButton={1}
               arrowProps={{
                 size: 36,
                 bgColor: "bg-[#ffffff]",
@@ -69,6 +70,7 @@ const Dashboard = ({ version }: DashboardProps) => {
               height="h-[180px]"
               mainTextColor="text-black"
               smallTextColor="text-[#237E54]"
+              LiveButton={1}
               arrowProps={{
                 size: 36,
                 bgColor: "bg-transparent",
@@ -87,6 +89,7 @@ const Dashboard = ({ version }: DashboardProps) => {
               height="h-[180px]"
               mainTextColor="text-black"
               smallTextColor="text-[#237E54]"
+              LiveButton={1}
               arrowProps={{
                 size: 36,
                 bgColor: "bg-transparent",
@@ -105,6 +108,7 @@ const Dashboard = ({ version }: DashboardProps) => {
               height="h-[180px]"
               mainTextColor="text-black"
               smallTextColor="text-[#237E54]"
+              LiveButton={1}
               arrowProps={{
                 size: 36,
                 bgColor: "bg-transparent",
@@ -131,7 +135,7 @@ const Dashboard = ({ version }: DashboardProps) => {
               <div className="font-outfit font-semibold text-3xl text-[#FFFFFF] flex items-start">
                 City Crime Map
               </div>
-              <div className="font-outfit font-normal text-md text-[#d3d1d1] flex items-start mb-2">
+              <div className="font-outfit font-normal text-md text-[#efecec] flex items-start mb-2">
                 Real-time visualization of crime activity across the city,
                 updated directly from police databases.
               </div>
