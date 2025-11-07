@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import Home from "../components/Home";
+import Dashboard from "../components/Dashboard";
 
-const HomePage = () => {
+const DashboardPage = () => {
   const navigate = useNavigate();
 
   // ✅ define what happens on button clicks
@@ -9,16 +9,13 @@ const HomePage = () => {
     navigate("/dashboard"); // this path must exist in your routes
   };
 
-  const handleLogin = () => {
-    navigate("/login"); // this path must exist in your routes
-  };
+
 
   return (
-    <Home
-      onPublicAccess={handlePublicAccess}
-      onLogin={handleLogin}
+    <Dashboard version="user"
+      // onPublicAccess={handlePublicAccess}
     />
   );
 };
 
-export default HomePage;
+export default DashboardPage;
