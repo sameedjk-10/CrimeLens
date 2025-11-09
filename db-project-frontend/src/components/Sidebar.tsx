@@ -113,7 +113,7 @@ const Sidebar = ({ version, onNavigate }: SidebarProps) => {
                 setActiveItem(item.label);
                 onNavigate?.(item.route);
               }}
-              className={`flex items-center gap-3 px-3 py-2 rounded-xl text-sm transition-all duration-200 ${
+              className={`flex items-center gap-3 px-3 py-2 rounded-xl text-sm transition-all duration-200 cursor-pointer ${
                 activeItem === item.label
                   ? "bg-green-50 text-black font-medium"
                   : "text-gray-400 hover:text-gray-700"

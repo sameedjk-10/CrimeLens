@@ -5,7 +5,7 @@ function App() {
   return (
     <section>
       
-      <Statistics version="police"/>
+      <Statistics version="admin"/>
      
     </section>
   );
