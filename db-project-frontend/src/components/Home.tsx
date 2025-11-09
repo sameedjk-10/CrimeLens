@@ -3,7 +3,13 @@ import MainBackground from "../assets/MainBackground.png";
 import GreenButton from "./GreenButton";
 import WhiteButton from "./WhiteButton";
 
-const Home = () => {
+type HomeProps = {
+  onPublicAccess?: () => void;
+  onLogin?: () => void;
+};
+
+
+const Home = ({ onPublicAccess, onLogin }: HomeProps) => {
   return (
     <section className="flex flex-col md:flex-row items-center justify-between min-h-screen bg-white">
       {/* Left Section */}
@@ -26,7 +32,7 @@ const Home = () => {
           </h3>
 
           <p className="text-gray-800 text-sm md:text-base font-outfit font-medium leading-relaxed max-w-md pt-8">
-            CrimeLens provides real-time crime analytics and insights across your city. 
+            CrimeLens provides real-time crime analytics and insights across your city.
             Explore interactive maps, live statistics, and verified
             police reports to stay informed, aware, and proactive. Track ongoing
             incidents, understand local safety trends, and make smarter
@@ -35,9 +41,18 @@ const Home = () => {
         </div>
 
         <div className="flex flex-row gap-4 pt-12">
-          <GreenButton label="Proceed as a Public User" width={350} />
-          <WhiteButton label="Login" width={100} />
+          <GreenButton
+            label="Proceed as a Public User"
+            width={350}
+            onClick={onPublicAccess} // ✅ added
+          />
+          <WhiteButton
+            label="Login"
+            width={100}
+            onClick={onLogin} // ✅ added
+          />
         </div>
+
       </div>
 
       {/* Right Section */}

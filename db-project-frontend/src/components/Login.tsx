@@ -3,7 +3,14 @@ import GreenButton from "./GreenButton";
 import WhiteButton from "./WhiteButton";
 import MainBackground from "../assets/MainBackground.png";
 
-const Login = () => {
+type LoginProps = {
+  onNewAgent?: () => void;
+  onAdminLogin?: () => void;
+  onPoliceLogin?: () => void;
+  onBackButton?: () => void;
+};
+
+const Login = ({onNewAgent, onAdminLogin, onPoliceLogin, onBackButton}: LoginProps) => {
   return (
     <section
       className="flex items-center justify-center min-h-screen bg-cover bg-center"
@@ -16,12 +23,20 @@ const Login = () => {
 
         {/* White Outline Buttons */}
         <div className="flex flex-col w-full space-y-4 gap-y-4">
-          <WhiteButton label="Create a new Police Agent" />
+          <WhiteButton label="Create a new Police Agent" 
+          onClick={onNewAgent}
+          />
           <hr className="border-t-2 border-[#d9d9d9] mx-4" />
-          <WhiteButton label="Login as an Administrator" />
-          <WhiteButton label="Login as a Police Agent"/>
+          <WhiteButton label="Login as an Administrator" 
+          onClick={onAdminLogin}
+          />
+          <WhiteButton label="Login as a Police Agent"
+          onClick={onPoliceLogin}
+          />
           <hr className="border-t-2 border-[#d9d9d9] mx-4" />
-          <GreenButton label="Back to Home"/>
+          <GreenButton label="Back to Home"
+          onClick={onBackButton}
+          />
         </div>
 
       </div>

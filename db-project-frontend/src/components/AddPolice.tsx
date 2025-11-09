@@ -7,7 +7,13 @@ import PasswordSeeIcon from "../assets/PasswodSeeIcon.svg";
 import PasswordHideIcon from "../assets/PasswodHideIcon.svg";
 import InstructionIcon from "../assets/InstructionIcon.svg";
 
-const LoginCreate = () => {
+
+type AddPoliceProps = {
+  OnSubmit?: () => void;
+};
+
+
+const LoginCreate = ({OnSubmit}: AddPoliceProps) => {
   // password visibility states
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -100,7 +106,7 @@ const LoginCreate = () => {
           </div>
 
           {/* Submit Button */}
-          <GreenButton label="Submit Request" />
+          <GreenButton label="Submit Request" onClick={OnSubmit}/>
         </form>
       </div>
     </section>
