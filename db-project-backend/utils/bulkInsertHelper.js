@@ -154,6 +154,8 @@ function prepareInsertPayloads(cleanedRows, existingKeys) {
       location: { type: "Point", coordinates: [lon, lat] },
       address: r.address || null,
       zone_id: r.zone_id,
+      severity: r.severity || 1,  // new line
+
     };
 
     toInsert.push(payload);

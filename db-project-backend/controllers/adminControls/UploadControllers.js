@@ -1,18 +1,17 @@
 // controllers/adminController.js
-import db from "../models/index.js";
-const { sequelize } = db;
-import { parseCSVBuffer } from "../utils/fileParser.js";
+import db from "../../models/index.js";
+import { parseCSVBuffer } from "../../utils/fileParser.js";
 import {
   preloadReferenceSets,
   fetchExistingKeysFromDB,
   prepareInsertPayloads,
   bulkInsertWithChunking,
-} from "../utils/bulkInsertHelper.js";
+} from "../../utils/bulkInsertHelper.js";
 
 const Crime = db.Crime;
 const UploadLog = db.UploadLog;
 
-const REQUIRED_FIELDS = ["title", "crime_type_id", "date", "latitude", "longitude", "zone_id"];
+const REQUIRED_FIELDS = ["title", "crime_type_id", "date", "latitude", "longitude", "zone_id", "severity"];
 
 /**
  * uploadCrimesCSV - main endpoint controller
@@ -69,6 +68,7 @@ export const uploadCrimesCSV = async (req, res, next) => {
         longitude: r.longitude,
         address: r.address?.trim() || null,
         zone_id: r.zone_id ? String(r.zone_id).trim() : null,
+        severity: r.severity ? parseInt(r.severity) : 1,  // new line
       };
 
       // required fields presence already checked by parser, but check types now
@@ -148,6 +148,7 @@ export const uploadCrimesCSV = async (req, res, next) => {
         longitude: r.longitude,
         address: r.address,
         zone_id: r.zone_id,
+        severity: r.severity || 1,  // new line  
       })),
       existingKeys
     );

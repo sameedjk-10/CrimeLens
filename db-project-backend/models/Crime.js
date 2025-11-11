@@ -19,9 +19,15 @@ export default (sequelize) => {
     zone_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      defaultValue: 100,
       references: { model: "zones", key: "id" },
       onUpdate: "CASCADE",
-      onDelete: "SET NULL",
+      onDelete: "SET DEFAULT",
+    },
+    severity: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 1
     },
   }, {
     tableName: "crimes",
