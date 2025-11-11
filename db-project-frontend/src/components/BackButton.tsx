@@ -15,7 +15,7 @@ const BackButton = ({
 }: BackButtonProps) => {
   return (
     <button
-      className={`flex items-center gap-1 text-gray-400 hover:text-gray-500 transition-colors duration-200 rounded-md ${
+      className={`flex items-center gap-1 text-gray-400 hover:text-gray-500 transition-colors duration-200 rounded-md cursor-pointer ${
         bgColor ? `${bgColor} px-3 py-1` : ""
       } ${borderColor ? `${borderColor} border-2` : ""}`}
     >
