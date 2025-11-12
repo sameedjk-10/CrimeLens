@@ -4,11 +4,11 @@ import multer from "multer";
 const memoryStorage = multer.memoryStorage();
 
 const fileFilter = (req, file, cb) => {
-  const allowed = [".csv", ".txt"];
+  const allowed = [".csv"];
   const name = file.originalname || "";
   const ext = name.slice(name.lastIndexOf(".")).toLowerCase();
   if (allowed.includes(ext)) cb(null, true);
-  else cb(new Error("Only CSV/TXT files are allowed"));
+  else cb(new Error("Only CSV files are allowed"));
 };
 
 export const upload = multer({

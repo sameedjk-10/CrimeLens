@@ -1,4 +1,4 @@
-// controllers/adminController.js
+// controllers/adminControls/UploadController.js 
 import db from "../../models/index.js";
 import { parseCSVBuffer } from "../../utils/fileParser.js";
 import {
@@ -11,7 +11,7 @@ import {
 const Crime = db.Crime;
 const UploadLog = db.UploadLog;
 
-const REQUIRED_FIELDS = ["title", "crime_type_id", "date", "latitude", "longitude", "zone_id", "severity"];
+const REQUIRED_FIELDS = ["title", "crime_type_id", "date", "latitude", "longitude", "zone_id"];
 
 /**
  * uploadCrimesCSV - main endpoint controller
@@ -68,7 +68,6 @@ export const uploadCrimesCSV = async (req, res, next) => {
         longitude: r.longitude,
         address: r.address?.trim() || null,
         zone_id: r.zone_id ? String(r.zone_id).trim() : null,
-        severity: r.severity ? parseInt(r.severity) : 1,  // new line
       };
 
       // required fields presence already checked by parser, but check types now
@@ -148,7 +147,6 @@ export const uploadCrimesCSV = async (req, res, next) => {
         longitude: r.longitude,
         address: r.address,
         zone_id: r.zone_id,
-        severity: r.severity || 1,  // new line  
       })),
       existingKeys
     );
@@ -208,3 +206,95 @@ export const uploadCrimesCSV = async (req, res, next) => {
     return next(err);
   }
 };
+
+
+// below is file without validation
+
+// controllers/admin/UploadController.js
+// import db from "../../models/index.js";
+// import { parseCSVBuffer } from "../../utils/fileParser.js";
+
+// const Crime = db.Crime;
+// const UploadLog = db.UploadLog;
+
+// export const uploadCrimesCSV = async (req, res, next) => {
+//   try {
+//     if (!req.file || !req.file.buffer) {
+//       return res.status(400).json({ success: false, message: "CSV file missing" });
+//     }
+
+//     const originalname = req.file.originalname || "upload.csv";
+
+//     // 1) Parse CSV buffer (keep this, required for extracting rows)
+//     const { rows: rawRows, parseInvalids, total } = await parseCSVBuffer(req.file.buffer, {
+//       requiredFields: [], // ❌ skip required fields for testing
+//     });
+
+//     // early stats
+//     let invalid = parseInvalids.length;
+//     let inserted = 0;
+//     let duplicates = 0;
+
+//     if (!rawRows.length) {
+//       await UploadLog.create({
+//         filename: originalname,
+//         status: "completed",
+//         total_records: total,
+//         records_uploaded: 0,
+//       });
+//       return res.status(200).json({
+//         success: true,
+//         message: "No rows found in CSV",
+//         stats: { total, inserted: 0, duplicates: 0, invalid },
+//         data: [], // return empty for frontend testing
+//       });
+//     }
+
+//     // ❌ Skip all validations: FK checks, required fields, numeric, date parsing, duplicates
+//     const cleanedRows = rawRows.map((r) => ({
+//       title: r.title?.trim() || null,
+//       description: (r.description ?? "").trim() || null,
+//       crime_type_id: r.crime_type_id ? String(r.crime_type_id).trim() : null,
+//       date: r.date?.trim() || null,
+//       status: r.status?.trim() || "verified",
+//       latitude: r.latitude,
+//       longitude: r.longitude,
+//       address: r.address?.trim() || null,
+//       zone_id: r.zone_id ? String(r.zone_id).trim() : null,
+//     }));
+
+//     // ❌ Skip checking duplicates in DB
+//     // ❌ Skip bulk insert into database (optional: still can simulate insert count)
+//     inserted = cleanedRows.length;
+
+//     // 7) Write upload log as completed
+//     await UploadLog.create({
+//       filename: originalname,
+//       status: "completed",
+//       total_records: total,
+//       records_uploaded: inserted,
+//     });
+
+//     // 8) Return CSV data directly for frontend testing
+//     return res.status(200).json({
+//       success: true,
+//       message: "Upload processed (validation skipped)",
+//       stats: { total, inserted, duplicates, invalid },
+//       data: cleanedRows, // send extracted rows
+//     });
+//   } catch (err) {
+//     try {
+//       const originalname = req.file?.originalname || "upload.csv";
+//       await UploadLog.create({
+//         filename: originalname,
+//         status: "failed",
+//         total_records: 0,
+//         records_uploaded: 0,
+//       });
+//     } catch (e) {
+//       // ignore
+//     }
+//     return next(err);
+//   }
+// };
+

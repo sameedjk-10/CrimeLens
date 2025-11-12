@@ -10,8 +10,8 @@ const router = express.Router();
 // 'file' is the form field name from frontend
 router.post(
   "/upload-crimes",
-  verifyToken,
-  authorizeRoles("Admin"),
+  // verifyToken,
+  // authorizeRoles("admin"),
   upload.single("file"),
   uploadCrimesCSV
 );

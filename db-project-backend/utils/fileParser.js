@@ -16,7 +16,6 @@ export function parseCSVBuffer(buffer, options = {}) {
     "latitude",
     "longitude",
     "zone_id",
-    "severity",
   ];
 
   return new Promise((resolve, reject) => {

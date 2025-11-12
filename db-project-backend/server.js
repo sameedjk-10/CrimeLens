@@ -1,4 +1,8 @@
+import dns from "dns";
+dns.setDefaultResultOrder("ipv4first");
+
 import express from "express";
+import cors from "cors";
 import dotenv from "dotenv";
 import db from "./models/index.js"; // Import centralized model loader
 import adminRoutes from "./routes/adminRoutes.js";
@@ -6,6 +10,11 @@ import adminRoutes from "./routes/adminRoutes.js";
 dotenv.config();
 
 const app = express();
+app.use(cors({
+  origin: "http://localhost:5173", // <-- your frontend URL
+  methods: ["GET","POST","PUT","DELETE"],
+  credentials: true,
+}));
 app.use(express.json());
 app.use("/api/admin", adminRoutes);
 
