@@ -1,9 +1,8 @@
 // routes/adminRoutes.js
 import express from "express";
-import { uploadCrimesCSV } from "../controllers/adminController.js";
+import { uploadCrimesCSV } from "../controllers/adminControls/UploadControllers.js";
 import { upload } from "../config/multerConfig.js";
-import { verifyToken } from "../middleware/authMiddleware.js";
-import { authorizeRoles } from "../middleware/authMiddleware.js";
+import { verifyToken, authorizeRoles } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
@@ -11,8 +10,8 @@ const router = express.Router();
 // 'file' is the form field name from frontend
 router.post(
   "/upload-crimes",
-  verifyToken,
-  authorizeRoles("Admin"),
+  // verifyToken,
+  // authorizeRoles("admin"),
   upload.single("file"),
   uploadCrimesCSV
 );
