@@ -10,45 +10,46 @@ interface DashboardProps {
 
 const Dashboard = ({ version }: DashboardProps) => {
   return (
-    <section className="flex flex-row items-start p-4 h-180">
-      <div>
+    <section className="flex flex-row h-screen overflow-hidden">
+
+      {/* LEFT SIDEBAR FIXED */}
+      <div className="h-full w-60 fixed left-0 top-0 p-4">
         <Sidebar version={version} />
       </div>
 
-      <div className="flex flex-col gap-y-4  ml-68">
-        {/* STATS CARDS AND STUFF */}
-        <div className="ml-4 bg-[#fefefe] p-4 rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.15)] flex flex-col gap-y-2">
+      {/* MAIN CONTENT */}
+      <div className="flex flex-col gap-y-4 pl-76 p-4 w-full overflow-y-auto">
+
+        {/* STATS SECTION */}
+        <div className="bg-[#fefefe] p-4 rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.15)] flex flex-col gap-y-4">
+
           <div className="flex flex-row justify-between items-start w-full">
-            {/* Left Text Section */}
-            <div className="flex flex-col gap-y-2 ml-2">
-              <div className="font-outfit font-semibold text-4xl text-black flex items-start">
+            <div className="flex flex-col gap-y-1 ml-2">
+              <div className="font-outfit font-semibold text-4xl text-black">
                 Dashboard
               </div>
-              <div className="font-outfit text-md text-[#A0A0A0] flex items-start mb">
+              <div className="font-outfit text-md text-[#A0A0A0]">
                 Monitor live updates on crime density, red zones, and incident
                 patterns across the city.
               </div>
             </div>
 
-            {/* Right Button Section */}
             <div className="flex items-start mt-2">
-              <GreenButton
-                label="View all Statistics"
-                width={280}
-                height={50}
-              />
+              <GreenButton label="View all Statistics" width={260} height={50} />
             </div>
           </div>
 
+          {/* STATS CARDS ROW */}
           <div className="flex gap-x-4">
+
             <StatsCard
               title="Total Crimes"
               value={28}
               subText="Updated from last 30 days"
               bgColor="bg-[#ffffff]"
               gradientBg="linear-gradient(to bottom, #145332, #1C6943, #237E54)"
-              width="w-[280px]"
-              height="h-[180px]"
+              width="w-[250px]"
+              height="h-[160px]"
               mainTextColor="text-[#ffffff]"
               smallTextColor="text-[#D9D9D9]"
               LiveButton={1}
@@ -66,8 +67,8 @@ const Dashboard = ({ version }: DashboardProps) => {
               value={28}
               subText="Updated from last 30 days"
               bgColor="bg-[#ffffff]"
-              width="w-[280px]"
-              height="h-[180px]"
+              width="w-[250px]"
+              height="h-[160px]"
               mainTextColor="text-black"
               smallTextColor="text-[#237E54]"
               LiveButton={1}
@@ -85,8 +86,8 @@ const Dashboard = ({ version }: DashboardProps) => {
               value={28}
               subText="Updated from last 30 days"
               bgColor="bg-[#ffffff]"
-              width="w-[280px]"
-              height="h-[180px]"
+              width="w-[250px]"
+              height="h-[160px]"
               mainTextColor="text-black"
               smallTextColor="text-[#237E54]"
               LiveButton={1}
@@ -104,8 +105,8 @@ const Dashboard = ({ version }: DashboardProps) => {
               value={28}
               subText="Updated from last 30 days"
               bgColor="bg-[#ffffff]"
-              width="w-[280px]"
-              height="h-[180px]"
+              width="w-[250px]"
+              height="h-[160px]"
               mainTextColor="text-black"
               smallTextColor="text-[#237E54]"
               LiveButton={1}
@@ -117,12 +118,13 @@ const Dashboard = ({ version }: DashboardProps) => {
                 hoverIconColor: "group-hover:text-green-600",
               }}
             />
+
           </div>
         </div>
 
-        {/* THE CRIME MAP AND STUFF */}
+        {/* CRIME MAP SECTION */}
         <div
-          className="ml-4 p-4 rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.5)] h-[412px]"
+          className="p-4 rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.5)] h-100"
           style={{
             backgroundImage: `url(${MapBackground})`,
             backgroundSize: "cover",
@@ -130,29 +132,32 @@ const Dashboard = ({ version }: DashboardProps) => {
           }}
         >
           <div className="flex flex-row justify-between items-start w-full">
-            {/* Left Text Section */}
-            <div className="flex flex-col gap-y-2 ml-2">
-              <div className="font-outfit font-semibold text-3xl text-[#FFFFFF] flex items-start">
+
+            {/* Text */}
+            <div className="flex flex-col gap-y-1 ml-2">
+              <div className="font-outfit font-semibold text-3xl text-white">
                 City Crime Map
               </div>
-              <div className="font-outfit font-normal text-md text-[#efecec] flex items-start mb-2">
+              <div className="font-outfit text-md text-[#efecec]">
                 Real-time visualization of crime activity across the city,
                 updated directly from police databases.
               </div>
             </div>
 
-            {/* Right Arrow Button Section */}
+            {/* Arrow Button */}
             <div className="flex items-start mt-2 mr-2">
               <ArrowButton
                 size={48}
-                bgColor="bg-[#ffffff]"
+                bgColor="bg-white"
                 iconColor="text-[#237E54]"
                 hoverBgColor="hover:bg-green-100"
                 hoverIconColor="group-hover:text-green-600"
               />
             </div>
+
           </div>
         </div>
+
       </div>
     </section>
   );

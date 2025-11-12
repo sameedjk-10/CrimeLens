@@ -4,7 +4,7 @@ import Dashboard from "../components/Dashboard";
 const DashboardPage = () => {
   const navigate = useNavigate();
 
-  // ✅ define what happens on button clicks
+  //  define what happens on button clicks
   const handlePublicAccess = () => {
     navigate("/dashboard"); // this path must exist in your routes
   };

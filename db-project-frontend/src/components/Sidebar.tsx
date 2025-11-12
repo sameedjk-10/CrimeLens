@@ -92,7 +92,7 @@ const Sidebar = ({ version, onNavigate }: SidebarProps) => {
     version === "admin" || version === "police" ? "Logout" : "Back to Home";
 
   return (
-    <div className="flex flex-col justify-between h-180 w-68 bg-[#fefefe] rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.15)] py-4 px-4 fixed">
+    <div className="flex flex-col justify-between h-170 w-68 bg-[#fefefe] rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.15)] py-4 px-4 fixed">
       {/* Top Section */}
       <div>
         {/* Logo */}
