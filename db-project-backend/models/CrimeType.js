@@ -1,19 +1,30 @@
-import { DataTypes } from "sequelize";
+import DataTypes  from "sequelize";
 
 export default (sequelize) => {
   const CrimeType = sequelize.define("CrimeType", {
-    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-    name: { type: DataTypes.STRING(150), allowNull: false },
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    name: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+      unique: true,
+    },
     severity: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      defaultValue: 1
+      defaultValue: 1,
     },
-
   }, {
-    tableName: "crime_types",
+    tableName: "CrimeType",
     timestamps: false,
   });
+
+  CrimeType.associate = (models) => {
+    CrimeType.hasMany(models.Crime, { foreignKey: "crimeTypeId", onDelete: "RESTRICT", onUpdate: "CASCADE" });
+  };
 
   return CrimeType;
 };

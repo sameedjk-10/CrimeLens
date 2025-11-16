@@ -30,8 +30,8 @@ const startServer = async () => {
     console.log("✅ Database connection established with Supabase.");
 
     // ✅ Sync all tables
-    await sequelize.sync({ alter: true });
-    console.log("✅ All tables synchronized successfully!");
+    // await sequelize.sync({ alter: true });
+    // console.log("✅ All tables synchronized successfully!");
 
     // ✅ Start the server only after successful DB setup
     app.listen(PORT, () => {

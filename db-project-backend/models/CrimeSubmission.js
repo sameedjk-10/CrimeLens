@@ -1,31 +1,52 @@
-import { DataTypes } from "sequelize";
+import DataTypes from "sequelize";
 
 export default (sequelize) => {
   const CrimeSubmission = sequelize.define("CrimeSubmission", {
-    id: { type: DataTypes.BIGINT, primaryKey: true, autoIncrement: true },
-    submitter_name: { type: DataTypes.STRING(200) },
-    submitter_contact: { type: DataTypes.STRING(200) },
-    submitter_cnic: { type: DataTypes.STRING(200) },
-    zone_id: {
-      type: DataTypes.INTEGER,
-      references: { model: "zones", key: "id" },
-      onUpdate: "CASCADE",
-      onDelete: "SET NULL",
-    },
-    incident_date: { type: DataTypes.DATE, allowNull: false },
-    description: { type: DataTypes.TEXT, allowNull: false },
-    submitted_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
-    status: { type: DataTypes.STRING(50), defaultValue: "pending" },
-    verified_crime_id: {
+    id: {
       type: DataTypes.BIGINT,
-      references: { model: "crimes", key: "id" },
-      onUpdate: "CASCADE",
-      onDelete: "SET NULL",
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    submitterCnic: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    zoneId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    incidentDate: {
+      type: DataTypes.DATE,
+      allowNull: false,
+    },
+    description: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+    submittedAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    },
+    status: {
+      type: DataTypes.ENUM("pending", "approved", "rejected"),
+      allowNull: false,
+      defaultValue: "pending",
+    },
+    verifiedCrimeId: {
+      type: DataTypes.BIGINT,
+      allowNull: true,
     },
   }, {
-    tableName: "crime_submissions",
+    tableName: "CrimeSubmission",
     timestamps: false,
   });
+
+  CrimeSubmission.associate = (models) => {
+    CrimeSubmission.belongsTo(models.CrimeReportsSubmitter, { foreignKey: "submitterCnic", onDelete: "SET NULL", onUpdate: "CASCADE" });
+    CrimeSubmission.belongsTo(models.Zone, { foreignKey: "zoneId", onDelete: "SET NULL", onUpdate: "CASCADE" });
+    CrimeSubmission.belongsTo(models.Crime, { foreignKey: "verifiedCrimeId", onDelete: "SET NULL", onUpdate: "CASCADE" });
+  };
 
   return CrimeSubmission;
 };

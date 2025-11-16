@@ -1,33 +1,65 @@
-import { DataTypes } from "sequelize";
+import DataTypes from "sequelize";
 
 export default (sequelize) => {
   const Crime = sequelize.define("Crime", {
-    id: { type: DataTypes.BIGINT, primaryKey: true, autoIncrement: true },
-    title: { type: DataTypes.STRING(255), allowNull: false },
-    description: { type: DataTypes.TEXT },
-    crime_type_id: {
+    id: {
+      type: DataTypes.BIGINT,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    title: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+    description: {
+      type: DataTypes.TEXT,
+    },
+    crimeTypeId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: { model: "crime_types", key: "id" },
-      onUpdate: "CASCADE",
-      onDelete: "RESTRICT",
     },
-    date: { type: DataTypes.DATE, allowNull: false },
-    status: { type: DataTypes.STRING(50), defaultValue: "pending" },
-    location: { type: DataTypes.GEOMETRY("POINT", 4326), allowNull: false },
-    address: { type: DataTypes.TEXT },
-    zone_id: {
+    incidentDate: {
+      type: DataTypes.DATE,
+      allowNull: false,
+    },
+    reportedAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    },
+    status: {
+      type: DataTypes.ENUM("pending", "approved", "rejected"),
+      allowNull: false,
+      defaultValue: "pending",
+    },
+    location: {
+      type: DataTypes.GEOMETRY("POINT", 4326),
+      allowNull: false,
+    },
+    address: {
+      type: DataTypes.TEXT,
+    },
+    zoneId: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      // defaultValue: 100,
-      references: { model: "zones", key: "id" },
-      onUpdate: "CASCADE",
-      onDelete: "SET NULL",
     },
   }, {
-    tableName: "crimes",
+    tableName: "Crime",
     timestamps: false,
+    indexes: [
+      { fields: ["crimeTypeId"] },
+      { fields: ["reportedAt"] },
+      { fields: ["status"] },
+      { fields: ["zoneId", "reportedAt"] },
+      { fields: ["location"], using: "GIST" },
+    ],
   });
+
+  Crime.associate = (models) => {
+    Crime.belongsTo(models.CrimeType, { foreignKey: "crimeTypeId", onDelete: "RESTRICT", onUpdate: "CASCADE" });
+    Crime.belongsTo(models.Zone, { foreignKey: "zoneId", onDelete: "SET NULL", onUpdate: "CASCADE" });
+    Crime.hasMany(models.CrimeSubmission, { foreignKey: "verifiedCrimeId", onDelete: "SET NULL", onUpdate: "CASCADE" });
+  };
 
   return Crime;
 };
