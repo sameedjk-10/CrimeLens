@@ -1,29 +1,44 @@
-import { DataTypes } from "sequelize";
+import DataTypes  from "sequelize";
 
 export default (sequelize) => {
   const PoliceAgentRequest = sequelize.define("PoliceAgentRequest", {
-    id: { type: DataTypes.BIGINT, primaryKey: true, autoIncrement: true },
-    police_id: {
-      type: DataTypes.UUID,
-      allowNull: false,
-      references: { model: "users", key: "id" },
-      onUpdate: "CASCADE",
-      onDelete: "CASCADE",
+    id: {
+      type: DataTypes.BIGINT,
+      autoIncrement: true,
+      primaryKey: true,
     },
-    branch_id: {
+    policeAgentRequestsTempId: {
+      type: DataTypes.BIGINT,
+      allowNull: true,
+    },
+    userId: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    branchId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
-      references: { model: "police_branches", key: "id" },
-      onUpdate: "CASCADE",
-      onDelete: "CASCADE",
+      allowNull: true,
     },
-    role: { type: DataTypes.STRING(50), defaultValue: "police" },
-    status: { type: DataTypes.STRING(20), defaultValue: "pending" },
-    created_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
+    status: {
+      type: DataTypes.ENUM("pending", "approved", "rejected"),
+      allowNull: false,
+      defaultValue: "pending",
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    },
   }, {
-    tableName: "police_agent_requests",
+    tableName: "PoliceAgentRequest",
     timestamps: false,
   });
+
+  PoliceAgentRequest.associate = (models) => {
+    PoliceAgentRequest.belongsTo(models.PoliceAgentRequestsTemp, { foreignKey: "policeAgentRequestsTempId", onDelete: "SET NULL", onUpdate: "CASCADE" });
+    PoliceAgentRequest.belongsTo(models.User, { foreignKey: "userId", onDelete: "SET NULL", onUpdate: "CASCADE" });
+    PoliceAgentRequest.belongsTo(models.PoliceBranch, { foreignKey: "branchId", onDelete: "SET NULL", onUpdate: "CASCADE" });
+  };
 
   return PoliceAgentRequest;
 };

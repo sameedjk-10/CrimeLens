@@ -1,15 +1,35 @@
-import { DataTypes } from "sequelize";
+import DataTypes  from "sequelize";
 
 export default (sequelize) => {
   const UploadLog = sequelize.define("UploadLog", {
-    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-    filename: { type: DataTypes.STRING(255) },
-    status: { type: DataTypes.STRING(50), defaultValue: "uploaded" },
-    total_records: { type: DataTypes.INTEGER },
-    records_uploaded: { type: DataTypes.INTEGER },
-    uploaded_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    filename: {
+      type: DataTypes.TEXT,
+    },
+    status: {
+      type: DataTypes.ENUM("completed", "failed"),
+      allowNull: false,
+      defaultValue: "completed",
+    },
+    totalRecords: {
+      type: DataTypes.INTEGER,
+    },
+    recordsUploaded: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+    },
+    uploadedAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    },
   }, {
-    tableName: "upload_logs",
+    tableName: "UploadLog",
     timestamps: false,
   });
 

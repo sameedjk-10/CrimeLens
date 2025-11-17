@@ -1,51 +1,51 @@
-import { DataTypes } from "sequelize";
+import DataTypes  from "sequelize";
 
 export default (sequelize) => {
   const User = sequelize.define("User", {
     id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
+      type: DataTypes.TEXT,
       primaryKey: true,
     },
     username: {
-      type: DataTypes.STRING(100),
+      type: DataTypes.TEXT,
       allowNull: false,
       unique: true,
     },
-    password_hash: {
+    passwordHash: {
       type: DataTypes.TEXT,
       allowNull: false,
     },
-    role_id: {
+    roleId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: {
-        model: "roles",
-        key: "id",
-      },
-      onUpdate: "CASCADE",
-      onDelete: "RESTRICT",
     },
-    is_active: {
+    isActive: {
       type: DataTypes.BOOLEAN,
+      allowNull: false,
       defaultValue: true,
     },
-    last_login: {
+    lastLogin: {
       type: DataTypes.DATE,
     },
-    created_at: {
+    createdAt: {
       type: DataTypes.DATE,
+      allowNull: false,
       defaultValue: DataTypes.NOW,
     },
-    updated_at: {
+    updatedAt: {
       type: DataTypes.DATE,
+      allowNull: false,
       defaultValue: DataTypes.NOW,
     },
   }, {
-    tableName: "users",
-    timestamps: false,
-    indexes: [{ unique: true, fields: ["username"] }],
+    tableName: "User",
   });
+
+  User.associate = (models) => {
+    User.belongsTo(models.Role, { foreignKey: "roleId", onDelete: "RESTRICT", onUpdate: "CASCADE" });
+    User.hasMany(models.PoliceBranch, { foreignKey: "branchHeadUserId", onDelete: "SET NULL", onUpdate: "CASCADE" });
+    User.hasMany(models.PoliceAgentRequest, { foreignKey: "userId", onDelete: "SET NULL", onUpdate: "CASCADE" });
+  };
 
   return User;
 };
