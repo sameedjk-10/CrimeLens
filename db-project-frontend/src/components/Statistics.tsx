@@ -1,21 +1,12 @@
-import Sidebar from "./Sidebar";
 import StatsCard from "./StatsCards";
 import MapBackground from "../assets/MapBackground.png";
 import BackButton from "./BackButton";
-import ArrowButton from "./ArrowButton";
 import StatsCharts from "./StatsCharts";
 
-interface StatisticsProps {
-  version: "admin" | "police" | "user";
-}
 
-const Statistics = ({ version }: StatisticsProps) => {
+const Statistics = () => {
   return (
-    <section className="flex flex-row items-start p-4 h-180">
-      <div>
-        <Sidebar version={version} />
-      </div>
-
+    <section className="flex flex-row items-start p-4 h-180 overflow-y-auto">
       <div className="flex flex-col gap-y-4 ml-68 pb-3">
         {/* STATS CARDS AND STUFF */}
         <div className="ml-4 bg-[#fefefe] p-4 rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.15)] flex flex-col gap-y-2">

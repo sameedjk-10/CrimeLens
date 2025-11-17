@@ -1,11 +1,11 @@
 import Sidebar from "../components/Sidebar";
-import Dashboard from "../components/Dashboard";
+import Verification from "../components/Verification";
 
-interface DashboardPageProps {
-  version: "admin" | "police" | "user";
+interface VerificationPageProps {
+  version: "admin" | "police";
 }
 
-const DashboardPage = ({ version }: DashboardPageProps) => {
+const VerificationPage = ({ version }: VerificationPageProps) => {
   return (
     <section className="flex flex-row h-screen overflow-hidden">
 
@@ -15,10 +15,10 @@ const DashboardPage = ({ version }: DashboardPageProps) => {
       </div>
 
       {/* RIGHT MAIN CONTENT */}
-      <Dashboard />
+      <Verification version={version}  />
 
     </section>
   );
 };
 
-export default DashboardPage;
+export default VerificationPage;

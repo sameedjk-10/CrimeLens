@@ -1,11 +1,11 @@
 import Sidebar from "../components/Sidebar";
-import Dashboard from "../components/Dashboard";
+import AllRecords from "../components/AllRecords";
 
-interface DashboardPageProps {
-  version: "admin" | "police" | "user";
+interface AllRecordsProps {
+  version: "admin" | "police";
 }
 
-const DashboardPage = ({ version }: DashboardPageProps) => {
+const AllRecordsPage = ({ version }: AllRecordsProps) => {
   return (
     <section className="flex flex-row h-screen overflow-hidden">
 
@@ -15,10 +15,10 @@ const DashboardPage = ({ version }: DashboardPageProps) => {
       </div>
 
       {/* RIGHT MAIN CONTENT */}
-      <Dashboard />
+      <AllRecords version={version}  />
 
     </section>
   );
 };
 
-export default DashboardPage;
+export default AllRecordsPage;
