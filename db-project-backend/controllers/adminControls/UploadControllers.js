@@ -1,4 +1,4 @@
-// controllers/adminControls/UploadController.js 
+// controllers/adminControls/UploadController.js
 import db from "../../models/index.js";
 import { parseCSVBuffer } from "../../utils/fileParser.js";
 import {
@@ -7,19 +7,51 @@ import {
   prepareInsertPayloads,
   bulkInsertWithChunking,
 } from "../../utils/bulkInsertHelper.js";
+import { parse } from "date-fns";
 
 const Crime = db.Crime;
 const UploadLog = db.UploadLog;
 
-const REQUIRED_FIELDS = ["title", "crime_type_id", "date", "latitude", "longitude", "zone_id"];
+const REQUIRED_FIELDS = ["title", "crimeTypeId", "incidentDate", "reportedAt", "latitude", "longitude"];
+
+/**
+ * Excel-safe flexible date parser
+ */
+function parseFlexibleDate(str) {
+  if (!str) return null;
+
+  const formats = [
+    "M/d/yyyy",
+    "M/d/yyyy H:mm",
+    "M/d/yyyy HH:mm",
+    "MM/dd/yyyy",
+    "MM/dd/yyyy H:mm",
+    "MM/dd/yyyy HH:mm",
+    "yyyy-MM-dd",
+    "yyyy/MM/dd",
+    "yyyy-MM-dd H:mm",
+    "yyyy/MM/dd H:mm",
+    "yyyy-MM-dd HH:mm:ss",
+    "M/d/yyyy h:mm a",
+  ];
+
+  for (const f of formats) {
+    try {
+      const parsed = parse(str, f, new Date());
+      if (!isNaN(parsed.getTime())) return parsed;
+    } catch {}
+  }
+
+  const auto = new Date(str);
+  return !isNaN(auto.getTime()) ? auto : null;
+}
 
 /**
  * uploadCrimesCSV - main endpoint controller
- * Expects multer.memoryStorage used in route (req.file.buffer present)
  */
 export const uploadCrimesCSV = async (req, res, next) => {
   try {
-    if (!req.file || !req.file.buffer) {
+    if (!req.file?.buffer) {
       return res.status(400).json({ success: false, message: "CSV file missing" });
     }
 
@@ -30,19 +62,12 @@ export const uploadCrimesCSV = async (req, res, next) => {
       requiredFields: REQUIRED_FIELDS,
     });
 
-    // early stats
     let invalid = parseInvalids.length;
     let duplicates = 0;
     let inserted = 0;
 
     if (!rawRows.length) {
-      // write upload log as completed with zero uploaded but containing reasons
-      await UploadLog.create({
-        filename: originalname,
-        status: "completed",
-        total_records: total,
-        records_uploaded: 0,
-      });
+      await UploadLog.create({ filename: originalname, status: "completed", totalRecords: total, recordsUploaded: 0 });
       return res.status(200).json({
         success: true,
         message: "No valid rows found in CSV",
@@ -51,36 +76,37 @@ export const uploadCrimesCSV = async (req, res, next) => {
       });
     }
 
-    // 2) Preload reference sets (crime_types, zones) to validate FK existence
+    // 2) Preload crime types & zones for FK validation
     const { validCrimeTypes, validZones } = await preloadReferenceSets(db);
 
-    // 3) Normalize rows and further validate & convert types
+    // 3) Normalize and validate each row
     const cleanedRows = [];
     for (const r of rawRows) {
-      // basic transforms
       const row = {
         title: r.title?.trim(),
         description: (r.description ?? "").trim() || null,
-        crime_type_id: r.crime_type_id ? String(r.crime_type_id).trim() : null,
-        dateRaw: r.date?.trim(),
-        status: r.status?.trim() || "verified",
+        crimeTypeId: r.crimeTypeId ? String(r.crimeTypeId).trim() : null,
+        incidentDate: r.incidentDate?.trim(),
+        reportedAt: r.reportedAt?.trim() || null,
+        status: r.status?.trim() || "pending",
         latitude: r.latitude,
         longitude: r.longitude,
         address: r.address?.trim() || null,
-        zone_id: r.zone_id ? String(r.zone_id).trim() : null,
+        zoneId: r.zoneId ? String(r.zoneId).trim() : null,
       };
 
-      // required fields presence already checked by parser, but check types now
-      const missing = [];
-      for (const f of REQUIRED_FIELDS) {
-        if (!row[f] && row[f] !== 0) missing.push(f);
-      }
+      // Required-field check
+      const missing = REQUIRED_FIELDS.filter((f) => {
+        const value = row[f];
+        return value === undefined || value === null || value.toString().trim() === "";
+      });
+
       if (missing.length) {
         invalid++;
         continue;
       }
 
-      // validate numeric lat/lon
+      // Numeric check for latitude & longitude
       const lat = parseFloat(row.latitude);
       const lon = parseFloat(row.longitude);
       if (Number.isNaN(lat) || Number.isNaN(lon)) {
@@ -88,42 +114,34 @@ export const uploadCrimesCSV = async (req, res, next) => {
         continue;
       }
 
-      // validate date parseable
-      const dateObj = new Date(row.dateRaw);
-      if (Number.isNaN(dateObj.getTime())) {
-        invalid++;
-        continue;
-      }
-      // normalize to ISO for comparison
-      const dateISO = dateObj.toISOString();
-
-      // validate FK existence (if sets are available; if sets empty we skip strict check)
-      if (validCrimeTypes.size && !validCrimeTypes.has(String(row.crime_type_id))) {
-        invalid++;
-        continue;
-      }
-      if (validZones.size && !validZones.has(String(row.zone_id))) {
+      // Excel-safe date parsing
+      const incidentDateObj = parseFlexibleDate(row.incidentDate);
+      if (!incidentDateObj) {
         invalid++;
         continue;
       }
 
-      cleanedRows.push({
-        ...row,
-        dateISO,
-        dateObj,
-        latitude: lat,
-        longitude: lon,
-      });
+      const reportedAtObj = row.reportedAt ? parseFlexibleDate(row.reportedAt) : incidentDateObj;
+
+      // Status validation
+      const validStatuses = ["pending", "approved", "rejected"];
+      if (!validStatuses.includes(row.status)) row.status = "pending";
+
+      // Foreign key checks
+      if (validCrimeTypes.size && !validCrimeTypes.has(String(row.crimeTypeId))) {
+        invalid++;
+        continue;
+      }
+      if (validZones.size && row.zoneId && !validZones.has(String(row.zoneId))) {
+        invalid++;
+        continue;
+      }
+
+      cleanedRows.push({ ...row, incidentDateObj, reportedAtObj, latitude: lat, longitude: lon });
     }
 
     if (!cleanedRows.length) {
-      // update upload log and return
-      await UploadLog.create({
-        filename: originalname,
-        status: "completed",
-        total_records: total,
-        records_uploaded: 0,
-      });
+      await UploadLog.create({ filename: originalname, status: "completed", totalRecords: total, recordsUploaded: 0 });
       return res.status(200).json({
         success: true,
         message: "No valid rows after validation",
@@ -131,42 +149,17 @@ export const uploadCrimesCSV = async (req, res, next) => {
       });
     }
 
-    // 4) Fetch existing keys from DB to detect duplicates (single optimized query)
+    // 4) Detect duplicates & 5) Prepare insert payloads
     const existingKeys = await fetchExistingKeysFromDB(db, cleanedRows, Crime);
-
-    // 5) Prepare payloads: compare against existing keys and build toInsert
-    // internal helper will also count duplicates (both CSV internal dup and DB-dup)
-    const { toInsert, duplicates: dupCount } = prepareInsertPayloads(
-      cleanedRows.map((r) => ({
-        title: r.title,
-        description: r.description,
-        crime_type_id: r.crime_type_id,
-        dateISO: r.dateISO,
-        dateObj: r.dateObj,
-        latitude: r.latitude,
-        longitude: r.longitude,
-        address: r.address,
-        zone_id: r.zone_id,
-      })),
-      existingKeys
-    );
-
+    const { toInsert, duplicates: dupCount } = prepareInsertPayloads(cleanedRows, existingKeys);
     duplicates += dupCount;
 
-    // 6) Insert new rows with bulk insert + chunk fallback
+    // 6) Bulk insert
     if (toInsert.length) {
       try {
-        // Attempt bulk insert (helper handles fallback)
-        const insertedCount = await bulkInsertWithChunking(Crime, toInsert, db, 100);
-        inserted = insertedCount;
+        inserted = await bulkInsertWithChunking(Crime, toInsert, db, 100);
       } catch (e) {
-        // catastrophic insert failure -> log failed upload and return 500
-        await UploadLog.create({
-          filename: originalname,
-          status: "failed",
-          total_records: total,
-          records_uploaded: inserted,
-        });
+        await UploadLog.create({ filename: originalname, status: "failed", totalRecords: total, recordsUploaded: inserted });
         return res.status(500).json({
           success: false,
           message: "Fatal error during DB insert",
@@ -176,125 +169,21 @@ export const uploadCrimesCSV = async (req, res, next) => {
       }
     }
 
-    // 7) Write upload log as completed
-    await UploadLog.create({
-      filename: originalname,
-      status: "completed",
-      total_records: total,
-      records_uploaded: inserted,
-    });
+    // 7) Log upload
+    await UploadLog.create({ filename: originalname, status: "completed", totalRecords: total, recordsUploaded: inserted });
 
-    // 8) Return summary response
+    // 8) Response
     return res.status(200).json({
       success: true,
       message: "Upload completed",
       stats: { total, inserted, duplicates, invalid },
     });
+
   } catch (err) {
-    // Unexpected error -> write failed log (with minimal info) and return 500
     try {
       const originalname = req.file?.originalname || "upload.csv";
-      await UploadLog.create({
-        filename: originalname,
-        status: "failed",
-        total_records: 0,
-        records_uploaded: 0,
-      });
-    } catch (e) {
-      // ignore
-    }
+      await UploadLog.create({ filename: originalname, status: "failed", totalRecords: 0, recordsUploaded: 0 });
+    } catch {}
     return next(err);
   }
 };
-
-
-// below is file without validation
-
-// controllers/admin/UploadController.js
-// import db from "../../models/index.js";
-// import { parseCSVBuffer } from "../../utils/fileParser.js";
-
-// const Crime = db.Crime;
-// const UploadLog = db.UploadLog;
-
-// export const uploadCrimesCSV = async (req, res, next) => {
-//   try {
-//     if (!req.file || !req.file.buffer) {
-//       return res.status(400).json({ success: false, message: "CSV file missing" });
-//     }
-
-//     const originalname = req.file.originalname || "upload.csv";
-
-//     // 1) Parse CSV buffer (keep this, required for extracting rows)
-//     const { rows: rawRows, parseInvalids, total } = await parseCSVBuffer(req.file.buffer, {
-//       requiredFields: [], // ❌ skip required fields for testing
-//     });
-
-//     // early stats
-//     let invalid = parseInvalids.length;
-//     let inserted = 0;
-//     let duplicates = 0;
-
-//     if (!rawRows.length) {
-//       await UploadLog.create({
-//         filename: originalname,
-//         status: "completed",
-//         total_records: total,
-//         records_uploaded: 0,
-//       });
-//       return res.status(200).json({
-//         success: true,
-//         message: "No rows found in CSV",
-//         stats: { total, inserted: 0, duplicates: 0, invalid },
-//         data: [], // return empty for frontend testing
-//       });
-//     }
-
-//     // ❌ Skip all validations: FK checks, required fields, numeric, date parsing, duplicates
-//     const cleanedRows = rawRows.map((r) => ({
-//       title: r.title?.trim() || null,
-//       description: (r.description ?? "").trim() || null,
-//       crime_type_id: r.crime_type_id ? String(r.crime_type_id).trim() : null,
-//       date: r.date?.trim() || null,
-//       status: r.status?.trim() || "verified",
-//       latitude: r.latitude,
-//       longitude: r.longitude,
-//       address: r.address?.trim() || null,
-//       zone_id: r.zone_id ? String(r.zone_id).trim() : null,
-//     }));
-
-//     // ❌ Skip checking duplicates in DB
-//     // ❌ Skip bulk insert into database (optional: still can simulate insert count)
-//     inserted = cleanedRows.length;
-
-//     // 7) Write upload log as completed
-//     await UploadLog.create({
-//       filename: originalname,
-//       status: "completed",
-//       total_records: total,
-//       records_uploaded: inserted,
-//     });
-
-//     // 8) Return CSV data directly for frontend testing
-//     return res.status(200).json({
-//       success: true,
-//       message: "Upload processed (validation skipped)",
-//       stats: { total, inserted, duplicates, invalid },
-//       data: cleanedRows, // send extracted rows
-//     });
-//   } catch (err) {
-//     try {
-//       const originalname = req.file?.originalname || "upload.csv";
-//       await UploadLog.create({
-//         filename: originalname,
-//         status: "failed",
-//         total_records: 0,
-//         records_uploaded: 0,
-//       });
-//     } catch (e) {
-//       // ignore
-//     }
-//     return next(err);
-//   }
-// };
-
