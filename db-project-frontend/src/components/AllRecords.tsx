@@ -1,7 +1,6 @@
-import Sidebar from "./Sidebar";
+import RecordsTable from "./RecordsTable";
 import GreenButton from "./GreenButton";
 import BackButton from "./BackButton";
-import RecordsTable from "./RecordsTable";
 
 interface AllRecordsProps {
   version: "admin" | "police";
@@ -10,12 +9,7 @@ interface AllRecordsProps {
 export default function AllRecords({ version }: AllRecordsProps) {
   return (
     <section className="flex flex-row h-screen w-full">
-      {/* Sidebar */}
-      <div className="w-[260px] fixed left-0 top-0 h-full p-4">
-        <Sidebar version={version} />
-      </div>
 
-      {/* Main Content */}
       <div className="flex flex-col gap-y-4 pl-76 p-4 w-full overflow-y-auto">
         {/* Top section with title and button */}
         <div className="bg-[#fefefe] p-4 rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.15)] flex flex-col gap-y-4 h-screen">
