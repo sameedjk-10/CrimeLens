@@ -1,6 +1,7 @@
 import Sidebar from "./Sidebar";
 import GreenButton from "./GreenButton";
 import RecordsTable from "./RecordsTable";
+import BackButton from "./BackButton";
 import VerificationCard from "./VerificationCard";
 
 interface AllRecordsProps {
@@ -24,6 +25,9 @@ export default function AllRecords({ version }: AllRecordsProps) {
             <div className="flex flex-col gap-y-2">
               {version === "admin" ? (
                 <>
+                  <div className="flex items-start ">
+                    <BackButton textSize="text-sm" iconSize={16} />
+                  </div>
                   <div className="font-outfit font-semibold text-4xl text-black">
                     Verify New Agent
                   </div>
@@ -34,6 +38,9 @@ export default function AllRecords({ version }: AllRecordsProps) {
                 </>
               ) : (
                 <>
+                  <div className="flex items-start ">
+                    <BackButton textSize="text-sm" iconSize={16} />
+                  </div>
                   <div className="font-outfit font-semibold text-4xl text-black">
                     Verify Report
                   </div>

@@ -1,5 +1,6 @@
 import Sidebar from "./Sidebar";
 import GreenButton from "./GreenButton";
+import BackButton from "./BackButton";
 import RecordsTable from "./RecordsTable";
 
 interface AllRecordsProps {
@@ -23,6 +24,9 @@ export default function AllRecords({ version }: AllRecordsProps) {
             <div className="flex flex-col gap-y-2">
               {version === "admin" ? (
                 <>
+                  <div className="flex items-start ">
+                    <BackButton textSize="text-sm" iconSize={16} />
+                  </div>
                   <div className="font-outfit font-semibold text-4xl text-black">
                     All Agents Records
                   </div>
@@ -33,6 +37,9 @@ export default function AllRecords({ version }: AllRecordsProps) {
                 </>
               ) : (
                 <>
+                  <div className="flex items-start ">
+                    <BackButton textSize="text-sm" iconSize={16} />
+                  </div>
                   <div className="font-outfit font-semibold text-4xl text-black">
                     All Crime Records
                   </div>

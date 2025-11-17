@@ -1,24 +1,21 @@
 import Sidebar from "../components/Sidebar";
-import Dashboard from "../components/Dashboard";
+import ReportCrime from "../components/ReportCrime";
 
-interface DashboardPageProps {
-  version: "admin" | "police" | "user";
-}
 
-const DashboardPage = ({ version }: DashboardPageProps) => {
+const ReportCrimePage = () => {
   return (
     <section className="flex flex-row h-screen overflow-hidden">
 
       {/* LEFT SIDEBAR FIXED */}
       <div className="h-full w-60 fixed left-0 top-0 p-4">
-        <Sidebar version={version} />
+        <Sidebar version="admin"/>
       </div>
 
       {/* RIGHT MAIN CONTENT */}
-      <Dashboard />
+      <ReportCrime />
 
     </section>
   );
 };
 
-export default DashboardPage;
+export default ReportCrimePage;

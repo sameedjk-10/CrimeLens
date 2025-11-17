@@ -1,22 +1,12 @@
-import Sidebar from "./Sidebar";
 import StatsCard from "./StatsCards";
 import MapBackground from "../assets/MapBackground.png";
 import GreenButton from "./GreenButton";
 import ArrowButton from "./ArrowButton";
 
-interface DashboardProps {
-  version: "admin" | "police" | "user";
-}
 
-const Dashboard = ({ version }: DashboardProps) => {
+const Dashboard = () => {
   return (
     <section className="flex flex-row h-screen overflow-hidden">
-
-      {/* LEFT SIDEBAR FIXED */}
-      <div className="h-full w-60 fixed left-0 top-0 p-4">
-        <Sidebar version={version} />
-      </div>
-
       {/* MAIN CONTENT */}
       <div className="flex flex-col gap-y-4 pl-76 p-4 w-full overflow-y-auto">
 
@@ -40,7 +30,7 @@ const Dashboard = ({ version }: DashboardProps) => {
           </div>
 
           {/* STATS CARDS ROW */}
-          <div className="flex gap-x-4">
+          <div className="flex gap-x-4 ml-2">
 
             <StatsCard
               title="Total Crimes"
@@ -48,8 +38,8 @@ const Dashboard = ({ version }: DashboardProps) => {
               subText="Updated from last 30 days"
               bgColor="bg-[#ffffff]"
               gradientBg="linear-gradient(to bottom, #145332, #1C6943, #237E54)"
-              width="w-[250px]"
-              height="h-[160px]"
+              width="w-[280px]"
+              height="h-[170px]"
               mainTextColor="text-[#ffffff]"
               smallTextColor="text-[#D9D9D9]"
               LiveButton={1}
@@ -67,8 +57,8 @@ const Dashboard = ({ version }: DashboardProps) => {
               value={28}
               subText="Updated from last 30 days"
               bgColor="bg-[#ffffff]"
-              width="w-[250px]"
-              height="h-[160px]"
+              width="w-[280px]"
+              height="h-[170px]"
               mainTextColor="text-black"
               smallTextColor="text-[#237E54]"
               LiveButton={1}
@@ -86,8 +76,8 @@ const Dashboard = ({ version }: DashboardProps) => {
               value={28}
               subText="Updated from last 30 days"
               bgColor="bg-[#ffffff]"
-              width="w-[250px]"
-              height="h-[160px]"
+              width="w-[280px]"
+              height="h-[170px]"
               mainTextColor="text-black"
               smallTextColor="text-[#237E54]"
               LiveButton={1}
@@ -105,8 +95,8 @@ const Dashboard = ({ version }: DashboardProps) => {
               value={28}
               subText="Updated from last 30 days"
               bgColor="bg-[#ffffff]"
-              width="w-[250px]"
-              height="h-[160px]"
+              width="w-[280px]"
+              height="h-[170px]"
               mainTextColor="text-black"
               smallTextColor="text-[#237E54]"
               LiveButton={1}
@@ -124,7 +114,7 @@ const Dashboard = ({ version }: DashboardProps) => {
 
         {/* CRIME MAP SECTION */}
         <div
-          className="p-4 rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.5)] h-100"
+          className="p-4 rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.5)] h-110"
           style={{
             backgroundImage: `url(${MapBackground})`,
             backgroundSize: "cover",

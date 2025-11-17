@@ -1,6 +1,8 @@
+import { useState, useEffect } from "react";
 import RedButton from "./RedButton";
 import WhiteButton from "./WhiteButton";
 import GreenButton from "./GreenButton";
+import ConfirmationPopup from "./ConfirmationPopup";
 
 type VerificationCardProps =
   | {
@@ -29,12 +31,50 @@ type VerificationCardProps =
     };
 
 export default function VerificationCard(props: VerificationCardProps) {
+  const [openConfirm, setOpenConfirm] = useState(false);
+
+  // Reject confirm modal for main card
+  const [showRejectConfirm, setShowRejectConfirm] = useState(false);
+
+  // Snackbar (contact copied) visibility
+  const [showSnackbar, setShowSnackbar] = useState(false);
+
+  // Copy contact number to clipboard and show snackbar
+  const handleContactCopy = async () => {
+    const num =
+      props.version === "admin"
+        ? // @ts-ignore - branchContact exists on admin variant
+          (props as any).branchContact
+        : // @ts-ignore - contact exists on police variant
+          (props as any).contact;
+
+    if (num) {
+      try {
+        await navigator.clipboard.writeText(num);
+      } catch {
+        // fallback: create temporary textarea
+        const ta = document.createElement("textarea");
+        ta.value = num;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        ta.remove();
+      }
+    }
+
+    setShowSnackbar(true);
+    setTimeout(() => setShowSnackbar(false), 2500);
+
+    props.onContact?.();
+  };
+
   return (
-    <div className="bg-[#ffffff] rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.08)] p-6 w-full flex flex-col gap-y-3 font-outfit border-2 border-[#d9d9d9]">
-      {/* Admin version */}
+    <div className="bg-[#ffffff] rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.08)] p-6 w-full flex flex-col gap-y-3 font-outfit border-2 border-[#d9d9d9] relative">
+      {/* Admin Version */}
       {props.version === "admin" ? (
         <>
-          <h3 className="font-semibold text-gray-700 ">Agent Info:</h3>
+          <h3 className="font-semibold text-gray-700 mb-2">Agent Info:</h3>
+
           <div className="grid grid-cols-2 gap-y-3 text-sm text-gray-800">
             <p>
               <span className="font-semibold">Branch ID:</span> {props.branchId}
@@ -53,19 +93,15 @@ export default function VerificationCard(props: VerificationCardProps) {
               <span className="font-semibold">Request Date:</span>{" "}
               {props.requestDate}
             </p>
-            <p>
-              <span className="font-semibold">Date:</span> {props.requestDate}
-            </p>
           </div>
         </>
       ) : (
-        /* Police version */
         <>
+          {/* Police Version */}
           <h3 className="font-semibold text-[#7d7d7d]">Personal Info:</h3>
           <div className="grid grid-cols-2 gap-y-3 text-sm text-gray-800">
             <p>
-              <span className="font-semibold">Full Name:</span>{" "}
-              {props.fullName}
+              <span className="font-semibold">Full Name:</span> {props.fullName}
             </p>
             <p>
               <span className="font-semibold">CNIC:</span> {props.cnic}
@@ -75,13 +111,12 @@ export default function VerificationCard(props: VerificationCardProps) {
             </p>
           </div>
 
-          <hr className="my-4 border-t-2 border-[#d9d9d9] " />
+          <hr className="my-4 border-t-2 border-[#d9d9d9]" />
 
-          <h3 className="font-semibold text-[#7d7d7d] ">Crime Info:</h3>
+          <h3 className="font-semibold text-[#7d7d7d]">Crime Info:</h3>
           <div className="grid grid-cols-2 gap-y-3 text-sm text-gray-800">
             <p>
-              <span className="font-semibold">Crime Type:</span>{" "}
-              {props.crimeType}
+              <span className="font-semibold">Crime Type:</span> {props.crimeType}
             </p>
             <p>
               <span className="font-semibold">Date:</span> {props.date}
@@ -103,12 +138,130 @@ export default function VerificationCard(props: VerificationCardProps) {
           label="Contact for Verification"
           width={300}
           height={45}
+          onClick={handleContactCopy}
         />
         <div className="flex gap-2">
-          <RedButton label="Reject" width={200} height={45}/>
-          <GreenButton label="Approve" width={200} height={45 }/>
+          <RedButton
+            label="Reject"
+            width={200}
+            height={45}
+            onClick={() => setShowRejectConfirm(true)}
+          />
+          <GreenButton
+            label="Approve"
+            width={200}
+            height={45}
+            onClick={() => setOpenConfirm(true)}
+          />
         </div>
       </div>
+
+      {/* Approve popup (keeps your original behavior) */}
+      <ConfirmationPopup
+        {...props} // contains version and the rest
+        isOpen={openConfirm}
+        onClose={() => setOpenConfirm(false)}
+        onApprove={(updatedValues) => {
+          console.log("APPROVED WITH:", updatedValues);
+          props.onApprove?.();
+          setOpenConfirm(false);
+        }}
+        onReject={() => {
+          props.onReject?.();
+          setOpenConfirm(false);
+        }}
+      />
+
+      {/* Reject confirm modal (for main card Reject button) */}
+      {showRejectConfirm && (
+        <div className="fixed inset-0 bg-black/30 flex justify-center items-center z-40">
+          <div className="bg-white p-6 rounded-xl shadow-lg w-[380px] animate-fadeIn">
+            <h3 className="text-xl font-semibold mb-4 text-gray-700">
+              Are you sure you want to reject?
+            </h3>
+
+            <div className="flex justify-end gap-2">
+              <WhiteButton
+                label="Cancel"
+                width={120}
+                height={40}
+                onClick={() => setShowRejectConfirm(false)}
+              />
+              <RedButton
+                label="Reject"
+                width={120}
+                height={40}
+                onClick={() => {
+                  props.onReject?.();
+                  setShowRejectConfirm(false);
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Top-right white snackbar (slides in/out) */}
+      <div
+        className={`fixed top-6 right-[-420px] z-50 transition-all duration-500 ease-out`}
+        style={{
+          right: showSnackbar ? 20 : -420,
+        }}
+        aria-hidden={!showSnackbar}
+      >
+        <div
+          className="bg-white shadow-[0_0_5px_rgba(0,0,0,0.08)] rounded-xl px-6 py-5 flex flex-col items-center"
+          style={{ minWidth: 220 }}
+        >
+          {/* green circled check */}
+          <div
+            className="flex items-center justify-center rounded-full"
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: 999,
+              border: "3px solid #16a34a", // green border
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              
+              background: "#fff",
+            }}
+          >
+            {/* simple check svg */}
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 22"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M20 6L9 17L4 12"
+                stroke="#16a34a"
+                strokeWidth="4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+
+          <div className="mt-2 text-sm text-gray-800 font-medium">
+            Contact No. copied to clipboard.
+          </div>
+        </div>
+      </div>
+
+      {/* minor keyframe for reject modal fade (kept local) */}
+      <style>{`
+        .animate-fadeIn {
+          animation: fadeIn 0.18s ease-out;
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(6px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </div>
   );
 }
