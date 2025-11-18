@@ -1,16 +1,18 @@
 import { Routes, Route } from "react-router-dom";
-import DashboardPage from "./pages/DashboardPage";
+import DashboardPage from "./pages/DashboardPage/";
 import StatisticsPage from "./pages/StatisticsPage";
 import ReportCrimePage from "./pages/ReportCrimePage";
 import VerificationPage from "./pages/VerificationPage";
 import AllRecordsPage from "./pages/AllRecordsPage";
+import LoginPage from "./pages/LoginPage";
+import HomePage from "./pages/HomePage";
 
 
 
 function App() {
   return (
     
-    <AllRecordsPage version="admin"/>
+    <HomePage/>
 
     /*<Routes>
        {/*Default route → show HomePage 
