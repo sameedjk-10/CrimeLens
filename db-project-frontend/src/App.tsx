@@ -1,5 +1,7 @@
+import Dashboard from "./components/Dashboard";
+import AllRecords from "./components/AllRecords";
+import UploadPage from "./pages/UploadPage";
 import { Routes, Route } from "react-router-dom";
-import DashboardPage from "./pages/DashboardPage/";
 import StatisticsPage from "./pages/StatisticsPage";
 import ReportCrimePage from "./pages/ReportCrimePage";
 import VerificationPage from "./pages/VerificationPage";
@@ -11,12 +13,15 @@ import HomePage from "./pages/HomePage";
 
 function App() {
   return (
-    
-    <HomePage/>
+    <Routes>
+      {/* Default route → show HomePage */}
+      {/* <Route path="/" element={<HomePage />} /> */}
+      <AllRecordsPage version="admin" />
 
-    /*<Routes>
-       {/*Default route → show HomePage 
+
+      {/*Default route → show HomePage  */}
       <Route path="/" element={<HomePage />} />
+
       <Route path="/login" element={<LoginPage />} />
       <Route path="/dashboard" element={<Dashboard/>} />
       <Route path="/admin-login" element={<AdminLogin />} />
@@ -24,8 +29,13 @@ function App() {
       <Route path="/add-police-agent" element={<AddPoliceAgent />} />
       <Route path="/upload-crimes" element={<UploadPage version="admin" />} />
       <Route path="/upload-crimes-police" element={<UploadPage version="police" />} />
+      <Route path="/verification" element={<VerificationPage version="police"/>} />
+      <Route path="/statistics" element={<StatisticsPage version="police"/>} />
+      <Route path="/report-crime" element={<ReportCrimePage />} />
+      <Route path="/all-records" element={<AllRecords version="admin"/>} />
+      
 
-  </Routes> */
+    </Routes>
 
   );
 }

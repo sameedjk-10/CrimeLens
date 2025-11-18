@@ -2,20 +2,41 @@
 import { parse } from "fast-csv";
 
 /**
+ * Convert CSV header to canonical key
+ */
+function toCanonicalKey(h) {
+  if (!h) return h;
+  const s = h.replace(/^\uFEFF/, '').trim();
+  const map = {
+    'crimetypeid': 'crimeTypeId',
+    'crimetype': 'crimeTypeId',
+    'crime_type_id': 'crimeTypeId',
+    'crime type id': 'crimeTypeId',
+    'zoneid': 'zoneId',
+    'zone_id': 'zoneId',
+    'zone id': 'zoneId',
+    'reportedat': 'reportedAt',
+    'incidentdate': 'incidentDate',
+  };
+  const key = s.toLowerCase().replace(/[\s_-]+/g, '');
+  return map[key] || s.replace(/\s+/g, '').replace(/_+/g, '');
+}
+
+/**
  * parseCSVBuffer
  * @param {Buffer} buffer - req.file.buffer from multer.memoryStorage
  * @param {Object} options
- *   options.requiredFields = [ 'title', 'crime_type_id', 'date', 'latitude', 'longitude', 'zone_id' ]
+ *   options.requiredFields = [ 'title', 'crimeTypeId', 'incidentDate', 'reportedAt', 'latitude', 'longitude', 'zoneId' ]
  * @returns {Promise<{rows: Array, parseInvalids: Array, total: number}>}
  */
 export function parseCSVBuffer(buffer, options = {}) {
   const requiredFields = options.requiredFields || [
     "title",
-    "crime_type_id",
-    "date",
+    "crimeTypeId",
+    "incidentDate",
+    "reportedAt",
     "latitude",
     "longitude",
-    "zone_id",
   ];
 
   return new Promise((resolve, reject) => {
@@ -24,14 +45,25 @@ export function parseCSVBuffer(buffer, options = {}) {
     let total = 0;
 
     const stream = parse({ headers: true, trim: true, ignoreEmpty: true })
-      .on("error", (err) => {
-        return reject(err);
+      .on("error", (err) => reject(err))
+      .on("headers", (headers) => {
+        // build header map for canonicalization
+        stream.headerMap = {};
+        headers.forEach((h) => {
+          const canonical = toCanonicalKey(h);
+          stream.headerMap[h] = canonical;
+        });
       })
-      .on("data", (row) => {
+      .on("data", (rawRow) => {
         total += 1;
-        // Normalize keys: keep as-is (CSV headers should match expected)
-        // Basic trimming already done by fast-csv 'trim: true'
-        // Check required fields presence (not deep validation)
+        // normalize row keys using headerMap
+        const row = {};
+        for (const key of Object.keys(rawRow)) {
+          const canonical = (stream.headerMap && stream.headerMap[key]) || key;
+          row[canonical] = rawRow[key];
+        }
+
+        // required fields presence check
         const missing = requiredFields.filter((f) => {
           const v = (row[f] ?? "").toString().trim();
           return v === "";
@@ -42,12 +74,10 @@ export function parseCSVBuffer(buffer, options = {}) {
           return;
         }
 
-        // Push normalized row
         rows.push(row);
       })
-      .on("end", (rowCount) => resolve({ rows, parseInvalids, total }));
+      .on("end", () => resolve({ rows, parseInvalids, total }));
 
-    // pipe the buffer into csv parser
     stream.write(buffer);
     stream.end();
   });
