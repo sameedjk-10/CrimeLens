@@ -1,109 +1,95 @@
-// // MapViewPage/components/MapContext.tsx
-// import React, { createContext, useState } from "react";
-// import type { ReactNode } from "react";
-
-// // Types for your context
-// interface FilterType {
-//   crimeType?: string;
-//   zone?: string;
-//   dateFrom?: string;
-//   dateTo?: string;
-// }
-
-// interface ToggleLayersType {
-//   heatmap: boolean;
-//   highlightZones: boolean;
-// }
-
-// interface MapContextType {
-//   filters: FilterType;
-//   setFilters: (filters: FilterType) => void;
-//   radiusMode: boolean;
-//   setRadiusMode: (mode: boolean) => void;
-//   radiusValue: number;
-//   setRadiusValue: (value: number) => void;
-//   toggleLayers: ToggleLayersType;
-//   setToggleLayers: (layers: ToggleLayersType) => void;
-//   crimeData: any[];
-//   setCrimeData: (data: any[]) => void;
-//   zonesData: any[];
-//   setZonesData: (data: any[]) => void;
-// }
-
-// // Default values
-// const defaultContext: MapContextType = {
-//   filters: {},
-//   setFilters: () => {},
-//   radiusMode: false,
-//   setRadiusMode: () => {},
-//   radiusValue: 500,
-//   setRadiusValue: () => {},
-//   toggleLayers: { heatmap: false, highlightZones: false },
-//   setToggleLayers: () => {},
-//   crimeData: [],
-//   setCrimeData: () => {},
-//   zonesData: [],
-//   setZonesData: () => {},
-// };
-
-// export const MapContext = createContext<MapContextType>(defaultContext);
-
-// interface Props {
-//   children: ReactNode;
-// }
-
-// export const MapProvider: React.FC<Props> = ({ children }) => {
-//   const [filters, setFilters] = useState<FilterType>({});
-//   const [radiusMode, setRadiusMode] = useState<boolean>(false);
-//   const [radiusValue, setRadiusValue] = useState<number>(500);
-//   const [toggleLayers, setToggleLayers] = useState<ToggleLayersType>({
-//     heatmap: false,
-//     highlightZones: false,
-//   });
-//   const [crimeData, setCrimeData] = useState<any[]>([]);
-//   const [zonesData, setZonesData] = useState<any[]>([]);
-
-//   return (
-//     <MapContext.Provider
-//       value={{
-//         filters,
-//         setFilters,
-//         radiusMode,
-//         setRadiusMode,
-//         radiusValue,
-//         setRadiusValue,
-//         toggleLayers,
-//         setToggleLayers,
-//         crimeData,
-//         setCrimeData,
-//         zonesData,
-//         setZonesData,
-//       }}
-//     >
-//       {children}
-//     </MapContext.Provider>
-//   );
-// };
-
 // MapViewPage/components/MapContext.tsx
 import React, { createContext, useState } from "react";
 import type { Crime } from "./types";
 
+export interface MapFilters {
+  crimeType: string;
+  zoneId: string;
+  dateRange: {
+    start: string;
+    end: string;
+  };
+}
+
 interface MapContextType {
+  // Filters
+  filters: MapFilters;
+  setFilters: React.Dispatch<React.SetStateAction<MapFilters>>;
+
+  // Radius Search Controls
+  radiusMode: boolean;
+  setRadiusMode: React.Dispatch<React.SetStateAction<boolean>>;
+
+  radiusValue: number;
+  setRadiusValue: React.Dispatch<React.SetStateAction<number>>;
+
+  // Radius center (click point)
+  radiusCenter: { lat: number; lng: number } | null;
+  setRadiusCenter: React.Dispatch<
+    React.SetStateAction<{ lat: number; lng: number } | null>
+  >;
+
+  // Crime Data
   crimeData: Crime[];
   setCrimeData: React.Dispatch<React.SetStateAction<Crime[]>>;
 }
 
 export const MapContext = createContext<MapContextType>({
+  // Default values
+  filters: {
+    crimeType: "",
+    zoneId: "",
+    dateRange: { start: "", end: "" },
+  },
+  setFilters: () => {},
+
+  radiusMode: false,
+  setRadiusMode: () => {},
+
+  radiusValue: 500,
+  setRadiusValue: () => {},
+
+  radiusCenter: null,
+  setRadiusCenter: () => {},
+
   crimeData: [],
   setCrimeData: () => {},
 });
 
-export const MapProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const MapProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const [filters, setFilters] = useState<MapFilters>({
+    crimeType: "",
+    zoneId: "",
+    dateRange: { start: "", end: "" },
+  });
+
+  const [radiusMode, setRadiusMode] = useState<boolean>(false);
+  const [radiusValue, setRadiusValue] = useState<number>(500);
+
+  const [radiusCenter, setRadiusCenter] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
+
   const [crimeData, setCrimeData] = useState<Crime[]>([]);
 
   return (
-    <MapContext.Provider value={{ crimeData, setCrimeData }}>
+    <MapContext.Provider
+      value={{
+        filters,
+        setFilters,
+        radiusMode,
+        setRadiusMode,
+        radiusValue,
+        setRadiusValue,
+        radiusCenter,
+        setRadiusCenter,
+        crimeData,
+        setCrimeData,
+      }}
+    >
       {children}
     </MapContext.Provider>
   );

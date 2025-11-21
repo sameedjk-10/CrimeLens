@@ -1,31 +1,10 @@
-// // MapViewPage/index.tsx
-// import React from "react";
-// import MapContainer from "./components/MapContainer";
-// import { MapProvider } from "./components/MapContext";
-
-// // Leaflet base CSS
-// import "leaflet/dist/leaflet.css";
-
-// // MarkerCluster official CSS
-// import "leaflet.markercluster/dist/MarkerCluster.css";
-// import "leaflet.markercluster/dist/MarkerCluster.Default.css";
-
-// const MapPage: React.FC = () => {
-//   return (
-//     <MapProvider>
-//       <MapContainer />
-//     </MapProvider>
-//   );
-// };
-
-// export default MapPage;
-
 // MapViewPage/index.tsx
 import { useEffect, useContext } from "react";
 import MapContainer from "./components/MapContainer";
 import CrimeMarkersClusters from "./components/CrimeMarkerCluster";
 import { MapProvider, MapContext } from "./components/MapContext";
 import type { Crime } from "./components/types";
+import SearchBar from "./components/SearchBar"
 
 import "leaflet/dist/leaflet.css";
 import "../../assets/leaflet/MarkerCluster.Default.css";
@@ -73,6 +52,7 @@ const MapPage = () => {
   return (
     <MapProvider>
       <MapContainer>
+        <SearchBar />
         <MapContent />
       </MapContainer>
     </MapProvider>
