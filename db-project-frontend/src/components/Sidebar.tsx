@@ -3,10 +3,11 @@ import LogowithText from "../assets/LogowithText.svg";
 import GreenButton from "./GreenButton";
 import { ICONS } from "../assets/icons";
 import MeetCreatorsCard from "./MeetCreatorsCards";
+import { useNavigate } from "react-router-dom";
 
 interface SidebarProps {
   version?: "admin" | "police" | "user";
-  onNavigate?: (route: string) => void;
+  setPath?: (path: string) => void; // Changed this
 }
 
 interface MenuItem {
@@ -16,8 +17,11 @@ interface MenuItem {
   route: string;
 }
 
-const Sidebar = ({ version, onNavigate }: SidebarProps) => {
+const Sidebar = ({ version, setPath }: SidebarProps) => {
   const [activeItem, setActiveItem] = useState<string>("Dashboard");
+  const [activePath, setActivePath] = useState<string>("");
+
+  const navigate = useNavigate();
 
   // Reset active item to Dashboard when version changes
   useEffect(() => {
@@ -36,31 +40,37 @@ const Sidebar = ({ version, onNavigate }: SidebarProps) => {
       label: "Verify Agent",
       icon: ICONS.VerifyAgentIcon,
       activeIcon: ICONS.VerifyAgentIcon_Active,
-      route: "/verify-agent",
+      route: "/verification",
     },
     {
       label: "Agent Records",
       icon: ICONS.AgentRecordsIcon,
       activeIcon: ICONS.AgentRecordsIcon_Active,
-      route: "/agent-records",
+      route: "/all-records",
     },
     {
       label: "Verify Report",
       icon: ICONS.VerifyReportIcon,
       activeIcon: ICONS.VerifyReportIcon_Active,
-      route: "/verify-report",
+      route: "/verification",
     },
     {
       label: "Crime Records",
       icon: ICONS.CrimeRecordsIcon,
       activeIcon: ICONS.CrimeRecordsIcon_Active,
-      route: "/crime-records",
+      route: "/all-records",
     },
     {
       label: "Report Crime",
       icon: ICONS.ReportCrimeIcon,
       activeIcon: ICONS.ReportCrimeIcon_Active,
       route: "/report-crime",
+    },
+    {
+      label: "Upload Data",
+      icon: ICONS.UploadDataIcon,
+      activeIcon: ICONS.UploadDataIcon_Active,
+      route: "/upload",
     },
     {
       label: "Give Feedback",
@@ -75,13 +85,19 @@ const Sidebar = ({ version, onNavigate }: SidebarProps) => {
 
   if (version === "admin")
     filteredMenus = allMenus.filter((m) =>
-      ["Dashboard", "Verify Agent", "Agent Records"].includes(m.label)
+      ["Dashboard", "Verify Agent", "Agent Records", "Upload Data"].includes(
+        m.label
+      )
     );
   else if (version === "police")
     filteredMenus = allMenus.filter((m) =>
-      ["Dashboard", "Verify Report", "Crime Records", "Give Feedback"].includes(
-        m.label
-      )
+      [
+        "Dashboard",
+        "Verify Report",
+        "Crime Records",
+        "Upload Data",
+        "Give Feedback",
+      ].includes(m.label)
     );
   else if (version === "user")
     filteredMenus = allMenus.filter((m) =>
@@ -92,7 +108,7 @@ const Sidebar = ({ version, onNavigate }: SidebarProps) => {
     version === "admin" || version === "police" ? "Logout" : "Back to Home";
 
   return (
-    <div className="flex flex-col justify-between h-170 w-68 bg-[#fefefe] rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.15)] py-4 px-4 fixed">
+    <div className="flex flex-col justify-between h-178 w-68 bg-[#fefefe] rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.15)] py-4 px-4 fixed">
       {/* Top Section */}
       <div>
         {/* Logo */}
@@ -111,7 +127,8 @@ const Sidebar = ({ version, onNavigate }: SidebarProps) => {
               key={item.label}
               onClick={() => {
                 setActiveItem(item.label);
-                onNavigate?.(item.route);
+                setPath?.(item.route); // This will now call handleNavigation directly
+                setActivePath(item.route);
               }}
               className={`flex items-center gap-3 px-3 py-2 rounded-xl text-sm transition-all duration-200 cursor-pointer ${
                 activeItem === item.label
@@ -125,7 +142,7 @@ const Sidebar = ({ version, onNavigate }: SidebarProps) => {
                 className="w-5 h-5"
               />
               {item.label}
-              {activeItem === item.label && (
+              {activePath === item.route && (
                 <div className="ml-auto h-5 w-1 bg-[#237E54] rounded-full"></div>
               )}
             </button>
@@ -137,7 +154,16 @@ const Sidebar = ({ version, onNavigate }: SidebarProps) => {
 
         {/* Green Button */}
         <div className="flex justify-center">
-          <GreenButton label={buttonText} width={220} />
+          <GreenButton
+            label={buttonText}
+            width={220}
+            onClick={() => {
+              if (buttonText === "Logout") {
+                localStorage.removeItem("token");
+                navigate('/');
+              }
+            }}
+          />
         </div>
       </div>
 

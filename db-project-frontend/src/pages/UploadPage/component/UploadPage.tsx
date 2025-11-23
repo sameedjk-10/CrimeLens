@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import axios from "axios";
-import UploadFile from "./component";
+import UploadFile from "..";
 import { toast, Toaster } from "react-hot-toast";
 
 const UploadPage: React.FC<{ version: "admin" | "police" }> = ({ version }) => {

@@ -1,23 +1,13 @@
 import Sidebar from "../../components/Sidebar";
 import Dashboard from "./component/Dashboard";
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { type RootState } from "../../store";
 
-interface DashboardPageProps {
-  version?: "admin" | "police" | "user";
-}
+const DashboardPage = () => {
 
-const DashboardPage = ({ version }: DashboardPageProps) => {
   return (
-    <section className="flex flex-row h-screen overflow-hidden">
-
-      {/* LEFT SIDEBAR FIXED */}
-      <div className="h-full w-60 fixed left-0 top-0 p-4">
-        <Sidebar version={version} />
-      </div>
-
-      {/* RIGHT MAIN CONTENT */}
-      <Dashboard />
-
-    </section>
+      <Dashboard/>
   );
 };
 

@@ -1,12 +1,17 @@
 import RecordsTable from "./RecordsTable";
 import GreenButton from "../../../components/GreenButton";
 import BackButton from "../../../components/BackButton";
+import { useNavigate } from "react-router-dom";
+
 
 interface AllRecordsProps {
-  version: "admin" | "police";
+  version: "admin" | "police" | "user";
 }
 
 export default function AllRecords({ version }: AllRecordsProps) {
+
+  const navigate = useNavigate();
+
   return (
     <section className="flex flex-row h-screen w-full">
 
@@ -18,9 +23,6 @@ export default function AllRecords({ version }: AllRecordsProps) {
             <div className="flex flex-col gap-y-2">
               {version === "admin" ? (
                 <>
-                  <div className="flex items-start ">
-                    <BackButton textSize="text-sm" iconSize={16} />
-                  </div>
                   <div className="font-outfit font-semibold text-4xl text-black">
                     All Agents Records
                   </div>

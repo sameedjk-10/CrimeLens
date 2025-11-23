@@ -1,37 +1,76 @@
 import { useState } from "react";
-import { ArrowLeft } from "lucide-react"; // back arrow
+import { useLocation, useNavigate } from "react-router-dom";
 import LogowithText from "../../../assets/LogowithText.svg";
 import GreenButton from "../../../components/GreenButton";
 import MainBackground from "../../../assets/MainBackground.png";
 import PasswordSeeIcon from "../../../assets/PasswodSeeIcon.svg";
 import PasswordHideIcon from "../../../assets/PasswodHideIcon.svg";
-import InstructionIcon from "../../../assets/InstructionIcon.svg";
-import { useNavigate } from "react-router-dom";
 import BackButton from "../../../components/BackButton";
+import { useDispatch } from "react-redux";
+import { setRole } from "../../../store/features/current_role";
 
-const LoginCreate = () => {
-  // password visibility states
+const LoginAdminPolice = () => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
+  const [error, setError] = useState("");
+
+  
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const location = useLocation();
+  const verify_role = location.state.role;
 
-  const NavigateHome = () => {
-    navigate("/");
-  };
 
   const NavigateLogin = () => {
     navigate("/login");
   };
+
+  const NavigateDashboard = () => {
+    navigate("/dashboard");
+  };
+
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+    setError("");
+    console.log("frontend")
+  
+    try {
+      const response = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password, verify_role }),
+      });
+      console.log("hello")
+  
+      const data = await response.json();
+  
+      if (response.ok && data.success) {
+        // Store token if needed
+        localStorage.setItem("token", data.token);
+  
+        // 🔥🔥 SET ROLE IN REDUX GLOBAL STATE
+        dispatch(setRole(data.user.role));
+  
+        // Navigate to dashboard
+        NavigateDashboard();
+      } else {
+        setError(data.message || "Login failed");
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      setError("Server error. Try again later.");
+    }
+  };
+  
 
   return (
     <section
       className="flex items-center justify-center min-h-screen bg-cover bg-center"
       style={{ backgroundImage: `url(${MainBackground})` }}
     >
-      {/* White Card */}
       <div className="bg-white rounded-3xl shadow-xl flex flex-col px-8 py-8 w-11/12 max-w-md space-y-4 md:space-y-6">
-        {/* Back Arrow */}
         <div className="flex items-center text-[#145332] cursor-pointer text-sm">
           <div className="flex items-start" onClick={NavigateLogin}>
             <BackButton textSize="text-sm" iconSize={16} />
@@ -39,35 +78,33 @@ const LoginCreate = () => {
         </div>
 
         <div className="flex items-center flex-col md:space-y-6">
-          {/* Logo */}
           <div className="flex justify-center ">
-            <img src={LogowithText} alt="CrimeLens" className="w-44 md:w-52 " />
+            <img src={LogowithText} alt="CrimeLens" className="w-44 md:w-52" />
           </div>
-
-          {/* Title */}
+          
           <h2 className="text-center font-outfit font-medium text-[#145332] text-md">
-            Creating a new Police Agent
+            Login as an {location.state.role}
           </h2>
         </div>
 
-        {/* Form */}
-        <form className="flex flex-col w-full space-y-4">
-          <input
-            type="text"
-            placeholder="Branch ID"
-            className="border-2 border-[#d9d9d9] text-[#ababab] rounded-lg px-4 py-2 font-outfit text-sm focus:outline-none focus:border-[#237E54]"
-          />
+        <form
+          className="flex flex-col w-full space-y-4"
+          onSubmit={handleSubmit}
+        >
           <input
             type="text"
             placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             className="border-2 border-[#d9d9d9] text-[#ababab] rounded-lg px-4 py-2 font-outfit text-sm focus:outline-none focus:border-[#237E54]"
           />
 
-          {/* Password */}
           <div className="relative">
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className="border-2 border-[#d9d9d9] text-[#ababab] rounded-lg px-4 py-2 w-full font-outfit text-sm focus:outline-none focus:border-[#237E54]"
             />
             <span
@@ -81,43 +118,13 @@ const LoginCreate = () => {
             </span>
           </div>
 
-          {/* Confirm Password */}
-          <div className="relative">
-            <input
-              type={showConfirm ? "text" : "password"}
-              placeholder="Confirm Password"
-              className="border-2 border-[#d9d9d9] text-[#ababab] rounded-lg px-4 py-2 w-full font-outfit text-sm focus:outline-none focus:border-[#237E54]"
-            />
-            <span
-              onClick={() => setShowConfirm(!showConfirm)}
-              className="absolute right-3 top-2 text-gray-400 cursor-pointer"
-            >
-              <img
-                src={showConfirm ? PasswordHideIcon : PasswordSeeIcon}
-                alt="toggle confirm password visibility"
-              />
-            </span>
-          </div>
+          {error && <p className="text-red-500 text-sm">{error}</p>}
 
-          {/* Info Box */}
-          <div className="flex items-center gap-3 border-2 border-[#00A6FB] bg-[#F1F9FF] rounded-lg p-3">
-            <img
-              src={InstructionIcon}
-              alt="Info"
-              className="w-7 h-7 shrink-0 self-center"
-            />
-            <p className="text-sm text-[#00A6FB] font-outfit font-medium leading-snug">
-              Submit request and then wait for manual verification call to
-              finalize creation of a new agent for your branch.
-            </p>
-          </div>
-
-          {/* Submit Button */}
-          <GreenButton label="Submit Request" onClick={NavigateHome} />
+          <GreenButton type="submit" label="Login" />
         </form>
       </div>
     </section>
   );
 };
 
-export default LoginCreate;
+export default LoginAdminPolice;

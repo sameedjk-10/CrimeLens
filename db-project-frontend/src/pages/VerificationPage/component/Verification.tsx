@@ -1,11 +1,16 @@
 import BackButton from "../../../components/BackButton";
 import VerificationCard from "./VerificationCard";
+import { useNavigate } from "react-router-dom";
+
 
 interface AllRecordsProps {
-  version: "admin" | "police";
+  version: "admin" | "police" | "user";
 }
 
 export default function AllRecords({ version }: AllRecordsProps) {
+
+  const navigate = useNavigate();
+
   return (
     <section className="flex flex-row h-screen w-full">
     

@@ -1,8 +1,8 @@
 // src/components/UploadFile.tsx
 import React from "react";
-import Sidebar from "../../../components/Sidebar";
-import GreenButton from "../../../components/GreenButton"; // ✅ import your button component
-import WhiteButton from "../../../components/WhiteButton"; // ✅ import your button component
+import Sidebar from "../../components/Sidebar";
+import GreenButton from "../../components/GreenButton"; // ✅ import your button component
+import WhiteButton from "../../components/WhiteButton"; // ✅ import your button component
 
 interface UploadFileProps {
     fileName: string | null;

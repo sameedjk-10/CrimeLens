@@ -1,42 +1,51 @@
-import Dashboard from "./components/Dashboard";
-import AllRecords from "./components/AllRecords";
-import UploadPage from "./pages/UploadPage";
-import { Routes, Route } from "react-router-dom";
-import StatisticsPage from "./pages/StatisticsPage";
-import ReportCrimePage from "./pages/ReportCrimePage";
-import VerificationPage from "./pages/VerificationPage";
-import AllRecordsPage from "./pages/AllRecordsPage";
-import LoginPage from "./pages/LoginPage";
-import HomePage from "./pages/HomePage";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { PublicRoutes, ProtectedRoutes } from "./routes/index";
+import PageLayout from "./layouts/page-layouts";
 
+const useAuth = () => {
+  const isAuthenticated = localStorage.getItem("token") !== null;
+  return { isAuthenticated };
+};
 
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { isAuthenticated } = useAuth();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  return <>{children}</>;
+};
 
 function App() {
+  const publicRoutes = PublicRoutes();
+  const protectedRoutes = ProtectedRoutes();
+
   return (
-    <Routes>
-      {/* Default route → show HomePage */}
-      {/* <Route path="/" element={<HomePage />} /> */}
-      <AllRecordsPage version="admin" />
+    <BrowserRouter>
+      <Routes>
+        {/* PUBLIC ROUTES (No Layout) */}
+        <Route element={<PageLayout />}>
 
+        {publicRoutes.map((route) => (
+          <Route key={route.path} path={route.path} element={route.element} />
+        ))}
+        </Route>
 
-      {/*Default route → show HomePage  */}
-      <Route path="/" element={<HomePage />} />
+        {/* PROTECTED ROUTES (With Layout + Sidebar) */}
+        <Route element={<ProtectedRoute><PageLayout /></ProtectedRoute>}>
+          {protectedRoutes.map((route) => (
+            <Route 
+              key={route.path} 
+              path={route.path} 
+              element={route.element} 
+            />
+          ))}
+        </Route>
 
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/dashboard" element={<Dashboard/>} />
-      <Route path="/admin-login" element={<AdminLogin />} />
-      <Route path="/police-login" element={<PoliceLogin />} />
-      <Route path="/add-police-agent" element={<AddPoliceAgent />} />
-      <Route path="/upload-crimes" element={<UploadPage version="admin" />} />
-      <Route path="/upload-crimes-police" element={<UploadPage version="police" />} />
-      <Route path="/verification" element={<VerificationPage version="police"/>} />
-      <Route path="/statistics" element={<StatisticsPage version="police"/>} />
-      <Route path="/report-crime" element={<ReportCrimePage />} />
-      <Route path="/all-records" element={<AllRecords version="admin"/>} />
-      
-
-    </Routes>
-
+        {/* 404 fallback */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

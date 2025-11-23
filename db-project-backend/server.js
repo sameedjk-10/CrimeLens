@@ -6,6 +6,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import db from "./models/index.js"; // Import centralized model loader
 import adminRoutes from "./routes/adminRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 
 dotenv.config();
 
@@ -17,6 +18,7 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use("/api/admin", adminRoutes);
+app.use("/api/auth", authRoutes);
 
 // Destructure sequelize from db
 const { sequelize } = db;
@@ -45,9 +47,6 @@ const startServer = async () => {
 
 // Run the async startup
 startServer();
-
-import authRoutes from "./routes/authRoutes.js";
-app.use("/api/auth", authRoutes);
 
 // ✅ Handle any unhandled promise rejections
 process.on("unhandledRejection", (err) => {

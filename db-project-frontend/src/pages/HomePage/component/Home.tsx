@@ -1,15 +1,23 @@
+import { useNavigate } from "react-router-dom";
 import LogowithText from "../../../assets/LogowithText.svg";
 import MainBackground from "../../../assets/MainBackground.png";
 import GreenButton from "../../../components/GreenButton";
 import WhiteButton from "../../../components/WhiteButton";
 
-type HomeProps = {
-  onPublicAccess?: () => void;
-  onLogin?: () => void;
-};
 
 
-const Home = ({ onPublicAccess, onLogin }: HomeProps) => {
+
+const Home = () => {
+  const navigate = useNavigate();
+
+  const NavigateLogin = () => {
+    navigate('/login');
+  }
+
+  const NavigateDashboard = () => {
+    navigate('/dashboard')
+  }
+
   return (
     <section className="flex flex-col md:flex-row items-center justify-between min-h-screen bg-white">
       {/* Left Section */}
@@ -44,12 +52,12 @@ const Home = ({ onPublicAccess, onLogin }: HomeProps) => {
           <GreenButton
             label="Proceed as a Public User"
             width={350}
-            onClick={onPublicAccess} // ✅ added
+            onClick={NavigateDashboard} // ✅ added
           />
           <WhiteButton
             label="Login"
             width={100}
-            onClick={onLogin} // ✅ added
+            onClick={NavigateLogin} // ✅ added
           />
         </div>
 

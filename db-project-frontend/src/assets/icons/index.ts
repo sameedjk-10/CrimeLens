@@ -13,6 +13,8 @@ import CrimeRecordsIcon_Active from "./CrimeRecordsIcon_Active.svg"
 import GiveFeedbackIcon from "./GiveFeedbackIcon.svg"
 import GiveFeedbackIcon_Active from "./GiveFeedbackIcon_Active.svg"
 import StatsCardLive_Icon from "./StatsCardLive_Icon.svg"
+import UploadDataIcon from "./UploadDataIcon.svg"
+import UploadDataIcon_Active from "./UploadDataIcon_Active.svg"
 
 export const ICONS = {DashboardIcon, DashboardIcon_Active,
     ReportCrimeIcon, ReportCrimeIcon_Active,
@@ -21,5 +23,6 @@ export const ICONS = {DashboardIcon, DashboardIcon_Active,
     AgentRecordsIcon, AgentRecordsIcon_Active,
     CrimeRecordsIcon, CrimeRecordsIcon_Active,
     GiveFeedbackIcon, GiveFeedbackIcon_Active,
-    StatsCardLive_Icon
+    StatsCardLive_Icon, 
+    UploadDataIcon, UploadDataIcon_Active
 }

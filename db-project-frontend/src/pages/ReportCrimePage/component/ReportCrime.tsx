@@ -1,8 +1,12 @@
-import Sidebar from "../../../components/Sidebar";
 import BackButton from "../../../components/BackButton";
 import ReportCrimeCard from "./ReportCrimeCard";
+import { useNavigate } from "react-router-dom";
+
 
 export default function ReportCrime() {
+
+  const navigate = useNavigate();
+
   return (
     <section className="flex flex-row h-screen w-full">
 
@@ -12,9 +16,6 @@ export default function ReportCrime() {
           <div className="flex flex-row justify-between items-start w-full">
             {/* Left Text Section */}
             <div className="flex flex-col gap-y-2">
-              <div className="flex items-start ">
-                <BackButton textSize="text-sm" iconSize={16} />
-              </div>
               <div className="font-outfit font-semibold text-4xl text-black">
                 Report Crime
               </div>

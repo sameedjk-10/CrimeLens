@@ -2,15 +2,23 @@ import StatsCard from "../../../components/StatsCards";
 import MapBackground from "../../../assets/MapBackground.png";
 import BackButton from "../../../components/BackButton";
 import StatsCharts from "../../../components/StatsCharts";
+import { useNavigate } from "react-router-dom";
 
 
 const Statistics = () => {
+
+  const navigate = useNavigate();
+
+  const NavigateDashboard = () => {
+    navigate('/dashboard');
+  }
+
   return (
     <section className="flex flex-row items-start p-4 h-180 overflow-y-auto">
       <div className="flex flex-col gap-y-4 ml-68 pb-3">
         {/* STATS CARDS AND STUFF */}
         <div className="ml-4 bg-[#fefefe] p-4 rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.15)] flex flex-col gap-y-2">
-          <div className="flex items-start ml-2">
+          <div className="flex items-start ml-2" onClick={NavigateDashboard}>
             <BackButton textSize="text-sm" iconSize={16} />
           </div>
           <div className="flex flex-row justify-between items-start w-full">
