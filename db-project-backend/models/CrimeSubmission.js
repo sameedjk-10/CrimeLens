@@ -37,6 +37,10 @@ export default (sequelize) => {
       type: DataTypes.BIGINT,
       allowNull: true,
     },
+    CrimeTypeId: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+    },
   }, {
     tableName: "CrimeSubmission",
     timestamps: false,
@@ -46,6 +50,7 @@ export default (sequelize) => {
     CrimeSubmission.belongsTo(models.CrimeReportsSubmitter, { foreignKey: "submitterCnic", onDelete: "SET NULL", onUpdate: "CASCADE" });
     CrimeSubmission.belongsTo(models.Zone, { foreignKey: "zoneId", onDelete: "SET NULL", onUpdate: "CASCADE" });
     CrimeSubmission.belongsTo(models.Crime, { foreignKey: "verifiedCrimeId", onDelete: "SET NULL", onUpdate: "CASCADE" });
+    CrimeSubmission.belongsTo(models.CrimeType, { foreignKey: "CrimeTypeId", onDelete: "SET NULL", onUpdate: "CASCADE" });
   };
 
   return CrimeSubmission;

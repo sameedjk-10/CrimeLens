@@ -3,6 +3,8 @@ import React from "react";
 import { MapContainer as LeafletMap, TileLayer } from "react-leaflet";
 import MapClickHandler from "./MapClickHandler";
 import RadiusVisual from "./RadiusVisual";
+import ZonePolygon from "./ZonePolygons";
+import LayerToggle from "./LayerToggle";
 
 const MapContainer: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
@@ -19,6 +21,8 @@ const MapContainer: React.FC<{ children: React.ReactNode }> = ({ children }) => 
         />
         <MapClickHandler />     {/* listens for clicks */}
         <RadiusVisual />        {/* shows marker + circle */}
+        <ZonePolygon />
+        <LayerToggle />
         {/* Render markers, clusters, layers */}
         {children}
       </LeafletMap>

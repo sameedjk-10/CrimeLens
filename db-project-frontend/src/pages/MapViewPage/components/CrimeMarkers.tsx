@@ -1,4 +1,4 @@
-// MapViewPage/components/CrimeMarker.tsx
+// components/CrimeMarker.tsx
 import React from "react";
 import { Marker, Popup } from "react-leaflet";
 import L from "leaflet";
@@ -19,16 +19,19 @@ export const DefaultIcon = new L.Icon({
 });
 
 const CrimeMarker: React.FC<{ crime: Crime }> = ({ crime }) => {
+  // Defensive check
+  if (!crime.latitude || !crime.longitude) return null;
+
   return (
-    <Marker position={[crime.location.lat, crime.location.lng]} icon={DefaultIcon}>
+    <Marker position={[crime.latitude, crime.longitude]} icon={DefaultIcon}>
       <Popup>
         <div className="text-sm">
-          <h3 className="font-bold">{crime.title}</h3>
-          <p>{crime.description}</p>
-          <p><strong>Type:</strong> {crime.crimeType}</p>
-          <p><strong>Zone:</strong> {crime.zoneName}</p>
-          <p><strong>Date:</strong> {crime.date}</p>
-          <p><strong>Address:</strong> {crime.address}</p>
+          <h3 className="font-bold">{crime.title || "No title"}</h3>
+          <p><strong>Description:</strong> <br />{crime.description || "No description"}</p>
+          <p><strong>Type:</strong> {crime.crimeTypeName}</p>
+          <p><strong>Zone:</strong> {crime.zoneName || "N/A"}</p>
+          <p><strong>Date:</strong> {crime.incidentDate ? new Date(crime.incidentDate).toLocaleString() : "N/A"}</p>
+          <p><strong>Address:</strong> {crime.address || "N/A"}</p>
         </div>
       </Popup>
     </Marker>
