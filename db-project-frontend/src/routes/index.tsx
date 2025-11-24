@@ -1,4 +1,4 @@
-import { Upload } from "lucide-react";
+import Upload from "../pages/UploadPage";
 import AddPolicePage from "../pages/AddPolicePage";
 import AllRecordsPage from "../pages/AllRecordsPage";
 import DashboardPage from "../pages/DashboardPage";
@@ -43,7 +43,7 @@ export const PublicRoutes = () => {
         element: <StatisticsPage/>
     },
     {
-        path: "/mapview",
+        path: "/map",
         element: <MapViewPage/>
     },
     {
@@ -71,7 +71,7 @@ export const ProtectedRoutes = () => {
           element: <VerificationPage/>
       },
       {
-        path: "/upload",
+        path: "/upload-crimes",
         element: <Upload/>
       }
   

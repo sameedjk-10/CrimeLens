@@ -12,7 +12,7 @@ const PageLayout = () => {
     navigate(path);
   };
 
-  const hideOnRoutes = ["/", "/login", "/login-admin", "/mapview"];
+  const hideOnRoutes = ["/", "/login", "/login-admin", "/map", "/request-agent"];
 
   const hideSidebar = hideOnRoutes.includes(location.pathname);
 

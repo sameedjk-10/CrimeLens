@@ -2,15 +2,20 @@ import { useState } from "react";
 import GreenButton from "../../../components/GreenButton";
 
 export default function ReportCrimeCard() {
+  const [error, setError] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
   const [formData, setFormData] = useState({
     fullName: "",
     cnic: "",
     contact: "",
     zone: "",
-    crimeType: "",
+    crimeTypeId: 0,
     date: "",
+    address: "",
     description: "",
   });
+
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -21,13 +26,58 @@ export default function ReportCrimeCard() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // -----------------------------
+  // 🔥 HANDLE SUBMISSION TO SUPABASE
+  // -----------------------------
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
-    console.log("Crime Report Submitted:", formData);
+    setError("");
+    setSuccessMsg("");
+    console.log("formData, before submission: ", formData);
+
+    try {
+      console.log("Submitting crime report...");
+
+      const response = await fetch(
+        "http://localhost:5000/api/user/report-crime",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        }
+      );
+
+      const data = await response.json();
+
+      console.log("Backend Response:", data);
+
+      if (response.ok && data.success) {
+        setSuccessMsg("Crime report submitted successfully!");
+
+        // Reset form
+        setFormData({
+          fullName: "",
+          cnic: "",
+          contact: "",
+          zone: "",
+          crimeTypeId: 0,
+          date: "",
+          address: "",
+          description: "",
+        });
+      } else {
+        setError(data.message || "Failed to submit the report.");
+      }
+    } catch (err) {
+      console.error("Error submitting report:", err);
+      setError("Server error. Please try again later.");
+    }
   };
 
-  // Helper function to get text color depending on if field has value
-  const getInputTextColor = (value: string) =>
+  // Helper function for placeholder color
+  const getInputTextColor = (value: string | number) =>
     value ? "text-gray-700" : "text-[#ababab]";
 
   return (
@@ -122,21 +172,27 @@ export default function ReportCrimeCard() {
               <label className="font-medium text-gray-700">
                 Crime Type: <span className="text-red-500">*</span>
               </label>
+
               <select
-                name="crimeType"
-                value={formData.crimeType}
+                name="crimeTypeId"
+                value={formData.crimeTypeId}
                 onChange={handleChange}
                 required
                 className={`border border-[#d9d9d9] rounded-md px-3 py-2 text-sm bg-white placeholder:text-[#ababab] focus:outline-none focus:ring-2 focus:ring-green-500 ${getInputTextColor(
-                  formData.crimeType
+                  formData.crimeTypeId
                 )}`}
               >
                 <option value="">Not Selected</option>
-                <option value="Theft">Theft</option>
-                <option value="Robbery">Robbery</option>
-                <option value="Assault">Assault</option>
-                <option value="Fraud">Fraud</option>
-                <option value="Other">Other</option>
+                <option value="1">Theft</option>
+                <option value="2">Robbery</option>
+                <option value="3">Assault</option>
+                <option value="4">Murder</option>
+                <option value="5">Kidnapping</option>
+                <option value="6">Sexual Assault</option>
+                <option value="7">Burglary</option>
+                <option value="8">Drug Possession</option>
+                <option value="9">Illegal Weapons Possession</option>
+                <option value="10">Other</option>
               </select>
             </div>
 
@@ -158,6 +214,24 @@ export default function ReportCrimeCard() {
             </div>
           </div>
 
+          {/* Addresss */}
+          <div className="flex flex-col mt-6">
+            <label className="font-medium text-gray-700">
+              Address: <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              name="address"
+              placeholder="Type here..."
+              value={formData.address}
+              onChange={handleChange}
+              required
+              className={`border border-[#d9d9d9] rounded-md px-3 py-2 text-sm placeholder:text-[#ababab] focus:outline-none focus:ring-2 focus:ring-green-500 ${getInputTextColor(
+                formData.address
+              )}`}
+            />
+          </div>
+
           {/* Description */}
           <div className="flex flex-col mt-6">
             <label className="font-medium text-gray-700">Description:</label>
@@ -176,7 +250,11 @@ export default function ReportCrimeCard() {
 
         {/* SUBMIT BUTTON */}
         <div className="flex justify-center pt-4">
-          <GreenButton label="Submit Report" width={250} height={45} />
+          <GreenButton
+            label={loading ? "Submitting..." : "Submit Report"}
+            width={250}
+            height={45}
+          />
         </div>
       </form>
     </div>

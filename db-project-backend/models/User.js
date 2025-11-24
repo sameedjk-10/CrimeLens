@@ -19,14 +19,6 @@ export default (sequelize) => {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    isActive: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: true,
-    },
-    lastLogin: {
-      type: DataTypes.DATE,
-    },
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,

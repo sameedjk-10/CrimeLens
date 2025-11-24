@@ -7,17 +7,19 @@ import ConfirmationPopup from "./ConfirmationPopup";
 type VerificationCardProps =
   | {
       version: "admin";
+      requestId: string | number;
       branchId: string;
       branchContact: string;
       username: string;
       password: string;
       requestDate: string;
       onContact?: () => void;
-      onReject?: () => void;
+      onReject?: (reason?: string) => void;
       onApprove?: () => void;
     }
   | {
       version: "police";
+      submissionId: string | number;
       fullName: string;
       contact: string;
       cnic: string;
@@ -25,19 +27,18 @@ type VerificationCardProps =
       description: string;
       date: string;
       zone: number;
+      address?: string;
       onContact?: () => void;
-      onReject?: () => void;
+      onReject?: (reason?: string) => void;
       onApprove?: () => void;
     };
 
 export default function VerificationCard(props: VerificationCardProps) {
   const [openConfirm, setOpenConfirm] = useState(false);
-
-  // Reject confirm modal for main card
   const [showRejectConfirm, setShowRejectConfirm] = useState(false);
-
-  // Snackbar (contact copied) visibility
   const [showSnackbar, setShowSnackbar] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   // Copy contact number to clipboard and show snackbar
   const handleContactCopy = async () => {
@@ -66,6 +67,95 @@ export default function VerificationCard(props: VerificationCardProps) {
     setTimeout(() => setShowSnackbar(false), 2500);
 
     props.onContact?.();
+  };
+
+  // Handle Approve
+  const handleApproveSubmit = async (updatedValues: any) => {
+    setLoading(true);
+    setError("");
+
+    try {
+      let endpoint = "";
+      let body = {};
+
+      if (props.version === "admin") {
+        // @ts-ignore
+        endpoint = `http://localhost:5000/api/agent/verify/${props.requestId}`;
+        body = { roleId: 2 }; // Default to police officer role
+      } else {
+        // @ts-ignore
+        endpoint = `http://localhost:5000/api/user/approve/${props.submissionId}`;
+        body = {
+          address: updatedValues.address || "",
+          location: updatedValues.location || null,
+        };
+      }
+
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        setOpenConfirm(false);
+        props.onApprove?.();
+      } else {
+        setError(result.message || "Failed to approve");
+      }
+    } catch (err) {
+      console.error("Approval Error:", err);
+      setError("Server error. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle Reject
+  const handleRejectSubmit = async () => {
+    const reason = prompt("Please provide a reason for rejection:");
+    if (!reason) return;
+
+    setLoading(true);
+    setError("");
+
+    try {
+      let endpoint = "";
+
+      if (props.version === "admin") {
+        // @ts-ignore
+        endpoint = `http://localhost:5000/api/agent/reject/${props.requestId}`;
+      } else {
+        // @ts-ignore
+        endpoint = `http://localhost:5000/api/user/reject/${props.submissionId}`;
+      }
+
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ reason }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        setShowRejectConfirm(false);
+        props.onReject?.(reason);
+      } else {
+        setError(result.message || "Failed to reject");
+      }
+    } catch (err) {
+      console.error("Rejection Error:", err);
+      setError("Server error. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -132,6 +222,13 @@ export default function VerificationCard(props: VerificationCardProps) {
         </>
       )}
 
+      {/* Error Message */}
+      {error && (
+        <div className="mt-3 bg-red-50 border border-red-200 rounded-lg p-3">
+          <p className="text-red-600 text-sm font-outfit">{error}</p>
+        </div>
+      )}
+
       {/* Footer Buttons */}
       <div className="border-t-2 border-[#d9d9d9] mt-5 pt-6 flex justify-between items-center">
         <WhiteButton
@@ -141,33 +238,34 @@ export default function VerificationCard(props: VerificationCardProps) {
           onClick={handleContactCopy}
         />
         <div className="flex gap-2">
-          <RedButton
-            label="Reject"
-            width={200}
-            height={45}
+          <button
             onClick={() => setShowRejectConfirm(true)}
-          />
-          <GreenButton
-            label="Approve"
-            width={200}
-            height={45}
+            disabled={loading}
+            className="px-6 py-2 bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white rounded-full font-medium transition-colors"
+            style={{ width: 200, height: 45 }}
+          >
+            {loading ? "Processing..." : "Reject"}
+          </button>
+          <button
             onClick={() => setOpenConfirm(true)}
-          />
+            disabled={loading}
+            className="px-6 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white rounded-full font-medium transition-colors"
+            style={{ width: 200, height: 45 }}
+          >
+            {loading ? "Processing..." : "Approve"}
+          </button>
         </div>
       </div>
 
-      {/* Approve popup (keeps your original behavior) */}
+      {/* Approve popup */}
       <ConfirmationPopup
         {...props} // contains version and the rest
         isOpen={openConfirm}
         onClose={() => setOpenConfirm(false)}
         onApprove={(updatedValues) => {
-          console.log("APPROVED WITH:", updatedValues);
-          props.onApprove?.();
-          setOpenConfirm(false);
+          handleApproveSubmit(updatedValues);
         }}
         onReject={() => {
-          props.onReject?.();
           setOpenConfirm(false);
         }}
       />
@@ -181,21 +279,21 @@ export default function VerificationCard(props: VerificationCardProps) {
             </h3>
 
             <div className="flex justify-end gap-2">
-              <WhiteButton
-                label="Cancel"
-                width={120}
-                height={40}
+              <button
                 onClick={() => setShowRejectConfirm(false)}
-              />
-              <RedButton
-                label="Reject"
-                width={120}
-                height={40}
-                onClick={() => {
-                  props.onReject?.();
-                  setShowRejectConfirm(false);
-                }}
-              />
+                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded font-medium transition-colors"
+                style={{ width: 120, height: 40 }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleRejectSubmit()}
+                disabled={loading}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white rounded font-medium transition-colors"
+                style={{ width: 120, height: 40 }}
+              >
+                {loading ? "Processing..." : "Reject"}
+              </button>
             </div>
           </div>
         </div>
@@ -220,11 +318,10 @@ export default function VerificationCard(props: VerificationCardProps) {
               width: 44,
               height: 44,
               borderRadius: 999,
-              border: "3px solid #16a34a", // green border
+              border: "3px solid #16a34a",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              
               background: "#fff",
             }}
           >

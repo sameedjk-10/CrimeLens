@@ -12,7 +12,7 @@ export default (sequelize) => {
       allowNull: false,
       unique: true,
     },
-    passwordHash: {
+    password: {
       type: DataTypes.TEXT,
       allowNull: false,
     },

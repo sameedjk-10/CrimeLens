@@ -40,8 +40,7 @@ const UploadFile: React.FC<UploadFileProps> = ({
 }) => {
     return (
         <div className="flex h-screen">
-            <Sidebar version={version} />
-
+           
             <div className="flex-1 ml-72 p-8 relative">
                 {/* Loader Overlay */}
                 {isUploading && (

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowLeft } from "lucide-react"; // back arrow
+import { ArrowLeft } from "lucide-react";
 import LogowithText from "../../../assets/LogowithText.svg";
 import GreenButton from "../../../components/GreenButton";
 import MainBackground from "../../../assets/MainBackground.png";
@@ -10,9 +10,21 @@ import { useNavigate } from "react-router-dom";
 import BackButton from "../../../components/BackButton";
 
 const LoginCreate = () => {
-  // password visibility states
+  // Password visibility states
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+
+  // Form states
+  const [formData, setFormData] = useState({
+    branchId: "",
+    username: "",
+    password: "",
+    confirmPassword: "",
+  });
+
+  const [error, setError] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -22,6 +34,85 @@ const LoginCreate = () => {
 
   const NavigateLogin = () => {
     navigate("/login");
+  };
+
+  // Handle input changes
+  const handleChange = (e: any) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Handle form submission
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+    setError("");
+    setSuccessMsg("");
+
+    // Validation
+    if (!formData.branchId || !formData.username || !formData.password) {
+      setError("All fields are required");
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      setError("Password must be at least 6 characters");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      console.log("Submitting agent request...", formData);
+
+      const response = await fetch(
+        "http://localhost:5000/api/agent/request",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            branchId: formData.branchId,
+            username: formData.username,
+            password: formData.password,
+          }),
+        }
+      );
+
+      const data = await response.json();
+      console.log("Backend Response:", data);
+
+      if (response.ok && data.success) {
+        setSuccessMsg(
+          "Agent request submitted successfully! Awaiting verification."
+        );
+
+        // Reset form
+        setFormData({
+          branchId: "",
+          username: "",
+          password: "",
+          confirmPassword: "",
+        });
+
+        // Navigate after 2 seconds
+        setTimeout(() => {
+          NavigateHome();
+        }, 2000);
+      } else {
+        setError(data.message || "Failed to submit the request");
+      }
+    } catch (err) {
+      console.error("Error submitting request:", err);
+      setError("Server error. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -40,8 +131,8 @@ const LoginCreate = () => {
 
         <div className="flex items-center flex-col md:space-y-6">
           {/* Logo */}
-          <div className="flex justify-center ">
-            <img src={LogowithText} alt="CrimeLens" className="w-44 md:w-52 " />
+          <div className="flex justify-center">
+            <img src={LogowithText} alt="CrimeLens" className="w-44 md:w-52" />
           </div>
 
           {/* Title */}
@@ -50,16 +141,41 @@ const LoginCreate = () => {
           </h2>
         </div>
 
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+            <p className="text-red-600 text-sm font-outfit">{error}</p>
+          </div>
+        )}
+
+        {/* Success Message */}
+        {successMsg && (
+          <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+            <p className="text-green-600 text-sm font-outfit">{successMsg}</p>
+          </div>
+        )}
+
         {/* Form */}
-        <form className="flex flex-col w-full space-y-4">
+        <form onSubmit={handleSubmit} className="flex flex-col w-full space-y-4">
+          {/* Branch ID */}
           <input
             type="text"
+            name="branchId"
             placeholder="Branch ID"
+            value={formData.branchId}
+            onChange={handleChange}
+            required
             className="border-2 border-[#d9d9d9] text-[#ababab] rounded-lg px-4 py-2 font-outfit text-sm focus:outline-none focus:border-[#237E54]"
           />
+
+          {/* Username */}
           <input
             type="text"
+            name="username"
             placeholder="Username"
+            value={formData.username}
+            onChange={handleChange}
+            required
             className="border-2 border-[#d9d9d9] text-[#ababab] rounded-lg px-4 py-2 font-outfit text-sm focus:outline-none focus:border-[#237E54]"
           />
 
@@ -67,7 +183,11 @@ const LoginCreate = () => {
           <div className="relative">
             <input
               type={showPassword ? "text" : "password"}
+              name="password"
               placeholder="Password"
+              value={formData.password}
+              onChange={handleChange}
+              required
               className="border-2 border-[#d9d9d9] text-[#ababab] rounded-lg px-4 py-2 w-full font-outfit text-sm focus:outline-none focus:border-[#237E54]"
             />
             <span
@@ -85,7 +205,11 @@ const LoginCreate = () => {
           <div className="relative">
             <input
               type={showConfirm ? "text" : "password"}
+              name="confirmPassword"
               placeholder="Confirm Password"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              required
               className="border-2 border-[#d9d9d9] text-[#ababab] rounded-lg px-4 py-2 w-full font-outfit text-sm focus:outline-none focus:border-[#237E54]"
             />
             <span
@@ -113,7 +237,13 @@ const LoginCreate = () => {
           </div>
 
           {/* Submit Button */}
-          <GreenButton label="Submit Request" onClick={NavigateHome} />
+          <button
+            type="submit"
+            disabled={loading}
+            className="bg-[#237E54] hover:bg-[#1a5c3f] disabled:bg-gray-400 text-white font-outfit font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+          >
+            {loading ? "Submitting..." : "Submit Request"}
+          </button>
         </form>
       </div>
     </section>

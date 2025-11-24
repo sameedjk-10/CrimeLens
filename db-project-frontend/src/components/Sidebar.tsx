@@ -70,7 +70,7 @@ const Sidebar = ({ version, setPath }: SidebarProps) => {
       label: "Upload Data",
       icon: ICONS.UploadDataIcon,
       activeIcon: ICONS.UploadDataIcon_Active,
-      route: "/upload",
+      route: "/upload-crimes",
     },
     {
       label: "Give Feedback",
