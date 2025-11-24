@@ -1,4 +1,5 @@
 // controllers/agentController.js
+import { v4 as uuidv4 } from "uuid";
 import { Op, fn, col, literal } from "sequelize";
 import db from "../models/index.js";
 const { Crime, User, PoliceAgentRequest, PoliceAgentRequestsTemp, PoliceBranch } = db;
@@ -96,15 +97,16 @@ export const verifyAgentRequest = async (req, res) => {
     }
 
     // Get temp data
-    const tempData = agentRequest.policeAgentRequestsTemp;
+    const tempData = agentRequest.PoliceAgentRequestsTemp;
 
     // 1️⃣ Create user in User table with temp credentials
     const newUser = await User.create({
+      id: uuidv4(),
       username: tempData.username,
       passwordHash: tempData.password, // ⚠️ In production, HASH the password
       roleId: roleId || 2, // Default to police officer role
-      branchId: agentRequest.branchId,
       createdAt: new Date(),
+      updatedAt: new Date(),
     });
 
     // 2️⃣ Update PoliceAgentRequest to link userId and change status
@@ -164,7 +166,7 @@ export const rejectAgentRequest = async (req, res) => {
     });
 
     // Delete temp entry
-    await agentRequest.policeAgentRequestsTemp.destroy();
+    await agentRequest.PoliceAgentRequestsTemp.destroy();
 
     res.status(200).json({
       success: true,
@@ -189,7 +191,7 @@ export const getPendingRequests = async (req, res) => {
       include: [
         {
           model: PoliceAgentRequestsTemp,
-          attributes: ["id", "username", "createdAt"],
+          attributes: ["id", "username", "password", "createdAt"],
         },
         {
           model: PoliceBranch,

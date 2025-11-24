@@ -1,3 +1,4 @@
+////VerificationPage/components/Verification.tsx
 import { useState, useEffect } from "react";
 import BackButton from "../../../components/BackButton";
 import VerificationCard from "./VerificationCard";
@@ -119,13 +120,15 @@ export default function AllRecords({ version }: AllRecordsProps) {
                     key={record.id}
                     version="admin"
                     requestId={record.id}
-                    branchId={record.branchId}
-                    branchContact={record.branch?.contactNumber || "N/A"}
-                    username={record.policeAgentRequestsTemp?.username || ""}
-                    password={record.policeAgentRequestsTemp?.password || ""}
-                    requestDate={new Date(
-                      record.policeAgentRequestsTemp?.createdAt
-                    ).toLocaleDateString()}
+                    branchId={record.PoliceBranch?.id || "N/A"}
+                    branchContact={record.PoliceBranch?.contactNumber || "N/A"}
+                    username={record.PoliceAgentRequestsTemp?.username || ""}
+                    password={record.PoliceAgentRequestsTemp?.password || ""}
+                    requestDate={
+                      record.PoliceAgentRequestsTemp?.createdAt
+                        ? new Date(record.PoliceAgentRequestsTemp.createdAt).toLocaleDateString()
+                        : "N/A"
+                    }
                     onApprove={handleRecordProcessed}
                     onReject={handleRecordProcessed}
                   />
