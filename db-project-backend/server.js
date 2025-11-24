@@ -54,6 +54,14 @@ const startServer = async () => {
 // Run the async startup
 startServer();
 
+
+// in app.js or routes/index.js
+import zonesRoutes from "./routes/zoneRoutes.js";
+app.use("/api/zones", zonesRoutes);
+
+import crimeRoutes from "./routes/crimeRoutes.js";
+app.use("/api/crimes", crimeRoutes);
+
 // ✅ Handle any unhandled promise rejections
 process.on("unhandledRejection", (err) => {
   console.error("Unhandled promise rejection:", err);
