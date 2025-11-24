@@ -1,23 +1,21 @@
 import Sidebar from "../../components/Sidebar";
 import AllRecords from "./component/AllRecords";
+import { type RootState } from "../../store";
+import { useSelector } from "react-redux";
+
+
 
 interface AllRecordsProps {
   version?: "admin" | "police";
 }
 
 const AllRecordsPage = ({ version }: AllRecordsProps) => {
+  const role = useSelector((state: RootState) => state.currentRole.role);
+
   return (
-    <section className="flex flex-row h-screen overflow-hidden">
 
-      {/* LEFT SIDEBAR FIXED */}
-      <div className="h-full w-60 fixed left-0 top-0 p-4">
-        <Sidebar version={version} />
-      </div>
+      <AllRecords version={role} />
 
-      {/* RIGHT MAIN CONTENT */}
-      <AllRecords version={version || "admin"}  />
-
-    </section>
   );
 };
 

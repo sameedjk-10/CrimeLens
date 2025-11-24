@@ -2,17 +2,24 @@ import LogowithText from "../../../assets/LogowithText.svg";
 import GreenButton from "../../../components/GreenButton";
 import WhiteButton from "../../../components/WhiteButton";
 import MainBackground from "../../../assets/MainBackground.png";
+import { useNavigate } from "react-router-dom";
 
-type LoginProps = {
-  onNewAgent?: () => void;
-  onAdminLogin?: () => void;
-  onPoliceLogin?: () => void;
-  onBackButton?: () => void;
-};
+const Login = () => {
+  const navigate = useNavigate();
 
-const Login = ({onNewAgent, onAdminLogin, onPoliceLogin, onBackButton}: LoginProps) => {
+  const NavigateCreateNewAgent = () => {
+    navigate("/request-agent");
+  };
 
-  
+  const NavigateLoginAdmin = (role: string) => {
+    navigate("/login-admin", { state: { role } });
+  };
+  // const NavigateLoginPolice = () => {
+  //   navigate('/login-police');
+  // }
+  const NavigateHome = () => {
+    navigate("/");
+  };
 
   return (
     <section
@@ -26,22 +33,22 @@ const Login = ({onNewAgent, onAdminLogin, onPoliceLogin, onBackButton}: LoginPro
 
         {/* White Outline Buttons */}
         <div className="flex flex-col w-full space-y-4 gap-y-4">
-          <WhiteButton label="Create a new Police Agent" 
-          onClick={onNewAgent}
+          <WhiteButton
+            label="Create a new Police Agent"
+            onClick={NavigateCreateNewAgent}
           />
           <hr className="border-t-2 border-[#d9d9d9] mx-4" />
-          <WhiteButton label="Login as an Administrator" 
-          onClick={onAdminLogin}
+          <WhiteButton
+            label="Login as an Administrator"
+            onClick={() => NavigateLoginAdmin("Administrator")}
           />
-          <WhiteButton label="Login as a Police Agent"
-          onClick={onPoliceLogin}
+          <WhiteButton
+            label="Login as a Police Agent"
+            onClick={() => NavigateLoginAdmin("Police Agent")}
           />
           <hr className="border-t-2 border-[#d9d9d9] mx-4" />
-          <GreenButton label="Back to Home"
-          onClick={onBackButton}
-          />
+          <GreenButton label="Back to Home" onClick={NavigateHome} />
         </div>
-
       </div>
     </section>
   );

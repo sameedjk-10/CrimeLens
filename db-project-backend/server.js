@@ -1,11 +1,15 @@
 import dns from "dns";
 dns.setDefaultResultOrder("ipv4first");
+import agentRoutes from "./routes/agentRoutes.js";
+
 
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import db from "./models/index.js"; // Import centralized model loader
 import adminRoutes from "./routes/adminRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 
 dotenv.config();
 
@@ -17,6 +21,10 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use("/api/admin", adminRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/user", userRoutes);
+app.use("/api/agent", agentRoutes);
+
 
 // Destructure sequelize from db
 const { sequelize } = db;
@@ -45,9 +53,6 @@ const startServer = async () => {
 
 // Run the async startup
 startServer();
-
-import authRoutes from "./routes/authRoutes.js";
-app.use("/api/auth", authRoutes);
 
 
 // in app.js or routes/index.js

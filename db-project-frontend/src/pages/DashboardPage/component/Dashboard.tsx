@@ -2,9 +2,17 @@ import StatsCard from "../../../components/StatsCards";
 import MapBackground from "../../../assets/MapBackground.png";
 import GreenButton from "../../../components/GreenButton";
 import ArrowButton from "../../../components/ArrowButton";
+import { useNavigate } from "react-router-dom";
 
 
 const Dashboard = () => {
+
+  const navigate = useNavigate();
+  
+  const NavigateStatistics = () => {
+    navigate('/statistics');
+  }
+
   return (
     <section className="flex flex-row h-screen overflow-hidden">
       {/* MAIN CONTENT */}
@@ -25,7 +33,7 @@ const Dashboard = () => {
             </div>
 
             <div className="flex items-start mt-2">
-              <GreenButton label="View all Statistics" width={260} height={50} />
+              <GreenButton label="View all Statistics" width={260} height={50} onClick={NavigateStatistics}/>
             </div>
           </div>
 

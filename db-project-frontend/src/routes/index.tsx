@@ -1,16 +1,15 @@
-import { Upload } from "lucide-react";
-import AddPolicePage from "pages/AddPolicePage";
-import AllRecordsPage from "pages/AllRecordsPage";
-import DashboardPage from "pages/DashboardPage";
-import HomePage from "pages/HomePage";
-import LoginAdminPage from "pages/LoginAdminPage";
-import LoginPage from "pages/LoginPage";
-import LoginPolicePage from "pages/LoginPolicePage";
-import Statistics from "pages/StatisticsPage/component/Statistics";
-import VerificationPage from "pages/VerificationPage";
-import MapViewPage from "pages/MapViewPage";
-import { stringify } from "querystring";
-import MeetCreatorsCard from "components/MeetCreatorsCards";
+import Upload from "../pages/UploadPage";
+import AddPolicePage from "../pages/AddPolicePage";
+import AllRecordsPage from "../pages/AllRecordsPage";
+import DashboardPage from "../pages/DashboardPage";
+import HomePage from "../pages/HomePage";
+import LoginAdminPage from "../pages/LoginAdminPolicePage";
+import LoginPage from "../pages/LoginPage";
+import VerificationPage from "../pages/VerificationPage";
+import MapViewPage from "../pages/MapViewPage";
+import MeetCreatorsCard from "../components/MeetCreatorsCards";
+import StatisticsPage from "../pages/StatisticsPage";
+import ReportCrimePage from "../pages/ReportCrimePage";
 
 type TRoute = {
   path: string;
@@ -32,10 +31,6 @@ export const PublicRoutes = () => {
         element: <LoginAdminPage/>
     },
     {
-        path: "/login-police",
-        element: <LoginPolicePage/>
-    },
-    {
         path: "/request-agent",
         element: <AddPolicePage/>
     },
@@ -45,15 +40,19 @@ export const PublicRoutes = () => {
     },
     {
         path: "/statistics",
-        element: <Statistics/>
+        element: <StatisticsPage/>
     },
     {
-        path: "/mapview",
+        path: "/map",
         element: <MapViewPage/>
     },
     {
         path: "/meet-developers",
         element: <MeetCreatorsCard/>
+    },
+    {
+        path: "/report-crime",
+        element: <ReportCrimePage/>
     },
 
   ];
@@ -64,15 +63,15 @@ export const PublicRoutes = () => {
 export const ProtectedRoutes = () => {
     const routes: TRoute[] = [
       {
-        path: "/AllRecords",
+        path: "/all-records",
         element: <AllRecordsPage/>,
       },
       {
-          path: "/Verification",
+          path: "/verification",
           element: <VerificationPage/>
       },
       {
-        path: "/Upload",
+        path: "/upload-crimes",
         element: <Upload/>
       }
   

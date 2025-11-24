@@ -1,8 +1,8 @@
 // src/components/UploadFile.tsx
 import React from "react";
-import Sidebar from "../../../components/Sidebar";
-import GreenButton from "../../../components/GreenButton"; // ✅ import your button component
-import WhiteButton from "../../../components/WhiteButton"; // ✅ import your button component
+import Sidebar from "../../components/Sidebar";
+import GreenButton from "../../components/GreenButton"; // ✅ import your button component
+import WhiteButton from "../../components/WhiteButton"; // ✅ import your button component
 
 interface UploadFileProps {
     fileName: string | null;
@@ -40,8 +40,7 @@ const UploadFile: React.FC<UploadFileProps> = ({
 }) => {
     return (
         <div className="flex h-screen">
-            <Sidebar version={version} />
-
+           
             <div className="flex-1 ml-72 p-8 relative">
                 {/* Loader Overlay */}
                 {isUploading && (
