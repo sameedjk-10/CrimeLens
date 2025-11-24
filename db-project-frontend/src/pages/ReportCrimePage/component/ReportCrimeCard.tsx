@@ -142,7 +142,7 @@ export default function ReportCrimeCard() {
             </div>
 
             {/* Zone */}
-            <div className="flex flex-col">
+            {/* <div className="flex flex-col">
               <label className="font-medium text-gray-700">
                 Zone #: <span className="text-red-500">*</span>
               </label>
@@ -157,7 +157,42 @@ export default function ReportCrimeCard() {
                   formData.zone
                 )}`}
               />
+            </div> */}
+            
+            {/* Zone */}
+            <div className="flex flex-col">
+              <label className="font-medium text-gray-700">
+                Zone: <span className="text-red-500">*</span>
+              </label>
+
+              <select
+                name="zone"
+                value={formData.zone}
+                onChange={handleChange}
+                required
+                className={`border border-[#d9d9d9] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 ${getInputTextColor(
+                  formData.zone
+                )}`}
+              >
+                <option value="">Select a zone...</option>
+                <option value="1">Clifton & Defence</option>
+                <option value="2">Saddar & Civil Lines</option>
+                <option value="3">Lyari</option>
+                <option value="4">Garden & Old City</option>
+                <option value="5">Gulshan-e-Iqbal</option>
+                <option value="6">Gulistan-e-Johar</option>
+                <option value="7">North Nazimabad</option>
+                <option value="8">North Karachi</option>
+                <option value="9">Federal B Area</option>
+                <option value="10">Korangi</option>
+                <option value="11">Malir</option>
+                <option value="12">Shah Faisal Colony</option>
+                <option value="13">Orangi Town</option>
+                <option value="14">Baldia Town</option>
+                <option value="15">Surjani Town</option>
+              </select>
             </div>
+
           </div>
         </div>
 

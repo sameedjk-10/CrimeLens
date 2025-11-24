@@ -3,7 +3,7 @@ import BackButton from "../../../components/BackButton";
 import VerificationCard from "./VerificationCard";
 
 interface AllRecordsProps {
-  version: "admin" | "police";
+  version: "admin" | "police" | "user" | null;
 }
 
 export default function AllRecords({ version }: AllRecordsProps) {
@@ -120,7 +120,7 @@ export default function AllRecords({ version }: AllRecordsProps) {
                     version="admin"
                     requestId={record.id}
                     branchId={record.branchId}
-                    branchContact={record.branch?.branchContact || "N/A"}
+                    branchContact={record.branch?.contactNumber || "N/A"}
                     username={record.policeAgentRequestsTemp?.username || ""}
                     password={record.policeAgentRequestsTemp?.password || ""}
                     requestDate={new Date(

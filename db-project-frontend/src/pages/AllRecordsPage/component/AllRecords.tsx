@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 
 interface AllRecordsProps {
-  version: "admin" | "police" | "user";
+  version: "admin" | "police" | "user" | null;
 }
 
 export default function AllRecords({ version }: AllRecordsProps) {

@@ -1,3 +1,4 @@
+//VerificationPage/components/ConfirmationPopup.tsx
 import { useState } from "react";
 import GreenButton from "../../../components/GreenButton";
 import WhiteButton from "../../../components/WhiteButton";
@@ -57,7 +58,9 @@ export default function ConfirmationPopup({
     address: initialData.address || "", // Officer can edit
 
     // Extra fields for police (to be added by officer)
-    location: "", // JSON string or object
+    latitude: "",
+    longitude: "",
+
   });
 
   if (!isOpen) return null;
@@ -91,8 +94,8 @@ export default function ConfirmationPopup({
                 <input
                   type="text"
                   value={formData.branchId}
-                  readOnly
-                  className="inputBox bg-gray-100 cursor-not-allowed mt-1"
+                  // readOnly
+                  className="inputBox bg-gray-100 mt-1"
                 />
               </div>
 
@@ -103,8 +106,8 @@ export default function ConfirmationPopup({
                 <input
                   type="text"
                   value={formData.branchContact}
-                  readOnly
-                  className="inputBox bg-gray-100 cursor-not-allowed mt-1"
+                  // readOnly
+                  className="inputBox bg-gray-100 mt-1"
                 />
               </div>
 
@@ -115,8 +118,8 @@ export default function ConfirmationPopup({
                 <input
                   type="text"
                   value={formData.username}
-                  readOnly
-                  className="inputBox bg-gray-100 cursor-not-allowed mt-1"
+                  // readOnly
+                  className="inputBox bg-gray-100 mt-1"
                 />
               </div>
 
@@ -127,8 +130,8 @@ export default function ConfirmationPopup({
                 <input
                   type="text"
                   value={formData.password}
-                  readOnly
-                  className="inputBox bg-gray-100 cursor-not-allowed mt-1"
+                  // readOnly
+                  className="inputBox bg-gray-100 mt-1"
                 />
               </div>
 
@@ -139,8 +142,8 @@ export default function ConfirmationPopup({
                 <input
                   type="text"
                   value={formData.requestDate}
-                  readOnly
-                  className="inputBox bg-gray-100 cursor-not-allowed mt-1"
+                  // readOnly
+                  className="inputBox bg-gray-100 mt-1"
                 />
               </div>
             </>
@@ -149,7 +152,7 @@ export default function ConfirmationPopup({
             <>
               <div className="border-b pb-4">
                 <h3 className="font-semibold text-gray-800 mb-3">
-                  Personal Info (Read-Only)
+                  Personal Info
                 </h3>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="bg-gray-50 p-3 rounded-lg">
@@ -159,8 +162,8 @@ export default function ConfirmationPopup({
                     <input
                       type="text"
                       value={formData.fullName}
-                      readOnly
-                      className="w-full text-sm bg-gray-100 cursor-not-allowed mt-1 p-2 rounded border"
+                      // readOnly
+                      className="w-full text-sm bg-gray-100 mt-1 p-2 rounded border"
                     />
                   </div>
                   <div className="bg-gray-50 p-3 rounded-lg">
@@ -170,8 +173,8 @@ export default function ConfirmationPopup({
                     <input
                       type="text"
                       value={formData.cnic}
-                      readOnly
-                      className="w-full text-sm bg-gray-100 cursor-not-allowed mt-1 p-2 rounded border"
+                      // readOnly
+                      className="w-full text-sm bg-gray-100 mt-1 p-2 rounded border"
                     />
                   </div>
                   <div className="bg-gray-50 p-3 rounded-lg">
@@ -181,8 +184,8 @@ export default function ConfirmationPopup({
                     <input
                       type="text"
                       value={formData.contact}
-                      readOnly
-                      className="w-full text-sm bg-gray-100 cursor-not-allowed mt-1 p-2 rounded border"
+                      // readOnly
+                      className="w-full text-sm bg-gray-100 mt-1 p-2 rounded border"
                     />
                   </div>
                   <div className="bg-gray-50 p-3 rounded-lg">
@@ -192,8 +195,8 @@ export default function ConfirmationPopup({
                     <input
                       type="text"
                       value={formData.zone}
-                      readOnly
-                      className="w-full text-sm bg-gray-100 cursor-not-allowed mt-1 p-2 rounded border"
+                      // readOnly
+                      className="w-full text-sm bg-gray-100 mt-1 p-2 rounded border"
                     />
                   </div>
                 </div>
@@ -201,7 +204,7 @@ export default function ConfirmationPopup({
 
               <div className="border-b pb-4">
                 <h3 className="font-semibold text-gray-800 mb-3">
-                  Crime Info (Read-Only)
+                  Crime Info
                 </h3>
                 <div className="grid grid-cols-2 gap-3 mb-3">
                   <div className="bg-gray-50 p-3 rounded-lg">
@@ -211,8 +214,8 @@ export default function ConfirmationPopup({
                     <input
                       type="text"
                       value={formData.crimeType}
-                      readOnly
-                      className="w-full text-sm bg-gray-100 cursor-not-allowed mt-1 p-2 rounded border"
+                      // readOnly
+                      className="w-full text-sm bg-gray-100 mt-1 p-2 rounded border"
                     />
                   </div>
                   <div className="bg-gray-50 p-3 rounded-lg">
@@ -222,8 +225,8 @@ export default function ConfirmationPopup({
                     <input
                       type="text"
                       value={formData.date}
-                      readOnly
-                      className="w-full text-sm bg-gray-100 cursor-not-allowed mt-1 p-2 rounded border"
+                      // readOnly
+                      className="w-full text-sm bg-gray-100 mt-1 p-2 rounded border"
                     />
                   </div>
                 </div>
@@ -233,17 +236,27 @@ export default function ConfirmationPopup({
                   </label>
                   <textarea
                     value={formData.description}
-                    readOnly
-                    className="w-full text-sm bg-gray-100 cursor-not-allowed mt-1 p-2 rounded border h-20 resize-none"
+                    // readOnly
+                    className="w-full text-sm bg-gray-100 mt-1 p-2 rounded border h-20 resize-none"
+                  />
+                </div>
+                <div className="bg-gray-50 p-3 rounded-lg mb-3">
+                  <label className="text-xs font-medium text-gray-700">
+                    Address
+                  </label>
+                  <textarea
+                    value={formData.address}
+                    // readOnly
+                    className="w-full text-sm bg-gray-100 mt-1 p-2 rounded border h-20 resize-none"
                   />
                 </div>
               </div>
 
               <div className="border-b pb-4 bg-blue-50 p-3 rounded-lg">
                 <h3 className="font-semibold text-blue-900 mb-3">
-                  ✏️ Officer Additions (Editable)
+                  ✏️ Officer Additions
                 </h3>
-                <div className="mb-3">
+                {/* <div className="mb-3">
                   <label className="text-sm font-medium text-gray-700 block mb-1">
                     Address <span className="text-red-500">*</span>
                   </label>
@@ -255,23 +268,39 @@ export default function ConfirmationPopup({
                     onChange={handleInputChange}
                     className="inputBox mt-1"
                   />
+                </div> */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 block mb-1">
+                      Latitude <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="number"
+                      step="0.000001"
+                      name="latitude"
+                      value={formData.latitude}
+                      onChange={handleInputChange}
+                      placeholder="24.8607"
+                      className="inputBox mt-1"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 block mb-1">
+                      Longitude <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="number"
+                      step="0.000001"
+                      name="longitude"
+                      value={formData.longitude}
+                      onChange={handleInputChange}
+                      placeholder="67.0011"
+                      className="inputBox mt-1"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-700 block mb-1">
-                    Location <span className="text-gray-500">(Optional)</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="location"
-                    placeholder='e.g., {"lat": 24.8607, "lng": 67.0011}'
-                    value={formData.location}
-                    onChange={handleInputChange}
-                    className="inputBox mt-1"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    JSON format: {`{lat: number, lng: number}`}
-                  </p>
-                </div>
+
               </div>
             </>
           )}

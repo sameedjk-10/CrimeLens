@@ -79,7 +79,7 @@ export const verifyAgentRequest = async (req, res) => {
     const agentRequest = await PoliceAgentRequest.findByPk(requestId, {
       include: {
         model: PoliceAgentRequestsTemp,
-        as: "policeAgentRequestsTemp",
+        // as: "PoliceAgentRequestsTemp",
       },
     });
 
@@ -146,7 +146,7 @@ export const rejectAgentRequest = async (req, res) => {
     const agentRequest = await PoliceAgentRequest.findByPk(requestId, {
       include: {
         model: PoliceAgentRequestsTemp,
-        as: "policeAgentRequestsTemp",
+        // as: "policeAgentRequestsTemp",
       },
     });
 
@@ -189,13 +189,11 @@ export const getPendingRequests = async (req, res) => {
       include: [
         {
           model: PoliceAgentRequestsTemp,
-          as: "policeAgentRequestsTemp",
           attributes: ["id", "username", "createdAt"],
         },
         {
           model: PoliceBranch,
-          as: "branch",
-          attributes: ["id", "branchName"],
+          attributes: ["id", "name", "contactNumber"],
         },
       ],
     });
@@ -220,11 +218,11 @@ export const getRequestById = async (req, res) => {
       include: [
         {
           model: PoliceAgentRequestsTemp,
-          as: "policeAgentRequestsTemp",
+          // as: "policeAgentRequestsTemp",
         },
         {
           model: PoliceBranch,
-          as: "branch",
+          // as: "branch",
         },
       ],
     });

@@ -3,7 +3,7 @@ interface RecordData {
 }
 
 interface RecordsTableProps {
-  version: "admin" | "police" | "user";
+  version: "admin" | "police" | "user" | null;
   records?: RecordData[];
 }
 

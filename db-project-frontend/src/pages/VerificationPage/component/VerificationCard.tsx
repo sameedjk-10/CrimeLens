@@ -1,3 +1,4 @@
+//VerificationPage/components/VerificationCard.tsx
 import { useState } from "react";
 import RedButton from "../../../components/RedButton";
 import WhiteButton from "../../../components/WhiteButton";
@@ -6,32 +7,32 @@ import ConfirmationPopup from "./ConfirmationPopup";
 
 type VerificationCardProps =
   | {
-      version: "admin";
-      requestId: string | number;
-      branchId: string;
-      branchContact: string;
-      username: string;
-      password: string;
-      requestDate: string;
-      onContact?: () => void;
-      onReject?: (reason?: string) => void;
-      onApprove?: () => void;
-    }
+    version: "admin";
+    requestId: string | number;
+    branchId: string;
+    branchContact: string;
+    username: string;
+    password: string;
+    requestDate: string;
+    onContact?: () => void;
+    onReject?: (reason?: string) => void;
+    onApprove?: () => void;
+  }
   | {
-      version: "police";
-      submissionId: string | number;
-      fullName: string;
-      contact: string;
-      cnic: string;
-      crimeType: string;
-      description: string;
-      date: string;
-      zone: number;
-      address?: string;
-      onContact?: () => void;
-      onReject?: (reason?: string) => void;
-      onApprove?: () => void;
-    };
+    version: "police";
+    submissionId: string | number;
+    fullName: string;
+    contact: string;
+    cnic: string;
+    crimeType: string;
+    description: string;
+    date: string;
+    zone: number;
+    address?: string;
+    onContact?: () => void;
+    onReject?: (reason?: string) => void;
+    onApprove?: () => void;
+  };
 
 export default function VerificationCard(props: VerificationCardProps) {
   const [openConfirm, setOpenConfirm] = useState(false);
@@ -45,9 +46,9 @@ export default function VerificationCard(props: VerificationCardProps) {
     const num =
       props.version === "admin"
         ? // @ts-ignore - branchContact exists on admin variant
-          (props as any).branchContact
+        (props as any).branchContact
         : // @ts-ignore - contact exists on police variant
-          (props as any).contact;
+        (props as any).contact;
 
     if (num) {
       try {
@@ -87,7 +88,8 @@ export default function VerificationCard(props: VerificationCardProps) {
         endpoint = `http://localhost:5000/api/user/approve/${props.submissionId}`;
         body = {
           address: updatedValues.address || "",
-          location: updatedValues.location || null,
+          latitude: Number(updatedValues.latitude),
+          longitude: Number(updatedValues.longitude),
         };
       }
 
@@ -261,7 +263,7 @@ export default function VerificationCard(props: VerificationCardProps) {
       <ConfirmationPopup
         {...props} // contains version and the rest
         isOpen={openConfirm}
-        onClose={() => setOpenConfirm(false)}
+        onClose={() => setOpenConfirm(false)} //
         onApprove={(updatedValues) => {
           handleApproveSubmit(updatedValues);
         }}
