@@ -4,6 +4,131 @@ import db from "../models/index.js";
 const { Crime, User, Criminal } = db;
 
 // ===================================================
+// 🌍 GET CRIMES FOR MAP (GeoJSON)
+// ===================================================
+export const getCrimesForMap = async (req, res) => {
+  try {
+    const { mode, crimeType, zoneId, startDate, endDate, lat, lng, radius } = req.query;
+
+    // Base SQL with join to CrimeType to get name
+    let sql = `
+      SELECT 
+        c.id,
+        c.title,
+        c.description,
+        c.address,
+        c."zoneId",
+        z.name AS "zoneName",
+        c."crimeTypeId",
+        ct.name AS "crimeTypeName",
+        c.status,
+        c."incidentDate",
+        ST_AsGeoJSON(c.location)::json AS geom
+      FROM "Crime" c
+      JOIN "CrimeType" ct ON c."crimeTypeId" = ct.id
+      LEFT JOIN "Zone" z ON c."zoneId" = z.id
+    `;
+
+    const conditions = [];
+    const replacements = {}; // For parameterized query
+
+    // Filter: crime type by name (case-insensitive)
+    if (crimeType && crimeType !== "All") {
+      conditions.push(`ct.name ILIKE :crimeType`);
+      replacements.crimeType = crimeType;
+    }
+
+    // Filter: zone
+    if (zoneId && zoneId !== "All") {
+      conditions.push(`c."zoneId" = :zoneId`);
+      replacements.zoneId = zoneId;
+    }
+
+    // Filter: date range
+    if (startDate) {
+      conditions.push(`c."incidentDate" >= :startDate`);
+      replacements.startDate = new Date(startDate).toISOString();
+    }
+    if (endDate) {
+      conditions.push(`c."incidentDate" <= :endDate`);
+      replacements.endDate = new Date(endDate).toISOString();
+    }
+
+    // Radius mode
+    if (mode === "radius" && lat && lng && radius) {
+      conditions.push(`
+        ST_DWithin(
+          c.location::geography,
+          ST_SetSRID(ST_Point(:lng, :lat), 4326),
+          :radius
+        )
+      `);
+      replacements.lat = parseFloat(lat);
+      replacements.lng = parseFloat(lng);
+      replacements.radius = parseFloat(radius);
+    }
+
+    if (conditions.length > 0) {
+      sql += " WHERE " + conditions.join(" AND ");
+    }
+
+    sql += ";";
+
+    const crimes = await db.sequelize.query(sql, {
+      type: db.sequelize.QueryTypes.SELECT,
+      replacements, // safely pass parameters
+    });
+
+    const formatted = crimes
+      .map((c) => {
+        if (!c.geom) return null; // skip crimes without location
+        const loc = typeof c.geom === "string" ? JSON.parse(c.geom) : c.geom;
+        return {
+          // id: c.id,
+          // crimeTypeId: c.crimeTypeId,
+          // crimeTypeName: c.crimeTypeName, // send name to frontend
+          // incidentDate: c.incidentDate,
+          // status: c.status,
+          // latitude: loc.coordinates[1],
+          // longitude: loc.coordinates[0],
+          id: c.id,
+          crimeTypeId: c.crimeTypeId,
+          crimeTypeName: c.crimeTypeName,
+          incidentDate: c.incidentDate,
+          status: c.status,
+          latitude: loc.coordinates[1],
+          longitude: loc.coordinates[0],
+          title: c.title,
+          description: c.description,
+          address: c.address,
+          zoneId: c.zoneId,
+          zoneName: c.zoneName,
+        };
+      })
+      .filter(Boolean); // remove nulls
+
+    return res.json(formatted);
+  } catch (err) {
+    console.error("Map Crime Error:", err);
+    res.status(500).json([]);
+  }
+};
+
+export const getAllCrimeTypes = async (req, res) => {
+  try {
+    const crimeTypes = await db.CrimeType.findAll({
+      attributes: ["id", "name"], // only id and name
+      order: [["name", "ASC"]],
+    });
+
+    res.json(crimeTypes);
+  } catch (err) {
+    console.error("Error fetching crime types:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// ===================================================
 // 🔍 SEARCH CRIMES
 // ===================================================
 export const searchCrimes = async (req, res) => {
