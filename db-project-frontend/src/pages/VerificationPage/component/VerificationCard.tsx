@@ -7,32 +7,32 @@ import ConfirmationPopup from "./ConfirmationPopup";
 
 type VerificationCardProps =
   | {
-    version: "admin";
-    requestId: string | number;
-    branchId: string;
-    branchContact: string;
-    username: string;
-    password: string;
-    requestDate: string;
-    onContact?: () => void;
-    onReject?: (reason?: string) => void;
-    onApprove?: () => void;
-  }
+      version: "admin";
+      requestId: string | number;
+      branchId: string;
+      branchContact: string;
+      username: string;
+      password: string;
+      requestDate: string;
+      onContact?: () => void;
+      onReject?: (reason?: string) => void;
+      onApprove?: () => void;
+    }
   | {
-    version: "police";
-    submissionId: string | number;
-    fullName: string;
-    contact: string;
-    cnic: string;
-    crimeType: string;
-    description: string;
-    date: string;
-    zone: number;
-    address: string;
-    onContact?: () => void;
-    onReject?: (reason?: string) => void;
-    onApprove?: () => void;
-  };
+      version: "police";
+      submissionId: string | number;
+      fullName: string;
+      contact: string;
+      cnic: string;
+      crimeType: string;
+      description: string;
+      date: string;
+      zone: number;
+      address: string;
+      onContact?: () => void;
+      onReject?: (reason?: string) => void;
+      onApprove?: () => void;
+    };
 
 export default function VerificationCard(props: VerificationCardProps) {
   const [openConfirm, setOpenConfirm] = useState(false);
@@ -46,9 +46,9 @@ export default function VerificationCard(props: VerificationCardProps) {
     const num =
       props.version === "admin"
         ? // @ts-ignore - branchContact exists on admin variant
-        (props as any).branchContact
+          (props as any).branchContact
         : // @ts-ignore - contact exists on police variant
-        (props as any).contact;
+          (props as any).contact;
 
     if (num) {
       try {
@@ -208,7 +208,8 @@ export default function VerificationCard(props: VerificationCardProps) {
           <h3 className="font-semibold text-[#7d7d7d]">Crime Info:</h3>
           <div className="grid grid-cols-2 gap-y-3 text-sm text-gray-800">
             <p>
-              <span className="font-semibold">Crime Type:</span> {props.crimeType}
+              <span className="font-semibold">Crime Type:</span>{" "}
+              {props.crimeType}
             </p>
             <p>
               <span className="font-semibold">Date:</span> {props.date}
@@ -236,27 +237,27 @@ export default function VerificationCard(props: VerificationCardProps) {
       )}
 
       {/* Footer Buttons */}
-      <div className="border-t-2 border-[#d9d9d9] mt-5 pt-6 flex justify-between items-center">
+      <div className="border-t-2 border-[#d9d9d9] mt-4 pt-6 flex justify-between items-center">
         <WhiteButton
           label="Contact for Verification"
           width={300}
-          height={45}
+          height={40}
           onClick={handleContactCopy}
         />
         <div className="flex gap-2">
           <button
             onClick={() => setShowRejectConfirm(true)}
             disabled={loading}
-            className="px-6 py-2 bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white rounded-full font-medium transition-colors"
-            style={{ width: 200, height: 45 }}
+            className="px-6 py-1 bg-[#b80404] hover:bg-red-900 border-2 border-[#b80404] disabled:bg-gray-400 text-white text-sm rounded-full font-normal transition-colors"
+            style={{ width: 200, height: 40 }}
           >
             {loading ? "Processing..." : "Reject"}
           </button>
           <button
             onClick={() => setOpenConfirm(true)}
             disabled={loading}
-            className="px-6 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white rounded-full font-medium transition-colors"
-            style={{ width: 200, height: 45 }}
+            className="px-6 py-1 bg-linear-to-r from-[#145332] to-[#237E54] border-2 border-[#237E54] hover:from-[#145332] hover:to-[#145332] disabled:bg-gray-400 text-white text-sm rounded-full font-normal transition-colors"
+            style={{ width: 200, height: 40 }}
           >
             {loading ? "Processing..." : "Approve"}
           </button>
@@ -280,22 +281,21 @@ export default function VerificationCard(props: VerificationCardProps) {
       {showRejectConfirm && (
         <div className="fixed inset-0 bg-black/30 flex justify-center items-center z-40">
           <div className="bg-white p-6 rounded-xl shadow-lg w-[380px] animate-fadeIn">
-            <h3 className="text-xl font-semibold mb-4 text-gray-700">
+            <h3 className="text-xl font-semibold mb-4 text-gray-700 flex justify-center">
               Are you sure you want to reject?
             </h3>
 
-            <div className="flex justify-end gap-2">
-              <button
+            <div className="flex justify-center gap-2">
+              <WhiteButton
+                label="Cancel"
+                width={120}
+                height={40}
                 onClick={() => setShowRejectConfirm(false)}
-                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded font-medium transition-colors"
-                style={{ width: 120, height: 40 }}
-              >
-                Cancel
-              </button>
+              />
               <button
                 onClick={() => handleRejectSubmit()}
                 disabled={loading}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white rounded font-medium transition-colors"
+                className="px-6 py-1 bg-[#b80404] hover:bg-red-900 border-2 border-[#b80404] disabled:bg-gray-400 text-white text-sm rounded-full font-normal transition-colors"
                 style={{ width: 120, height: 40 }}
               >
                 {loading ? "Processing..." : "Reject"}

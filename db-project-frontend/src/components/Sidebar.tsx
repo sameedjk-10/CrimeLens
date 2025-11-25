@@ -3,11 +3,11 @@ import LogowithText from "../assets/LogowithText.svg";
 import GreenButton from "./GreenButton";
 import { ICONS } from "../assets/icons";
 import MeetCreatorsCard from "./MeetCreatorsCards";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 interface SidebarProps {
   version?: "admin" | "police" | "user";
-  setPath?: (path: string) => void; // Changed this
+  setPath?: (path: string) => void;
 }
 
 interface MenuItem {
@@ -18,15 +18,9 @@ interface MenuItem {
 }
 
 const Sidebar = ({ version, setPath }: SidebarProps) => {
-  const [activeItem, setActiveItem] = useState<string>("Dashboard");
-  const [activePath, setActivePath] = useState<string>("");
-
+  const [activeItem, setActiveItem] = useState<string>("");
   const navigate = useNavigate();
-
-  // Reset active item to Dashboard when version changes
-  useEffect(() => {
-    setActiveItem("Dashboard");
-  }, [version]);
+  const location = useLocation();
 
   // Define menu sets for each version
   const allMenus: MenuItem[] = [
@@ -40,25 +34,25 @@ const Sidebar = ({ version, setPath }: SidebarProps) => {
       label: "Verify Agent",
       icon: ICONS.VerifyAgentIcon,
       activeIcon: ICONS.VerifyAgentIcon_Active,
-      route: "/verification",
+      route: "/verification?type=admin",
     },
     {
       label: "Agent Records",
       icon: ICONS.AgentRecordsIcon,
       activeIcon: ICONS.AgentRecordsIcon_Active,
-      route: "/all-records",
+      route: "/all-records?type=admin",
     },
     {
       label: "Verify Report",
       icon: ICONS.VerifyReportIcon,
       activeIcon: ICONS.VerifyReportIcon_Active,
-      route: "/verification",
+      route: "/verification?type=police",
     },
     {
       label: "Crime Records",
       icon: ICONS.CrimeRecordsIcon,
       activeIcon: ICONS.CrimeRecordsIcon_Active,
-      route: "/all-records",
+      route: "/all-records?type=police",
     },
     {
       label: "Report Crime",
@@ -104,6 +98,17 @@ const Sidebar = ({ version, setPath }: SidebarProps) => {
       ["Dashboard", "Report Crime", "Give Feedback"].includes(m.label)
     );
 
+  // Sync activeItem with current location
+  useEffect(() => {
+    const currentPath = location.pathname + location.search;
+    const currentMenuItem = allMenus.find(
+      (menu) => menu.route === currentPath
+    );
+    if (currentMenuItem) {
+      setActiveItem(currentMenuItem.label);
+    }
+  }, [location.pathname, location.search]);
+
   const buttonText =
     version === "admin" || version === "police" ? "Logout" : "Back to Home";
 
@@ -126,9 +131,7 @@ const Sidebar = ({ version, setPath }: SidebarProps) => {
             <button
               key={item.label}
               onClick={() => {
-                setActiveItem(item.label);
-                setPath?.(item.route); // This will now call handleNavigation directly
-                setActivePath(item.route);
+                setPath?.(item.route);
               }}
               className={`flex items-center gap-3 px-3 py-2 rounded-xl text-sm transition-all duration-200 cursor-pointer ${
                 activeItem === item.label
@@ -142,7 +145,7 @@ const Sidebar = ({ version, setPath }: SidebarProps) => {
                 className="w-5 h-5"
               />
               {item.label}
-              {activePath === item.route && (
+              {activeItem === item.label && (
                 <div className="ml-auto h-5 w-1 bg-[#237E54] rounded-full"></div>
               )}
             </button>
@@ -160,10 +163,10 @@ const Sidebar = ({ version, setPath }: SidebarProps) => {
             onClick={() => {
               if (buttonText === "Logout") {
                 localStorage.removeItem("token");
-                navigate('/');
-              }else
-                navigate('/');
-                
+                navigate("/");
+              } else {
+                navigate("/");
+              }
             }}
           />
         </div>

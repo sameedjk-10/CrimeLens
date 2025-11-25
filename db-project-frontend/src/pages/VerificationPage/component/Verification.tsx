@@ -59,9 +59,6 @@ export default function AllRecords({ version }: AllRecordsProps) {
           <div className="flex flex-row justify-between items-start w-full">
             {/* Left Text Section */}
             <div className="flex flex-col gap-y-2">
-              <div className="flex items-start">
-                <BackButton textSize="text-sm" iconSize={16} />
-              </div>
               {version === "admin" ? (
                 <>
                   <div className="font-outfit font-semibold text-4xl text-black">

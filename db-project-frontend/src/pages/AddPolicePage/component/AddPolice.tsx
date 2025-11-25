@@ -240,7 +240,7 @@ const LoginCreate = () => {
           <button
             type="submit"
             disabled={loading}
-            className="bg-[#237E54] hover:bg-[#1a5c3f] disabled:bg-gray-400 text-white font-outfit font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+            className="px-6 py-2 bg-linear-to-r from-[#145332] to-[#237E54] border-2 border-[#237E54] hover:from-[#145332] hover:to-[#145332] disabled:bg-gray-400 text-white text-sm rounded-full font-normal transition-colors"
           >
             {loading ? "Submitting..." : "Submit Request"}
           </button>

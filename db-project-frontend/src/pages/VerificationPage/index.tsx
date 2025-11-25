@@ -1,4 +1,3 @@
-import Sidebar from "../../components/Sidebar";
 import Verification from "./component/Verification";
 import { useSelector } from "react-redux";
 import { type RootState } from "../../store";
