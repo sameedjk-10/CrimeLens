@@ -1,6 +1,6 @@
 import express from "express";
 import {
-  searchCrimes,
+  // searchCrimes,
   reportCrime,
   getPendingSubmissions,
   approveCrimeReport,
@@ -15,7 +15,7 @@ const router = express.Router();
 router.post("/report-crime", reportCrime);
 
 // Crime Searching
-router.get("/search", searchCrimes);
+// router.get("/search", searchCrimes);
 
 // Crime Verification (Police Officer)
 router.get("/pending", getPendingSubmissions);

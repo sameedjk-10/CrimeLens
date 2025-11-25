@@ -1,8 +1,11 @@
 // controllers/agentController.js
 import { v4 as uuidv4 } from "uuid";
-import { Op, fn, col, literal } from "sequelize";
+import { QueryTypes, Op, fn, col, literal } from "sequelize";
+import sequelize from "../config/db.js";
 import db from "../models/index.js";
-const { Crime, User, PoliceAgentRequest, PoliceAgentRequestsTemp, PoliceBranch } = db;
+const { Crime, User, Criminal , CrimeSubmission, PoliceAgentRequestsTemp, CrimeReportsSubmitter, PoliceAgentRequest, CrimeType, Zone, PoliceBranch } = db;
+
+// import { Request, Response } from "express";
 
 // ===================================================
 // ➕ CREATE AGENT REQUEST
@@ -244,30 +247,102 @@ export const getRequestById = async (req, res) => {
   }
 };
 
+
 export const getAllAgents = async (req, res) => {
   try {
-    // only police agents
-    const agents = await PoliceAgentRequest.findAll({
-      attributes: [
-        "id",
-        "branchId",
-        "username",
-        "password",
-        "branchContact",
-        "createdAt"
-      ],
-      order: [["id", "ASC"]],
-    });
+    const agents = await sequelize.query(
+      `
+      SELECT 
+        par.id AS "agentId",
+        par."branchId" AS "branchId",
+        u.username AS "username",
+        u."passwordHash" AS "password",
+        pb."contactNumber" AS "branchContact",
+        par."createdAt" AS "createdAt"
+      FROM "PoliceAgentRequest" par
+      LEFT JOIN "User" u ON u.id = par."userId"
+      LEFT JOIN "PoliceBranch" pb ON pb.id = par."branchId"
+      WHERE par.status = 'approved'
+      ORDER BY par.id ASC;
+      `,
+      { type: QueryTypes.SELECT }
+    );
 
-    res.status(200).json({
+    res.json({
       success: true,
+      count: agents.length,
       data: agents,
     });
-  } catch (error) {
-    console.error("Error fetching agents:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch agent records",
-    });
+  } catch (err) {
+    console.error("Error fetching agents:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+
+export const updateAgent = async (req, res) => {
+  const agentId = req.params.id;
+  const { username, password, branchId } = req.body;
+
+  const t = await sequelize.transaction();
+
+  try {
+    // Find the agent
+    const agent = await PoliceAgentRequest.findByPk(agentId, { transaction: t });
+    if (!agent) {
+      await t.rollback();
+      return res.status(404).json({ success: false, message: "Agent not found" });
+    }
+
+    // Update branchId in PoliceAgentRequest
+    agent.branchId = branchId ?? agent.branchId;
+    await agent.save({ transaction: t });
+
+    // Update username/password in User table
+    const user = await User.findByPk(agent.userId, { transaction: t });
+    if (!user) {
+      await t.rollback();
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    if (username) user.username = username;
+    if (password) user.passwordHash = password; // ideally hash password in real app
+    await user.save({ transaction: t });
+
+    await t.commit();
+    return res.json({ success: true, message: "Agent updated successfully" });
+  } catch (err) {
+    await t.rollback();
+    console.error("Error updating agent:", err);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+// ----------------- DELETE AGENT -----------------
+export const deleteAgent = async (req, res) => {
+  const agentId = req.params.id;
+
+  try {
+    // Find the agent first
+    const agent = await PoliceAgentRequest.findByPk(agentId);
+    if (!agent) {
+      return res.status(404).json({ success: false, message: "Agent not found" });
+    }
+
+    // Get the userId from the agent record BEFORE deletion
+    const userId = agent.userId;
+
+    // Delete the agent record
+    await agent.destroy();
+
+    // Delete the associated user record if userId exists
+    if (userId) {
+      await User.destroy({ where: { id: userId } });
+    }
+
+    return res.json({ success: true, message: "Agent and associated user deleted successfully" });
+  } catch (err) {
+    console.error("Error deleting agent:", err);
+    return res.status(500).json({ success: false, message: "Server error" });
   }
 };

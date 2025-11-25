@@ -2,13 +2,21 @@ import { useEffect, useState } from "react";
 import RecordsTable from "./RecordsTable";
 import GreenButton from "../../../components/GreenButton";
 import BackButton from "../../../components/BackButton";
-import { useNavigate } from "react-router-dom";
 import AllRecordsSearch from "./AllRecordsSearch";
-
+import DetailsPopup from "./DetailsPopup"
 interface AllRecordsProps {
   version: "admin" | "police" | "user" | null;
 }
 
+// Admin agent record interface
+export interface AgentRecord {
+  agentId: number;
+  branchId: number | null;
+  username: string;
+  password: string;
+  branchContact: string | null;
+  createdAt: string; // YYYY-MM-DD
+}
 export interface CrimeRecord {
   id: number;
   zoneName: string;
@@ -19,7 +27,6 @@ export interface CrimeRecord {
 }
 
 export default function AllRecords({ version }: AllRecordsProps) {
-  const navigate = useNavigate();
 
   const [records, setRecords] = useState<CrimeRecord[]>([]);
   const [backupRecords, setBackupRecords] = useState<CrimeRecord[]>([]);
@@ -27,8 +34,8 @@ export default function AllRecords({ version }: AllRecordsProps) {
 
   // Modal state
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
-  const [updateRecord, setUpdateRecord] = useState<CrimeRecord | null>(null);
-
+  // const [updateRecord, setUpdateRecord] = useState<CrimeRecord | null>(null);
+  const [selectedAgent, setSelectedAgent] = useState<AgentRecord | null>(null);
   // For full crime details
   interface FullCrimeDetails {
     id: number;
@@ -47,27 +54,41 @@ export default function AllRecords({ version }: AllRecordsProps) {
   useEffect(() => {
     let mounted = true;
 
-    const fetchCrimes = async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/crimes/all`);
-        if (!res.ok) throw new Error("Network response was not ok");
+        let res, data;
 
-        const data = await res.json();
-        if (!mounted) return;
+        if (version === "police") {
+          res = await fetch(`http://localhost:5000/api/crimes/all`);
+          if (!res.ok) throw new Error("Network response was not ok");
+          data = await res.json();
+          if (!mounted) return;
 
-        if (data.success) {
-          setRecords(data.data);
-          setBackupRecords(data.data);
-        } else {
-          console.error("Error fetching crimes:", data.message);
+          if (data.success) {
+            setRecords(data.data);
+            setBackupRecords(data.data);
+          } else {
+            console.error("Error fetching crimes:", data.message);
+          }
+        } else if (version === "admin") {
+          res = await fetch(`http://localhost:5000/api/agent/all`);
+          if (!res.ok) throw new Error("Network response was not ok");
+          data = await res.json();
+          if (!mounted) return;
+
+          if (data.success) {
+            setRecords(data.data);
+            setBackupRecords(data.data);
+          } else {
+            console.error("Error fetching agents:", data.message);
+          }
         }
       } catch (err) {
-        console.error("Error fetching crimes:", err);
+        console.error("Fetch Request Error:", err);
       }
     };
 
-    if (version === "police") fetchCrimes();
-
+    fetchData();
     return () => {
       mounted = false;
     };
@@ -88,7 +109,7 @@ export default function AllRecords({ version }: AllRecordsProps) {
       if (fieldValue === null || fieldValue === undefined) return false;
 
       // DATE SEARCH
-      if (searchBy === "incidentDate") {
+      if (searchBy === "incidentDate" || searchBy === "createdAt") {
         const itemDate = new Date(fieldValue);
         const searchDate = new Date(value);
         return (
@@ -117,29 +138,29 @@ export default function AllRecords({ version }: AllRecordsProps) {
       checked ? [...prev, id] : prev.filter((x) => x !== id)
     );
   };
-
   const handleSelectAll = (checked: boolean) => {
-    setSelectedRecords(checked ? records.map((r) => r.id) : []);
+    setSelectedRecords(checked ? records.map((r: any) => r.id ?? r.agentId) : []);
   };
 
-  // ---------------------------
-  // BULK DELETE
-  // ---------------------------
   const handleBulkDelete = async () => {
     if (!selectedRecords.length) return;
-    if (
-      !confirm(`Are you sure you want to delete ${selectedRecords.length} record(s)?`)
-    )
+    if (!confirm(`Are you sure you want to delete ${selectedRecords.length} record(s)?`))
       return;
 
     try {
       await Promise.all(
-        selectedRecords.map((id) =>
-          fetch(`http://localhost:5000/api/crimes/delete/${id}`, { method: "DELETE" })
-        )
+        selectedRecords.map((id) => {
+          const url =
+            version === "admin"
+              ? `http://localhost:5000/api/agent/delete/${id}`
+              : `http://localhost:5000/api/crimes/delete/${id}`;
+          return fetch(url, { method: "DELETE" });
+        })
       );
 
-      const newRecords = records.filter((r) => !selectedRecords.includes(r.id));
+      const newRecords = records.filter(
+        (r: any) => !(selectedRecords.includes(r.id ?? r.agentId))
+      );
       setRecords(newRecords);
       setBackupRecords(newRecords);
       setSelectedRecords([]);
@@ -147,6 +168,7 @@ export default function AllRecords({ version }: AllRecordsProps) {
       console.error("Error deleting records:", err);
     }
   };
+
 
   // ---------------------------
   // OPEN UPDATE MODAL
@@ -157,81 +179,93 @@ export default function AllRecords({ version }: AllRecordsProps) {
       return;
     }
 
-    const crimeId = selectedRecords[0];
+    const recordId = selectedRecords[0];
 
-    try {
-      const res = await fetch(`http://localhost:5000/api/crimes/get-crime/${crimeId}`);
-      const data = await res.json();
+    if (version === "admin") {
+      const agent = (records as unknown as AgentRecord[]).find(
+        (r) => r.agentId === recordId
+      );
 
-      if (!data.success) {
-        alert("Failed to load crime details.");
-        return;
-      }
-
-      const c = data.data;
-      setFullCrime({
-        id: c.id,
-        title: c.title,
-        description: c.description,
-        address: c.address,
-        zoneId: c.zoneId,
-        latitude: c.location?.coordinates?.[1] ?? 0,
-        longitude: c.location?.coordinates?.[0] ?? 0,
-      });
+      if (!agent) return;
+      setSelectedAgent(agent);
       setIsUpdateModalOpen(true);
-    }
-    catch (err) {
-      console.error("Error fetching crime details:", err);
-      alert("Error fetching crime details.");
+    } else {
+      try {
+        const res = await fetch(`http://localhost:5000/api/crimes/get-crime/${recordId}`);
+        const data = await res.json();
+        if (!data.success) {
+          alert("Failed to load crime details.");
+          return;
+        }
+        const c = data.data;
+        setFullCrime({
+          id: c.id,
+          title: c.title,
+          description: c.description,
+          address: c.address,
+          zoneId: c.zoneId,
+          latitude: c.location?.coordinates?.[1] ?? 0,
+          longitude: c.location?.coordinates?.[0] ?? 0,
+        });
+        setIsUpdateModalOpen(true);
+      } catch (err) {
+        console.error("Error fetching crime details:", err);
+        alert("Error fetching crime details.");
+      }
     }
   };
 
   // ---------------------------
   // HANDLE UPDATE SUBMIT
   // ---------------------------
-  const handleUpdateSubmit = async () => {
-    if (!fullCrime) return;
-
-    const body = {
-      id: fullCrime.id,
-      title: fullCrime.title,
-      description: fullCrime.description,
-      address: fullCrime.address,
-      zoneId: fullCrime.zoneId,
-      latitude: fullCrime.latitude,
-      longitude: fullCrime.longitude,
-    };
+  const handleUpdateSubmit = async (updatedData: any) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/crimes/update/${fullCrime.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-
-      const data = await res.json();
-      if (!data.success) {
-        alert("Update failed: " + data.message);
-        return;
+      if (version === "admin" && selectedAgent) {
+        const res = await fetch(
+          `http://localhost:5000/api/agent/update/${selectedAgent.agentId}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(updatedData),
+          }
+        );
+        const data = await res.json();
+        if (!data.success) {
+          alert("Update failed: " + data.message);
+          return;
+        }
+        const newList = records.map((r: any) =>
+          r.agentId === selectedAgent.agentId ? updatedData : r
+        );
+        setRecords(newList);
+        setBackupRecords(newList);
+        setSelectedRecords([]);
+        setSelectedAgent(null);
+      } else if (version === "police" && fullCrime) {
+        const res = await fetch(`http://localhost:5000/api/crimes/update/${fullCrime.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updatedData),
+        });
+        const data = await res.json();
+        if (!data.success) {
+          alert("Update failed: " + data.message);
+          return;
+        }
+        const newList = records.map((r: any) =>
+          r.id === fullCrime.id ? { ...r, zoneId: fullCrime.zoneId } : r
+        );
+        setRecords(newList);
+        setBackupRecords(newList);
+        setSelectedRecords([]);
+        setFullCrime(null);
       }
-
-      // Update list
-      const newList = records.map(r =>
-        r.id === fullCrime.id ? { ...r, zoneId: fullCrime.zoneId } : r
-      );
-
-      setRecords(newList);
-      setBackupRecords(newList);
-
       setIsUpdateModalOpen(false);
-      setFullCrime(null);
-      setSelectedRecords([]);
-
     } catch (err) {
       console.error("Update error:", err);
       alert("Error updating entry.");
     }
   };
-
 
   return (
     <section className="flex flex-row h-screen w-full">
@@ -270,14 +304,13 @@ export default function AllRecords({ version }: AllRecordsProps) {
 
           {/* 🔍 SEARCH BAR + BULK ACTION BUTTONS */}
           <div className="flex justify-between items-center gap-x-4 pr-4">
-            <AllRecordsSearch onSearchChange={handleSearch} />
+            <AllRecordsSearch version={version} onSearchChange={handleSearch} />
 
             {selectedRecords.length > 0 && (
               <div className="bg-white p-4 rounded-xl shadow mb-4 flex items-center gap-x-3">
                 <button
                   onClick={handleBulkDelete}
                   className="bg-red-600 cursor-pointer text-white px-4 py-2 w-[125px] rounded-[5px] font-outfit text-sm hover:bg-red-700"
-                  // className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
                 >
                   Delete
                 </button>
@@ -305,90 +338,17 @@ export default function AllRecords({ version }: AllRecordsProps) {
       </div>
 
       {/* ------------------- UPDATE MODAL ------------------- */}
-      {isUpdateModalOpen && fullCrime && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-xl w-[450px] shadow-xl overflow-y-auto h-[550px]">
-
-            <h2 className="text-2xl font-semibold mb-4">Update Crime Details</h2>
-
-            <label className="block mb-1">Title</label>
-            <input
-              type="text"
-              className="border rounded px-3 py-2 w-full mb-3"
-              value={fullCrime.title}
-              onChange={(e) => setFullCrime({ ...fullCrime, title: e.target.value })}
-            />
-
-            <label className="block mb-1">Description</label>
-            <textarea
-              className="border rounded px-3 py-2 w-full mb-3"
-              rows={3}
-              value={fullCrime.description}
-              onChange={(e) =>
-                setFullCrime({ ...fullCrime, description: e.target.value })
-              }
-            />
-
-            <label className="block mb-1">Address</label>
-            <input
-              type="text"
-              className="border rounded px-3 py-2 w-full mb-3"
-              value={fullCrime.address}
-              onChange={(e) => setFullCrime({ ...fullCrime, address: e.target.value })}
-            />
-
-            <label className="block mb-1">Zone</label>
-            <input
-              type="number"
-              className="border rounded px-3 py-2 w-full mb-3"
-              value={fullCrime.zoneId}
-              onChange={(e) =>
-                setFullCrime({ ...fullCrime, zoneId: Number(e.target.value) })
-              }
-            />
-
-            <label className="block mb-1">Location (Latitude)</label>
-            <input
-              type="number"
-              className="border rounded px-3 py-2 w-full mb-3"
-              value={fullCrime.latitude}
-              onChange={(e) =>
-                setFullCrime({ ...fullCrime, latitude: Number(e.target.value) })
-              }
-            />
-
-            <label className="block mb-1">Location (Longitude)</label>
-            <input
-              type="number"
-              className="border rounded px-3 py-2 w-full mb-4"
-              value={fullCrime.longitude}
-              onChange={(e) =>
-                setFullCrime({ ...fullCrime, longitude: Number(e.target.value) })
-              }
-            />
-
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => {
-                  setIsUpdateModalOpen(false);
-                  setFullCrime(null);
-                }}
-                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleUpdateSubmit}
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-              >
-                Save
-              </button>
-            </div>
-
-          </div>
-        </div>
-      )}
-
+      <DetailsPopup
+        version={version === "admin" ? "admin" : "police"}
+        isOpen={isUpdateModalOpen}
+        data={version === "admin" ? selectedAgent : fullCrime}
+        onClose={() => {
+          setIsUpdateModalOpen(false);
+          setFullCrime(null);
+          setSelectedAgent(null);
+        }}
+        onSubmit={handleUpdateSubmit}
+      />
     </section>
   );
 }

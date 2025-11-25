@@ -1,10 +1,11 @@
 import { useState } from "react";
 
 interface AllRecordsSearchProps {
+  version: "admin" | "police" | "user" | null;
   onSearchChange: (searchBy: string, value: string) => void;
 }
 
-export default function AllRecordsSearch({ onSearchChange }: AllRecordsSearchProps) {
+export default function AllRecordsSearch({ version, onSearchChange }: AllRecordsSearchProps) {
   const [searchBy, setSearchBy] = useState("all"); // default to "all"
   const [value, setValue] = useState("");
 
@@ -14,16 +15,36 @@ export default function AllRecordsSearch({ onSearchChange }: AllRecordsSearchPro
       return;
     }
 
-    // For date picker, value is already in YYYY-MM-DD format
-    const formattedValue = searchBy === "incidentDate" ? value : value.trim();
+    // For date fields, value is already in YYYY-MM-DD format
+    const formattedValue = searchBy === "incidentDate" || searchBy === "createdAt" ? value : value.trim();
 
     onSearchChange(searchBy, formattedValue);
   };
 
+  // Define dropdown options based on version
+  const dropdownOptions =
+    version === "admin"
+      ? [
+          { value: "agentId", label: "Agent ID" },
+          { value: "branchId", label: "Branch ID" },
+          { value: "username", label: "Username" },
+          { value: "password", label: "Password" },
+          { value: "branchContact", label: "Branch Contact #" },
+          { value: "createdAt", label: "Date of Creation" },
+        ]
+      : [
+          { value: "id", label: "Case ID" },
+          { value: "incidentDate", label: "Date" },
+          { value: "zoneName", label: "Zone Name" },
+          { value: "crimeTypeName", label: "Crime Type" },
+          { value: "submitterCnic", label: "Submitter CNIC" },
+          { value: "registeredBranchId", label: "Branch ID" },
+        ];
+
   // Dynamic placeholder
   const placeholderText =
-    searchBy === "incidentDate"
-      ? "" // no placeholder needed for date picker
+    searchBy === "incidentDate" || searchBy === "createdAt"
+      ? "" // no placeholder for date
       : "Enter search value...";
 
   return (
@@ -41,16 +62,15 @@ export default function AllRecordsSearch({ onSearchChange }: AllRecordsSearchPro
         }}
       >
         <option value="all">-- All --</option>
-        <option value="id">Case ID</option>
-        <option value="incidentDate">Date</option>
-        <option value="zoneName">Zone Name</option>
-        <option value="crimeTypeName">Crime Type</option>
-        <option value="submitterCnic">Submitter CNIC</option>
-        <option value="registeredBranchId">Branch ID</option>
+        {dropdownOptions.map((opt) => (
+          <option key={opt.value} value={opt.value}>
+            {opt.label}
+          </option>
+        ))}
       </select>
 
       {/* Input field */}
-      {searchBy === "incidentDate" ? (
+      {(searchBy === "incidentDate" || searchBy === "createdAt") ? (
         <input
           type="date"
           className="border cursor-text rounded-[5px] px-3 py-2 w-64 text-sm"
