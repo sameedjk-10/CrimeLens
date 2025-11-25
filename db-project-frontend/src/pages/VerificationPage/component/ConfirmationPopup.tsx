@@ -76,8 +76,8 @@ export default function ConfirmationPopup({
 
   return (
     <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50 backdrop-blur-sm">
-      <div className="bg-white w-[520px] p-6 rounded-2xl shadow-xl animate-fadeIn font-outfit max-h-[85vh] overflow-y-auto">
-        <h2 className="text-2xl font-semibold mb-6 sticky top-0 bg-white pb-4">
+      <div className="bg-white w-[520px] pb-0 pl-6 pr-6 pt-0 rounded-2xl shadow-xl animate-fadeIn font-outfit max-h-[85vh] overflow-y-auto">
+        <h2 className="text-2xl font-semibold mb-6 pt-6 sticky top-0 bg-white pb-3">
           {version === "admin"
             ? "Confirm Agent Request Details"
             : "Confirm Crime Report Details"}
@@ -93,8 +93,9 @@ export default function ConfirmationPopup({
                 </label>
                 <input
                   type="text"
+                  name="branchId"
+                  onChange={handleInputChange}
                   value={formData.branchId}
-                  // readOnly
                   className="inputBox bg-gray-100 mt-1"
                 />
               </div>
@@ -106,7 +107,8 @@ export default function ConfirmationPopup({
                 <input
                   type="text"
                   value={formData.branchContact}
-                  // readOnly
+                  name="branchContact"
+                  onChange={handleInputChange}
                   className="inputBox bg-gray-100 mt-1"
                 />
               </div>
@@ -118,7 +120,8 @@ export default function ConfirmationPopup({
                 <input
                   type="text"
                   value={formData.username}
-                  // readOnly
+                  name="username"
+                  onChange={handleInputChange}
                   className="inputBox bg-gray-100 mt-1"
                 />
               </div>
@@ -130,7 +133,8 @@ export default function ConfirmationPopup({
                 <input
                   type="text"
                   value={formData.password}
-                  // readOnly
+                  name="password"
+                  onChange={handleInputChange}
                   className="inputBox bg-gray-100 mt-1"
                 />
               </div>
@@ -142,7 +146,8 @@ export default function ConfirmationPopup({
                 <input
                   type="text"
                   value={formData.requestDate}
-                  // readOnly
+                  name="requestDate"
+                  onChange={handleInputChange}
                   className="inputBox bg-gray-100 mt-1"
                 />
               </div>
@@ -162,7 +167,8 @@ export default function ConfirmationPopup({
                     <input
                       type="text"
                       value={formData.fullName}
-                      // readOnly
+                      name="fullName"
+                      onChange={handleInputChange}
                       className="w-full text-sm bg-gray-100 mt-1 p-2 rounded border"
                     />
                   </div>
@@ -173,7 +179,8 @@ export default function ConfirmationPopup({
                     <input
                       type="text"
                       value={formData.cnic}
-                      // readOnly
+                      name="cnic"
+                      onChange={handleInputChange}
                       className="w-full text-sm bg-gray-100 mt-1 p-2 rounded border"
                     />
                   </div>
@@ -184,7 +191,8 @@ export default function ConfirmationPopup({
                     <input
                       type="text"
                       value={formData.contact}
-                      // readOnly
+                      name="contact"
+                      onChange={handleInputChange}
                       className="w-full text-sm bg-gray-100 mt-1 p-2 rounded border"
                     />
                   </div>
@@ -195,7 +203,8 @@ export default function ConfirmationPopup({
                     <input
                       type="text"
                       value={formData.zone}
-                      // readOnly
+                      name="zone"
+                      onChange={handleInputChange}
                       className="w-full text-sm bg-gray-100 mt-1 p-2 rounded border"
                     />
                   </div>
@@ -214,7 +223,8 @@ export default function ConfirmationPopup({
                     <input
                       type="text"
                       value={formData.crimeType}
-                      // readOnly
+                      name="crimeType"
+                      onChange={handleInputChange}
                       className="w-full text-sm bg-gray-100 mt-1 p-2 rounded border"
                     />
                   </div>
@@ -225,7 +235,8 @@ export default function ConfirmationPopup({
                     <input
                       type="text"
                       value={formData.date}
-                      // readOnly
+                      name="date"
+                      onChange={handleInputChange}
                       className="w-full text-sm bg-gray-100 mt-1 p-2 rounded border"
                     />
                   </div>
@@ -236,7 +247,8 @@ export default function ConfirmationPopup({
                   </label>
                   <textarea
                     value={formData.description}
-                    // readOnly
+                    name="description"
+                  onChange={handleInputChange}
                     className="w-full text-sm bg-gray-100 mt-1 p-2 rounded border h-20 resize-none"
                   />
                 </div>
@@ -246,7 +258,8 @@ export default function ConfirmationPopup({
                   </label>
                   <textarea
                     value={formData.address}
-                    // readOnly
+                    name="address"
+                  onChange={handleInputChange}
                     className="w-full text-sm bg-gray-100 mt-1 p-2 rounded border h-20 resize-none"
                   />
                 </div>
@@ -256,19 +269,6 @@ export default function ConfirmationPopup({
                 <h3 className="font-semibold text-blue-900 mb-3">
                   ✏️ Officer Additions
                 </h3>
-                {/* <div className="mb-3">
-                  <label className="text-sm font-medium text-gray-700 block mb-1">
-                    Address <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="address"
-                    placeholder="Enter address or location details..."
-                    value={formData.address}
-                    onChange={handleInputChange}
-                    className="inputBox mt-1"
-                  />
-                </div> */}
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-sm font-medium text-gray-700 block mb-1">
@@ -307,7 +307,7 @@ export default function ConfirmationPopup({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex justify-between mt-6 gap-3 sticky bottom-0 bg-white pt-4">
+        <div className="flex justify-center mt-6 pb-6 gap-3 sticky bottom-0 bg-white pt-4">
           <WhiteButton label="Cancel" width={150} height={45} onClick={onClose} />
           <GreenButton
             label="Approve"

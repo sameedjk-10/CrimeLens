@@ -28,7 +28,7 @@ type VerificationCardProps =
     description: string;
     date: string;
     zone: number;
-    address?: string;
+    address: string;
     onContact?: () => void;
     onReject?: (reason?: string) => void;
     onApprove?: () => void;
@@ -216,6 +216,10 @@ export default function VerificationCard(props: VerificationCardProps) {
             <p>
               <span className="font-semibold">Zone #:</span> {props.zone}
             </p>
+            {/* <p>
+              <span className="font-semibold">Address:</span>{" "}
+              {props.address || "--"}
+            </p> */}
             <p>
               <span className="font-semibold">Description:</span>{" "}
               {props.description || "--"}

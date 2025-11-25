@@ -161,7 +161,9 @@ const Sidebar = ({ version, setPath }: SidebarProps) => {
               if (buttonText === "Logout") {
                 localStorage.removeItem("token");
                 navigate('/');
-              }
+              }else
+                navigate('/');
+                
             }}
           />
         </div>
