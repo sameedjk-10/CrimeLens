@@ -1,5 +1,4 @@
 // AllRecordsPage/index.tsx
-import Sidebar from "../../components/Sidebar";
 import AllRecords from "./component/AllRecords";
 import { type RootState } from "../../store";
 import { useSelector } from "react-redux";

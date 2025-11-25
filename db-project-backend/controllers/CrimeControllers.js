@@ -122,65 +122,6 @@ export const getAllCrimeTypes = async (req, res) => {
 };
 
 // ===================================================
-// 🔍 SEARCH CRIMES
-// ===================================================
-export const searchCrimes = async (req, res) => {
-  try {
-    const { role } = req.user;
-    const {
-      crime_type_id,
-      start_date,
-      end_date,
-      zone_id,
-      case_id,
-      officer_name,
-      officer_id,
-      person_name,
-    } = req.query;
-
-    const whereClause = {};
-
-        // 🔹 Common filters
-        if (crime_type_id) whereClause.crime_type_id = crime_type_id;
-        if (zone_id) whereClause.zone_id = zone_id;
-        if (start_date && end_date) {
-            whereClause.date = { [Op.between]: [new Date(start_date), new Date(end_date)] };
-        }
-
-        // 🔸 Admin & Police-only filters
-        if (["admin", "police"].includes(role)) {
-            if (case_id) whereClause.id = case_id;
-            if (officer_id) whereClause.officer_id = officer_id;
-            if (officer_name) whereClause["$User.name$"] = { [Op.iLike]: `%${officer_name}%` };
-            if (person_name) whereClause["$Criminal.name$"] = { [Op.iLike]: `%${person_name}%` };
-        }
-
-        // 🚫 Restrict Public users from sensitive filters
-        if (role === "public" && (case_id || officer_id || officer_name || person_name)) {
-            return res.status(403).json({
-                success: false,
-                message: "Unauthorized filters for public users.",
-            });
-        }
-
-        // 🔍 Execute query
-        const crimes = await Crime.findAll({
-            where: whereClause,
-            include: [
-                { model: User, attributes: ["id", "name"], required: false },
-                { model: Criminal, as: "criminals", attributes: ["id", "name"], required: false },
-            ]
-            ,
-        });
-
-    res.status(200).json({ success: true, data: crimes });
-  } catch (error) {
-    console.error("Search Error:", error);
-    res.status(500).json({ success: false, message: "Error searching crimes" });
-  }
-};
-
-// ===================================================
 // ➕ SUBMIT CRIME REPORT
 // ===================================================
 export const addCrime = async (req, res) => {
@@ -326,8 +267,6 @@ export const approveCrimeReport = async (req, res) => {
   }
 };
 
-
-
 // ===================================================
 // ❌ REJECT CRIME REPORT (Police Agent)
 // ===================================================
@@ -361,56 +300,6 @@ export const rejectCrimeReport = async (req, res) => {
       .status(500)
       .json({ success: false, message: "Error rejecting crime report" });
   }
-};
-
-// ===================================================
-// ✏️ UPDATE CRIME
-// ===================================================
-export const updateCrime = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { title, description, crime_type_id, date, location, address, zone_id, status } = req.body;
-
-        const crime = await Crime.findByPk(id);
-        if (!crime) {
-            return res.status(404).json({ success: false, message: "Crime not found" });
-        }
-
-        // Build update data dynamically
-        const updateData = { title, description, crime_type_id, date, address, zone_id, status };
-
-        if (location && location.lat && location.lng) {
-            updateData.location = literal(`ST_SetSRID(ST_Point(${location.lng}, ${location.lat}), 4326)`);
-        }
-
-    await crime.update(updateData);
-
-        res.status(200).json({ success: true, message: "Crime updated successfully", data: crime });
-    } catch (error) {
-        console.error("Update Crime Error:", error);
-        res.status(500).json({ success: false, message: "Error updating crime" });
-    }
-};
-
-// ===================================================
-// ❌ DELETE CRIME
-// ===================================================
-export const deleteCrime = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-        const crime = await Crime.findByPk(id);
-        if (!crime) {
-            return res.status(404).json({ success: false, message: "Crime not found" });
-        }
-
-    await crime.destroy();
-
-        res.status(200).json({ success: true, message: "Crime deleted successfully" });
-    } catch (error) {
-        console.error("Delete Crime Error:", error);
-        res.status(500).json({ success: false, message: "Error deleting crime" });
-    }
 };
 
 // ===================================================
@@ -542,3 +431,200 @@ export const getAllCrimes = async (req, res) => {
     });
   }
 };
+
+// --------------------------------------------------
+// GET SINGLE CRIME BY ID
+// --------------------------------------------------
+export const getCrimeById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const crime = await Crime.findOne({
+      where: { id },
+      attributes: [
+        "id",
+        "title",
+        "description",
+        "crimeTypeId",
+        "incidentDate",
+        "status",
+        "address",
+        "zoneId",
+        "location"
+      ]
+    });
+
+    if (!crime) {
+      return res.status(404).json({ success: false, message: "Crime not found" });
+    }
+
+    res.json({ success: true, data: crime });
+  } catch (err) {
+    console.error("Error fetching crime:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+// --------------------------------------------------
+// UPDATE CRIME
+// --------------------------------------------------
+export const updateCrime = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const {
+      title,
+      description,
+      address,
+      zoneId,
+      latitude,
+      longitude
+    } = req.body;
+
+    const crime = await Crime.findByPk(id);
+    if (!crime) {
+      return res.status(404).json({ success: false, message: "Crime not found" });
+    }
+
+    // Build base update object
+    const updatedData = {
+      title,
+      description,
+      address,
+      zoneId: zoneId || null,
+    };
+
+    // Proper location update
+    if (
+      latitude !== undefined &&
+      longitude !== undefined &&
+      !isNaN(latitude) &&
+      !isNaN(longitude)
+    ) {
+      updatedData.location = literal(
+        `ST_SetSRID(ST_Point(${Number(longitude)}, ${Number(latitude)}), 4326)`
+      );
+    }
+
+    await crime.update(updatedData);
+
+    res.json({ success: true, message: "Crime updated successfully" });
+
+  } catch (err) {
+    console.error("Error updating crime:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+
+export const deleteCrime = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+        const crime = await Crime.findByPk(id);
+        if (!crime) {
+            return res.status(404).json({ success: false, message: "Crime not found" });
+        }
+
+    await crime.destroy();
+
+        res.status(200).json({ success: true, message: "Crime deleted successfully" });
+    } catch (error) {
+        console.error("Delete Crime Error:", error);
+        res.status(500).json({ success: false, message: "Error deleting crime" });
+    }
+};
+
+
+// ===================================================
+// 🔍 SEARCH CRIMES
+// ===================================================
+// export const searchCrimes = async (req, res) => {
+//   try {
+//     const { role } = req.user;
+//     const {
+//       crime_type_id,
+//       start_date,
+//       end_date,
+//       zone_id,
+//       case_id,
+//       officer_name,
+//       officer_id,
+//       person_name,
+//     } = req.query;
+
+//     const whereClause = {};
+
+//         // 🔹 Common filters
+//         if (crime_type_id) whereClause.crime_type_id = crime_type_id;
+//         if (zone_id) whereClause.zone_id = zone_id;
+//         if (start_date && end_date) {
+//             whereClause.date = { [Op.between]: [new Date(start_date), new Date(end_date)] };
+//         }
+
+//         // 🔸 Admin & Police-only filters
+//         if (["admin", "police"].includes(role)) {
+//             if (case_id) whereClause.id = case_id;
+//             if (officer_id) whereClause.officer_id = officer_id;
+//             if (officer_name) whereClause["$User.name$"] = { [Op.iLike]: `%${officer_name}%` };
+//             if (person_name) whereClause["$Criminal.name$"] = { [Op.iLike]: `%${person_name}%` };
+//         }
+
+//         // 🚫 Restrict Public users from sensitive filters
+//         if (role === "public" && (case_id || officer_id || officer_name || person_name)) {
+//             return res.status(403).json({
+//                 success: false,
+//                 message: "Unauthorized filters for public users.",
+//             });
+//         }
+
+//         // 🔍 Execute query
+//         const crimes = await Crime.findAll({
+//             where: whereClause,
+//             include: [
+//                 { model: User, attributes: ["id", "name"], required: false },
+//                 { model: Criminal, as: "criminals", attributes: ["id", "name"], required: false },
+//             ]
+//             ,
+//         });
+
+//     res.status(200).json({ success: true, data: crimes });
+//   } catch (error) {
+//     console.error("Search Error:", error);
+//     res.status(500).json({ success: false, message: "Error searching crimes" });
+//   }
+// };
+
+
+// ===================================================
+// ✏️ UPDATE CRIME
+// ===================================================
+// export const updateCrime = async (req, res) => {
+//     try {
+//         const { id } = req.params;
+//         const { title, description, crime_type_id, date, location, address, zone_id, status } = req.body;
+
+//         const crime = await Crime.findByPk(id);
+//         if (!crime) {
+//             return res.status(404).json({ success: false, message: "Crime not found" });
+//         }
+
+//         // Build update data dynamically
+//         const updateData = { title, description, crime_type_id, date, address, zone_id, status };
+
+//         if (location && location.lat && location.lng) {
+//             updateData.location = literal(`ST_SetSRID(ST_Point(${location.lng}, ${location.lat}), 4326)`);
+//         }
+
+//     await crime.update(updateData);
+
+//         res.status(200).json({ success: true, message: "Crime updated successfully", data: crime });
+//     } catch (error) {
+//         console.error("Update Crime Error:", error);
+//         res.status(500).json({ success: false, message: "Error updating crime" });
+//     }
+// };
+
+// ===================================================
+// ❌ DELETE CRIME
+// ===================================================
