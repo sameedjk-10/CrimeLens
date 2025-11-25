@@ -243,3 +243,31 @@ export const getRequestById = async (req, res) => {
       .json({ success: false, message: "Error fetching request" });
   }
 };
+
+export const getAllAgents = async (req, res) => {
+  try {
+    // only police agents
+    const agents = await PoliceAgentRequest.findAll({
+      attributes: [
+        "id",
+        "branchId",
+        "username",
+        "password",
+        "branchContact",
+        "createdAt"
+      ],
+      order: [["id", "ASC"]],
+    });
+
+    res.status(200).json({
+      success: true,
+      data: agents,
+    });
+  } catch (error) {
+    console.error("Error fetching agents:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch agent records",
+    });
+  }
+};

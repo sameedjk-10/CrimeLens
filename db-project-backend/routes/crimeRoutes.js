@@ -1,12 +1,17 @@
 // routes/crimeRoutes.js
 import express from "express";
-import { getAllCrimeTypes, getCrimesForMap, searchCrimes, addCrime, updateCrime, deleteCrime, } from "../controllers/CrimeControllers.js";
+import { getAllCrimeTypes, getAllCrimes, getCrimesForMap, searchCrimes, addCrime, updateCrime, deleteCrime, } from "../controllers/CrimeControllers.js";
 
 const router = express.Router();
 
 router.get(
   "/",
   getCrimesForMap
+);
+
+router.get(
+  "/all",
+  getAllCrimes
 );
 
 router.get(

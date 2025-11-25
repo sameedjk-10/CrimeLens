@@ -1,7 +1,7 @@
 // controllers/crimeController.js
 import { Op, fn, col, literal } from "sequelize";
 import db from "../models/index.js";
-const { Crime, User, Criminal , CrimeSubmission, CrimeReportsSubmitter, CrimeType, Zone } = db;
+const { Crime, User, Criminal , CrimeSubmission, CrimeReportsSubmitter, CrimeType, Zone, PoliceBranch } = db;
 
 // ===================================================
 // 🌍 GET CRIMES FOR MAP (GeoJSON)
@@ -84,13 +84,6 @@ export const getCrimesForMap = async (req, res) => {
         if (!c.geom) return null; // skip crimes without location
         const loc = typeof c.geom === "string" ? JSON.parse(c.geom) : c.geom;
         return {
-          // id: c.id,
-          // crimeTypeId: c.crimeTypeId,
-          // crimeTypeName: c.crimeTypeName, // send name to frontend
-          // incidentDate: c.incidentDate,
-          // status: c.status,
-          // latitude: loc.coordinates[1],
-          // longitude: loc.coordinates[0],
           id: c.id,
           crimeTypeId: c.crimeTypeId,
           crimeTypeName: c.crimeTypeName,
@@ -481,5 +474,71 @@ export const reportCrime = async (req, res) => {
   } catch (error) {
     console.error("Add Crime Error:", error);
     res.status(500).json({ success: false, message: "Error adding crime" });
+  }
+};
+
+
+// ===================================================
+// 📌 GET ALL CRIMES (For Records Table)
+// ===================================================
+import { Sequelize } from "sequelize";
+
+export const getAllCrimes = async (req, res) => {
+  try {
+    const crimes = await Crime.findAll({
+      attributes: [
+        "id",
+        "incidentDate",
+        // Zone Name
+        [
+          Sequelize.literal(`(
+            SELECT "name" FROM "Zone" AS z
+            WHERE z.id = "Crime"."zoneId"
+            LIMIT 1
+          )`),
+          "zoneName"
+        ],
+        // Registered Branch ID
+        [
+          Sequelize.literal(`(
+            SELECT "id" FROM "PoliceBranch" AS pb
+            WHERE pb."zoneId" = "Crime"."zoneId"
+            LIMIT 1
+          )`),
+          "registeredBranchId"
+        ],
+        // Submitter CNIC
+        [
+          Sequelize.literal(`(
+            SELECT "submitterCnic" FROM "CrimeSubmission" AS cs
+            WHERE cs."verifiedCrimeId" = "Crime"."id"
+            LIMIT 1
+          )`),
+          "submitterCnic"
+        ],
+        // Crime Type Name
+        [
+          Sequelize.literal(`(
+            SELECT "name" FROM "CrimeType" AS ct
+            WHERE ct.id = "Crime"."crimeTypeId"
+            LIMIT 1
+          )`),
+          "crimeTypeName"
+        ]
+      ],
+      order: [["incidentDate", "DESC"]]
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: crimes
+    });
+
+  } catch (error) {
+    console.error("❌ Error fetching crimes:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Error fetching crime records",
+    });
   }
 };
