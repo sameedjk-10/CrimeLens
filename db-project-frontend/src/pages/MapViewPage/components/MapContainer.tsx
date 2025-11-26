@@ -24,7 +24,7 @@ const MapContainer: React.FC<MapContainerProps> = ({children, embedded = false }
       {!embedded && (
         <button
           onClick={handleBack}
-          className="absolute top-4 left-4 z-[1000] bg-white hover:bg-gray-100 text-[#237E54] font-semibold py-2 px-4 rounded-full shadow-sm transition-colors duration-200 flex items-center gap-2 cursor-pointer"
+          className="absolute top-7 left-4 z-[1000] bg-white hover:bg-gray-100 text-[#237E54] font-semibold py-2 px-4 rounded-full shadow-sm transition-colors duration-200 flex items-center gap-2 cursor-pointer"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
