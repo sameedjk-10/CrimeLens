@@ -118,7 +118,7 @@ export default function ReportCrimeCard() {
     value ? "text-gray-700" : "text-[#ababab]";
 
   return (
-    <div className="bg-white rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.08)] p-6 w-full border-2 border-[#d9d9d9] font-outfit">
+    <div className="bg-white rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.08)] p-6 w-full border-2 border-[#e8e8e8] font-outfit">
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
         {/* PERSONAL INFO */}
         <div>

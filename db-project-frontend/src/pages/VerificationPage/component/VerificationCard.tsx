@@ -161,7 +161,7 @@ export default function VerificationCard(props: VerificationCardProps) {
   };
 
   return (
-    <div className="bg-[#ffffff] rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.08)] p-6 w-full flex flex-col gap-y-3 font-outfit border-2 border-[#d9d9d9] relative">
+    <div className="bg-[#ffffff] rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.08)] p-6 w-full flex flex-col gap-y-3 font-outfit border-2 border-[#e8e8e8] relative">
       {/* Admin Version */}
       {props.version === "admin" ? (
         <>

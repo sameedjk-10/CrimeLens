@@ -8,7 +8,7 @@ export default function ReportCrime() {
   const navigate = useNavigate();
 
   return (
-    <section className="flex flex-row h-screen w-full bg-red-100">
+    <section className="flex flex-row h-screen w-full">
 
       <div className="flex flex-col gap-y-4 pl-76 p-4 w-full overflow-y-auto">
         {/* Top section with title and button */}
