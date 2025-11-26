@@ -67,7 +67,7 @@ const PageLayout = () => {
 
   return (
     <div className="flex w-full">
-      <div className="py-4 pl-4">
+      <div className="py-4 pl-4 z-index-10">
         {!hideSidebar && roleLoaded && (
           <Sidebar version={role} setPath={handleNavigation} />
         )}

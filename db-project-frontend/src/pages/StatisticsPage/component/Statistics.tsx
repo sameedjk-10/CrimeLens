@@ -55,9 +55,15 @@ const Statistics = () => {
 
   return (
     <section className="flex flex-row h-screen w-full">
+<<<<<<< Updated upstream
       <div className="flex flex-col gap-y-4 pl-76 p-4 w-full overflow-y-auto">
         {/* STATS CARDS */}
         <div className=" bg-[#fefefe] p-4 rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.15)] flex flex-col gap-y-2">
+=======
+      <div className="flex flex-col gap-y-4 pl-76 p-4 w-full overflow-y-auto ">
+        {/* STATS CARDS */}
+        <div className="bg-[#fefefe] p-4 rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.15)] flex flex-col gap-y-2">
+>>>>>>> Stashed changes
           <div className="flex items-start ml-2" onClick={NavigateDashboard}>
             <BackButton textSize="text-sm" iconSize={16} />
           </div>

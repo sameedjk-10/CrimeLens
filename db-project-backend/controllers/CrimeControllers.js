@@ -10,7 +10,7 @@ export const getCrimesForMap = async (req, res) => {
   try {
     const { mode, crimeType, zoneId, startDate, endDate, lat, lng, radius } = req.query;
 
-    // Base SQL with join to CrimeType to get name
+    // Base SQL (JOINs first)
     let sql = `
       SELECT 
         c.id,
@@ -27,12 +27,13 @@ export const getCrimesForMap = async (req, res) => {
       FROM "Crime" c
       JOIN "CrimeType" ct ON c."crimeTypeId" = ct.id
       LEFT JOIN "Zone" z ON c."zoneId" = z.id
+      WHERE c.status = 'approved'
     `;
 
     const conditions = [];
-    const replacements = {}; // For parameterized query
+    const replacements = {};
 
-    // Filter: crime type by name (case-insensitive)
+    // Filter: crime type
     if (crimeType && crimeType !== "All") {
       conditions.push(`ct.name ILIKE :crimeType`);
       replacements.crimeType = crimeType;
@@ -44,7 +45,7 @@ export const getCrimesForMap = async (req, res) => {
       replacements.zoneId = zoneId;
     }
 
-    // Filter: date range
+    // Date filters
     if (startDate) {
       conditions.push(`c."incidentDate" >= :startDate`);
       replacements.startDate = new Date(startDate).toISOString();
@@ -68,20 +69,23 @@ export const getCrimesForMap = async (req, res) => {
       replacements.radius = parseFloat(radius);
     }
 
+    // Append additional conditions
     if (conditions.length > 0) {
-      sql += " WHERE " + conditions.join(" AND ");
+      sql += " AND " + conditions.join(" AND ");
     }
 
     sql += ";";
 
+    // Execute the query
     const crimes = await db.sequelize.query(sql, {
       type: db.sequelize.QueryTypes.SELECT,
-      replacements, // safely pass parameters
+      replacements,
     });
 
+    // Format output
     const formatted = crimes
       .map((c) => {
-        if (!c.geom) return null; // skip crimes without location
+        if (!c.geom) return null;
         const loc = typeof c.geom === "string" ? JSON.parse(c.geom) : c.geom;
         return {
           id: c.id,
@@ -98,9 +102,10 @@ export const getCrimesForMap = async (req, res) => {
           zoneName: c.zoneName,
         };
       })
-      .filter(Boolean); // remove nulls
+      .filter(Boolean);
 
     return res.json(formatted);
+
   } catch (err) {
     console.error("Map Crime Error:", err);
     res.status(500).json([]);
@@ -119,41 +124,6 @@ export const getAllCrimeTypes = async (req, res) => {
     console.error("Error fetching crime types:", err);
     res.status(500).json({ message: "Internal server error" });
   }
-};
-
-// ===================================================
-// ➕ SUBMIT CRIME REPORT
-// ===================================================
-export const addCrime = async (req, res) => {
-    try {
-        const { title, description, crime_type_id, date, location, address, zone_id } = req.body;
-
-        if (!title || !crime_type_id || !date || !location) {
-            return res.status(400).json({ success: false, message: "Missing required fields" });
-        }
-
-        // location should be in format: { lat: xx.xx, lng: yy.yy }
-        const { lat, lng } = location;
-        if (!lat || !lng) {
-            return res.status(400).json({ success: false, message: "Invalid location format" });
-        }
-
-        const newCrime = await Crime.create({
-            title,
-            description,
-            crime_type_id,
-            date,
-            address,
-            zone_id,
-            status: "pending",
-            location: literal(`ST_SetSRID(ST_Point(${lng}, ${lat}), 4326)`),
-        });
-
-        res.status(201).json({ success: true, message: "Crime added successfully", data: newCrime });
-    } catch (error) {
-        console.error("Add Crime Error:", error);
-        res.status(500).json({ success: false, message: "Error adding crime" });
-    }
 };
 
 // ===================================================
@@ -327,7 +297,7 @@ export const reportCrime = async (req, res) => {
 
     // 1️⃣ Check if submitter exists, if not create new record
     let submitterRecord = await CrimeReportsSubmitter.findByPk(cnic);
-    
+
     if (!submitterRecord) {
       submitterRecord = await CrimeReportsSubmitter.create({
         submitterCnic: cnic,
@@ -375,6 +345,7 @@ import { Sequelize } from "sequelize";
 export const getAllCrimes = async (req, res) => {
   try {
     const crimes = await Crime.findAll({
+      where: { status: "approved" },  // ✅ Only approved crimes
       attributes: [
         "id",
         "incidentDate",
@@ -440,7 +411,10 @@ export const getCrimeById = async (req, res) => {
     const { id } = req.params;
 
     const crime = await Crime.findOne({
-      where: { id },
+      where: {
+        id,
+        status: "approved"   // ✅ Only approved crimes
+      },
       attributes: [
         "id",
         "title",
@@ -521,110 +495,16 @@ export const deleteCrime = async (req, res) => {
   try {
     const { id } = req.params;
 
-        const crime = await Crime.findByPk(id);
-        if (!crime) {
-            return res.status(404).json({ success: false, message: "Crime not found" });
-        }
+    const crime = await Crime.findByPk(id);
+    if (!crime) {
+      return res.status(404).json({ success: false, message: "Crime not found" });
+    }
 
     await crime.destroy();
 
-        res.status(200).json({ success: true, message: "Crime deleted successfully" });
-    } catch (error) {
-        console.error("Delete Crime Error:", error);
-        res.status(500).json({ success: false, message: "Error deleting crime" });
-    }
+    res.status(200).json({ success: true, message: "Crime deleted successfully" });
+  } catch (error) {
+    console.error("Delete Crime Error:", error);
+    res.status(500).json({ success: false, message: "Error deleting crime" });
+  }
 };
-
-
-// ===================================================
-// 🔍 SEARCH CRIMES
-// ===================================================
-// export const searchCrimes = async (req, res) => {
-//   try {
-//     const { role } = req.user;
-//     const {
-//       crime_type_id,
-//       start_date,
-//       end_date,
-//       zone_id,
-//       case_id,
-//       officer_name,
-//       officer_id,
-//       person_name,
-//     } = req.query;
-
-//     const whereClause = {};
-
-//         // 🔹 Common filters
-//         if (crime_type_id) whereClause.crime_type_id = crime_type_id;
-//         if (zone_id) whereClause.zone_id = zone_id;
-//         if (start_date && end_date) {
-//             whereClause.date = { [Op.between]: [new Date(start_date), new Date(end_date)] };
-//         }
-
-//         // 🔸 Admin & Police-only filters
-//         if (["admin", "police"].includes(role)) {
-//             if (case_id) whereClause.id = case_id;
-//             if (officer_id) whereClause.officer_id = officer_id;
-//             if (officer_name) whereClause["$User.name$"] = { [Op.iLike]: `%${officer_name}%` };
-//             if (person_name) whereClause["$Criminal.name$"] = { [Op.iLike]: `%${person_name}%` };
-//         }
-
-//         // 🚫 Restrict Public users from sensitive filters
-//         if (role === "public" && (case_id || officer_id || officer_name || person_name)) {
-//             return res.status(403).json({
-//                 success: false,
-//                 message: "Unauthorized filters for public users.",
-//             });
-//         }
-
-//         // 🔍 Execute query
-//         const crimes = await Crime.findAll({
-//             where: whereClause,
-//             include: [
-//                 { model: User, attributes: ["id", "name"], required: false },
-//                 { model: Criminal, as: "criminals", attributes: ["id", "name"], required: false },
-//             ]
-//             ,
-//         });
-
-//     res.status(200).json({ success: true, data: crimes });
-//   } catch (error) {
-//     console.error("Search Error:", error);
-//     res.status(500).json({ success: false, message: "Error searching crimes" });
-//   }
-// };
-
-
-// ===================================================
-// ✏️ UPDATE CRIME
-// ===================================================
-// export const updateCrime = async (req, res) => {
-//     try {
-//         const { id } = req.params;
-//         const { title, description, crime_type_id, date, location, address, zone_id, status } = req.body;
-
-//         const crime = await Crime.findByPk(id);
-//         if (!crime) {
-//             return res.status(404).json({ success: false, message: "Crime not found" });
-//         }
-
-//         // Build update data dynamically
-//         const updateData = { title, description, crime_type_id, date, address, zone_id, status };
-
-//         if (location && location.lat && location.lng) {
-//             updateData.location = literal(`ST_SetSRID(ST_Point(${location.lng}, ${location.lat}), 4326)`);
-//         }
-
-//     await crime.update(updateData);
-
-//         res.status(200).json({ success: true, message: "Crime updated successfully", data: crime });
-//     } catch (error) {
-//         console.error("Update Crime Error:", error);
-//         res.status(500).json({ success: false, message: "Error updating crime" });
-//     }
-// };
-
-// ===================================================
-// ❌ DELETE CRIME
-// ===================================================

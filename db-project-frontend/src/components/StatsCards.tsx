@@ -38,7 +38,7 @@ const StatsCard = ({
   mainTextColor = "text-black",
   smallTextColor = "text-green-600",
   LiveButton = null,
-  fontSize = "text-[50px]",
+  fontSize = "text-[56px]",
   arrowProps,
   sphereProps,
 }: StatsCardProps) => {
@@ -55,7 +55,7 @@ const StatsCard = ({
     >
       {/* Top Section */}
       <div className="flex justify-between items-start ">
-        <p className={`text-base font-medium ${mainTextColor}`}>{title}</p>
+        <p className={`text-base font-semibold ${mainTextColor}`}>{title}</p>
         <div className="rounded">
           {arrowProps ? (
             <ArrowButton {...arrowProps} />

@@ -22,7 +22,29 @@ export const getZoneSeverity = async (req, res) => {
       if (endDate) crimeWhere.incidentDate[Op.lte] = new Date(endDate);
     }
 
-    // Use db.sequelize.query instead of Sequelize.query
+    // Build Filters
+    const filterCrimeType =
+      crimeType && crimeType !== "All"
+        ? `AND "CrimeType".name = '${crimeType}'`
+        : "";
+
+    const filterZone =
+      zoneId && zoneId !== "All"
+        ? `AND "Zone".id = ${zoneId}`
+        : "";
+
+    const filterStart = startDate
+      ? `AND "Crime"."incidentDate" >= '${startDate}'`
+      : "";
+
+    const filterEnd = endDate
+      ? `AND "Crime"."incidentDate" <= '${endDate}'`
+      : "";
+
+    // ▼ THE IMPORTANT NEW FILTER: approved crimes only ▼
+    const filterApproved = `AND "Crime"."status" = 'approved'`;
+
+    // SQL Query
     const zones = await db.sequelize.query(
       `
       SELECT 
@@ -31,19 +53,21 @@ export const getZoneSeverity = async (req, res) => {
         ST_AsGeoJSON("Zone".boundary)::json AS boundary,
         COALESCE(SUM("CrimeType".severity), 0) AS "totalSeverity"
       FROM "Zone"
-      LEFT JOIN "Crime" ON "Crime"."zoneId" = "Zone".id
-      LEFT JOIN "CrimeType" ON "CrimeType".id = "Crime"."crimeTypeId"
+      LEFT JOIN "Crime" 
+        ON "Crime"."zoneId" = "Zone".id
+      LEFT JOIN "CrimeType" 
+        ON "CrimeType".id = "Crime"."crimeTypeId"
       WHERE 1=1
-      ${crimeType && crimeType !== "All" ? `AND "CrimeType".name = '${crimeType}'` : ""}
-      ${zoneId && zoneId !== "All" ? `AND "Zone".id = ${zoneId}` : ""}
-      ${startDate ? `AND "Crime"."incidentDate" >= '${startDate}'` : ""}
-      ${endDate ? `AND "Crime"."incidentDate" <= '${endDate}'` : ""}
+        ${filterApproved}  -- << ONLY APPROVED CRIMES >>
+        ${filterCrimeType}
+        ${filterZone}
+        ${filterStart}
+        ${filterEnd}
       GROUP BY "Zone".id
       ORDER BY "Zone".id ASC;
-      `,
+    `,
       { type: db.sequelize.QueryTypes.SELECT }
     );
-
     res.json(
       zones.map((z) => {
         const coords = z.boundary?.coordinates?.[0] || []; // GeoJSON polygon outer ring

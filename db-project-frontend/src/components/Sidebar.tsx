@@ -90,12 +90,11 @@ const Sidebar = ({ version, setPath }: SidebarProps) => {
         "Verify Report",
         "Crime Records",
         "Upload Data",
-        "Give Feedback",
       ].includes(m.label)
     );
   else if (version === "user")
     filteredMenus = allMenus.filter((m) =>
-      ["Dashboard", "Report Crime", "Give Feedback"].includes(m.label)
+      ["Dashboard", "Report Crime"].includes(m.label)
     );
 
   // Sync activeItem with current location
@@ -113,7 +112,7 @@ const Sidebar = ({ version, setPath }: SidebarProps) => {
     version === "admin" || version === "police" ? "Logout" : "Back to Home";
 
   return (
-    <div className="flex flex-col justify-between h-178 w-68 bg-[#fefefe] rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.15)] py-4 px-4 fixed">
+    <div className="flex flex-col justify-between h-[95%] w-68 bg-[#fefefe] rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.15)] py-4 px-4 fixed">
       {/* Top Section */}
       <div>
         {/* Logo */}

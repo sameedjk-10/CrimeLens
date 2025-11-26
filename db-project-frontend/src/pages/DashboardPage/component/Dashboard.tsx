@@ -1,3 +1,182 @@
+// import { useEffect, useState } from "react";
+// import StatsCard from "../../../components/StatsCards";
+// import MapBackground from "../../../assets/MapBackground.png";
+// import GreenButton from "../../../components/GreenButton";
+// import ArrowButton from "../../../components/ArrowButton";
+// import { useNavigate } from "react-router-dom";
+// import MapEmbed from "../../../components/MapEmbed";
+
+// const Dashboard = () => {
+//   const navigate = useNavigate();
+
+//   const NavigateStatistics = () => {
+//     navigate("/statistics");
+//   };
+
+//   const NavigateMap = () => {
+//     navigate("/map");
+//   };
+
+//   const [dangerous, setDangerous] = useState(null);
+//   const [moderate, setModerate] = useState(null);
+//   const [safe, setSafe] = useState(null);
+
+//   const [loading, setLoading] = useState(true);
+
+//   useEffect(() => {
+//     const fetchSeverity = async () => {
+//       try {
+//         const res = await fetch("http://localhost:5000/api/zones/severity");
+//         const data = await res.json();
+
+//         if (!Array.isArray(data)) return;
+
+//         // Sort by severity
+//         const sorted = [...data].sort(
+//           (a, b) => b.totalSeverity - a.totalSeverity
+//         );
+
+//         setDangerous(sorted[0]); // Highest severity
+//         setSafe(sorted[sorted.length - 1]); // Lowest
+//         setModerate(sorted[Math.floor(sorted.length / 2)]); // Middle
+
+//       } catch (err) {
+//         console.error("Dashboard severity fetch error:", err);
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+
+//     fetchSeverity();
+//   }, []); return (
+//     <section className="flex flex-row h-screen w-full">
+//       {/* MAIN CONTENT */}
+//       <div className="flex flex-col gap-y-4 pl-76 p-4 w-full overflow-y-auto">
+//         {/* STATS SECTION */}
+//         <div className="bg-[#fefefe] p-4 rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.15)] flex flex-col gap-y-4">
+//           <div className="flex flex-row justify-between items-start w-full">
+//             <div className="flex flex-col gap-y-1 ml-2">
+//               <div className="font-outfit font-semibold text-4xl text-black">
+//                 Dashboard
+//               </div>
+//               <div className="font-outfit text-md text-[#A0A0A0]">
+//                 Monitor live updates on crime density, red zones, and incident
+//                 patterns across the city.
+//               </div>
+//             </div>
+
+//             <div className="flex items-start mt-2">
+//               <GreenButton
+//                 label="View all Statistics"
+//                 width={260}
+//                 height={50}
+//                 onClick={NavigateStatistics}
+//               />
+//             </div>
+//           </div>
+
+//           {/* STATS CARDS ROW */}
+//           <div className="flex gap-x-4 ml-2">
+//             <StatsCard
+//               title="Total Crimes"
+//               value={28}
+//               subText="Updated from last 30 days"
+//               bgColor="bg-[#ffffff]"
+//               gradientBg="linear-gradient(to bottom, #145332, #1C6943, #237E54)"
+//               width="w-[280px]"
+//               height="h-[170px]"
+//               mainTextColor="text-[#ffffff]"
+//               smallTextColor="text-[#D9D9D9]"
+//               LiveButton={1}
+//             />
+
+//             <StatsCard
+//               title="Total Crimes"
+//               value={28}
+//               subText="Updated from last 30 days"
+//               bgColor="bg-[#ffffff]"
+//               width="w-[280px]"
+//               height="h-[170px]"
+//               mainTextColor="text-black"
+//               smallTextColor="text-[#237E54]"
+//               LiveButton={1}
+//             />
+
+//             <StatsCard
+//               title="Total Crimes"
+//               value={28}
+//               subText="Updated from last 30 days"
+//               bgColor="bg-[#ffffff]"
+//               width="w-[280px]"
+//               height="h-[170px]"
+//               mainTextColor="text-black"
+//               smallTextColor="text-[#237E54]"
+//               LiveButton={1}
+
+//             />
+
+//             <StatsCard
+//               title="Total Crimes"
+//               value={28}
+//               subText="Updated from last 30 days"
+//               bgColor="bg-[#ffffff]"
+//               width="w-[280px]"
+//               height="h-[170px]"
+//               mainTextColor="text-black"
+//               smallTextColor="text-[#237E54]"
+//               LiveButton={1}
+//             />
+//           </div>
+//         </div>
+
+//         {/* CRIME MAP SECTION */}
+//         <div
+//           className="p-4 rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.5)] h-110 relative"
+//           style={{
+//             backgroundImage: `url(${MapBackground})`,
+//             backgroundSize: "cover",
+//             backgroundPosition: "center",
+//           }}
+//         >
+//           <div className="flex flex-row justify-between items-start w-full mb-4">
+//             {/* Text */}
+//             <div className="flex flex-col gap-y-1 ml-2">
+//               <div className="font-outfit font-semibold text-3xl text-white">
+//                 City Crime Map
+//               </div>
+//               <div className="font-outfit text-md text-[#efecec]">
+//                 Real-time visualization of crime activity across the city,
+//                 updated directly from police databases.
+//               </div>
+//             </div>
+
+//             {/* Arrow Button */}
+//             <div className="flex items-start mt-2 mr-2">
+//               <ArrowButton
+//                 size={48}
+//                 bgColor="bg-white"
+//                 iconColor="text-[#237E54]"
+//                 hoverBgColor="hover:bg-green-100"
+//                 hoverIconColor="group-hover:text-green-600"
+//                 onClick={NavigateMap}
+//               />
+//             </div>
+//           </div>
+
+//           <div className="w-full h-[calc(100%-85px)] rounded-xl overflow-hidden">
+//             <MapEmbed />
+//           </div>
+
+//         </div>
+//       </div>
+//     </section>
+//   );
+// };
+
+// export default Dashboard;
+
+
+import { useEffect, useState } from "react";
 import StatsCard from "../../../components/StatsCards";
 import MapBackground from "../../../assets/MapBackground.png";
 import GreenButton from "../../../components/GreenButton";
@@ -8,17 +187,59 @@ import MapEmbed from "../../../components/MapEmbed";
 const Dashboard = () => {
   const navigate = useNavigate();
 
-  const NavigateStatistics = () => {
-    navigate("/statistics");
-  };
+  const NavigateStatistics = () => navigate("/statistics");
+  const NavigateMap = () => navigate("/map");
 
-  const NavigateMap = () => {
-    navigate("/map");
-  };
+  const [totalZones, setTotalZones] = useState(0);
+  const [dangerousCount, setDangerousCount] = useState(0);
+  const [moderateCount, setModerateCount] = useState(0);
+  const [safeCount, setSafeCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchSeverity = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/zones/severity");
+        const data = await res.json();
+
+        if (!Array.isArray(data) || data.length === 0) return;
+
+        setTotalZones(data.length);
+
+        // Extract totalSeverity from all zones
+        const severities = data.map(z => z.totalSeverity);
+        const maxSeverity = Math.max(...severities);
+        const minSeverity = Math.min(...severities);
+
+        // Thresholds: Dangerous > 66%, Moderate 33-66%, Safe < 33%
+        const dangerousThreshold = minSeverity + (maxSeverity - minSeverity) * 0.66;
+        const moderateThreshold = minSeverity + (maxSeverity - minSeverity) * 0.33;
+
+        let dangerous = 0;
+        let moderate = 0;
+        let safe = 0;
+
+        data.forEach(zone => {
+          if (zone.totalSeverity >= dangerousThreshold) dangerous++;
+          else if (zone.totalSeverity >= moderateThreshold) moderate++;
+          else safe++;
+        });
+
+        setDangerousCount(dangerous);
+        setModerateCount(moderate);
+        setSafeCount(safe);
+      } catch (err) {
+        console.error("Dashboard severity fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSeverity();
+  }, []);
 
   return (
     <section className="flex flex-row h-screen w-full">
-      {/* MAIN CONTENT */}
       <div className="flex flex-col gap-y-4 pl-76 p-4 w-full overflow-y-auto">
         {/* STATS SECTION */}
         <div className="bg-[#fefefe] p-4 rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.15)] flex flex-col gap-y-4">
@@ -28,8 +249,7 @@ const Dashboard = () => {
                 Dashboard
               </div>
               <div className="font-outfit text-md text-[#A0A0A0]">
-                Monitor live updates on crime density, red zones, and incident
-                patterns across the city.
+                Monitor live updates on crime density, red zones, and incident patterns across the city.
               </div>
             </div>
 
@@ -46,80 +266,52 @@ const Dashboard = () => {
           {/* STATS CARDS ROW */}
           <div className="flex gap-x-4 ml-2">
             <StatsCard
-              title="Total Crimes"
-              value={28}
-              subText="Updated from last 30 days"
+              title="Total Zones"
+              value={loading ? "..." : totalZones}
+              subText="City region divided in blocks"
               bgColor="bg-[#ffffff]"
               gradientBg="linear-gradient(to bottom, #145332, #1C6943, #237E54)"
-              width="w-[280px]"
+              width="w-[100%]"
               height="h-[170px]"
               mainTextColor="text-[#ffffff]"
               smallTextColor="text-[#D9D9D9]"
               LiveButton={1}
-              arrowProps={{
-                size: 36,
-                bgColor: "bg-[#ffffff]",
-                iconColor: "text-[#237E54]",
-                hoverBgColor: "hover:bg-green-100",
-                hoverIconColor: "group-hover:text-green-600",
-              }}
             />
 
             <StatsCard
-              title="Total Crimes"
-              value={28}
-              subText="Updated from last 30 days"
+              title="Red Zones"
+              value={loading ? "..." : dangerousCount}
+              subText="Zones Marked as 'High-Risk'"
               bgColor="bg-[#ffffff]"
-              width="w-[280px]"
+              width="w-[100%]"
+              height="h-[170px]"
+              mainTextColor="text-black"
+              smallTextColor="text-[#FF4C4C]"
+              LiveButton={1}
+            />
+
+            <StatsCard
+              title="Yellow Zones"
+              value={loading ? "..." : moderateCount}
+              subText="Zones Marked as 'Caution'"
+              bgColor="bg-[#ffffff]"
+              width="w-[100%]"
+              height="h-[170px]"
+              mainTextColor="text-black"
+              smallTextColor="text-[#FFA500]"
+              LiveButton={1}
+            />
+
+            <StatsCard
+              title="Green Zones"
+              value={loading ? "..." : safeCount}
+              subText="Zones Marked as 'Safe'"
+              bgColor="bg-[#ffffff]"
+              width="w-[100%]"
               height="h-[170px]"
               mainTextColor="text-black"
               smallTextColor="text-[#237E54]"
               LiveButton={1}
-              arrowProps={{
-                size: 36,
-                bgColor: "bg-transparent",
-                iconColor: "text-black",
-                hoverBgColor: "hover:bg-green-100",
-                hoverIconColor: "group-hover:text-green-600",
-              }}
-            />
-
-            <StatsCard
-              title="Total Crimes"
-              value={28}
-              subText="Updated from last 30 days"
-              bgColor="bg-[#ffffff]"
-              width="w-[280px]"
-              height="h-[170px]"
-              mainTextColor="text-black"
-              smallTextColor="text-[#237E54]"
-              LiveButton={1}
-              arrowProps={{
-                size: 36,
-                bgColor: "bg-transparent",
-                iconColor: "text-black",
-                hoverBgColor: "hover:bg-green-100",
-                hoverIconColor: "group-hover:text-green-600",
-              }}
-            />
-
-            <StatsCard
-              title="Total Crimes"
-              value={28}
-              subText="Updated from last 30 days"
-              bgColor="bg-[#ffffff]"
-              width="w-[280px]"
-              height="h-[170px]"
-              mainTextColor="text-black"
-              smallTextColor="text-[#237E54]"
-              LiveButton={1}
-              arrowProps={{
-                size: 36,
-                bgColor: "bg-transparent",
-                iconColor: "text-black",
-                hoverBgColor: "hover:bg-green-100",
-                hoverIconColor: "group-hover:text-green-600",
-              }}
             />
           </div>
         </div>
@@ -134,18 +326,15 @@ const Dashboard = () => {
           }}
         >
           <div className="flex flex-row justify-between items-start w-full mb-4">
-            {/* Text */}
             <div className="flex flex-col gap-y-1 ml-2">
               <div className="font-outfit font-semibold text-3xl text-white">
                 City Crime Map
               </div>
               <div className="font-outfit text-md text-[#efecec]">
-                Real-time visualization of crime activity across the city,
-                updated directly from police databases.
+                Real-time visualization of crime activity across the city, updated directly from police databases.
               </div>
             </div>
 
-            {/* Arrow Button */}
             <div className="flex items-start mt-2 mr-2">
               <ArrowButton
                 size={48}
@@ -158,10 +347,9 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="w-full h-[calc(100%-85px)] rounded-2xl overflow-hidden">
+          <div className="w-full h-[calc(100%-85px)] rounded-xl overflow-hidden">
             <MapEmbed />
           </div>
-
         </div>
       </div>
     </section>

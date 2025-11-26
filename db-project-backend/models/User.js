@@ -3,7 +3,7 @@ import DataTypes  from "sequelize";
 export default (sequelize) => {
   const User = sequelize.define("User", {
     id: {
-      type: DataTypes.TEXT,
+      type: DataTypes.INTEGER,
       primaryKey: true,
     },
     username: {
