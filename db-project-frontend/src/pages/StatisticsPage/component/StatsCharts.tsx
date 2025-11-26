@@ -16,7 +16,12 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const COLORS = ["#1E90FF", "#FF6347", "#32CD32", "#FFD700", "#8A2BE2"];
+const COLORS = [
+  "#1E90FF", "#FF6347", "#32CD32", "#FFD700", "#8A2BE2",
+  "#FF1493", "#00CED1", "#FF4500", "#9370DB", "#20B2AA",
+  "#FF69B4", "#4169E1", "#F08080", "#90EE90", "#DDA0DD",
+  "#87CEEB", "#FF8C00", "#9932CC", "#00FA9A", "#DC143C"
+];
 
 // ---------------------------
 // Types
@@ -60,6 +65,50 @@ const StatsCharts = () => {
   const [endPie, setEndPie] = useState("");
 
   // ---------------------------
+  // FORMAT DATE HELPER
+  // ---------------------------
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${month}/${day}/${year}`;
+  };
+
+  // ---------------------------
+  // CUSTOM LABEL FOR BAR CHART
+  // ---------------------------
+  const CustomXAxisTick = (props: any) => {
+    const { x, y, payload } = props;
+    const text = payload.value;
+    
+    // Split long names into two lines
+    if (text.length > 15) {
+      const words = text.split(' ');
+      const mid = Math.ceil(words.length / 2);
+      const line1 = words.slice(0, mid).join(' ');
+      const line2 = words.slice(mid).join(' ');
+      
+      return (
+        <g transform={`translate(${x},${y})`}>
+          <text x={0} y={0} dy={20} textAnchor="middle" fill="#666" fontSize="9">
+            <tspan x={0} dy="0">{line1}</tspan>
+            <tspan x={0} dy="10">{line2}</tspan>
+          </text>
+        </g>
+      );
+    }
+    
+    return (
+      <g transform={`translate(${x},${y})`}>
+        <text x={0} y={0} dy={20} textAnchor="middle" fill="#666" fontSize="9">
+          {text}
+        </text>
+      </g>
+    );
+  };
+
+  // ---------------------------
   // FETCH CRIME TYPES
   // ---------------------------
   const fetchCrimeTypes = async () => {
@@ -85,7 +134,7 @@ const StatsCharts = () => {
         params: { crimeTypeId: selectedCrimeType, start: startLine, end: endLine },
       });
       const formatted: LineDataItem[] = res.data.map((item: any) => ({
-        date: item.month, // e.g., "2025-01-01"
+        date: formatDate(item.month),
         crimeCount: Number(item.count),
       }));
       setLineData(formatted);
@@ -191,7 +240,7 @@ const StatsCharts = () => {
 
       {/* BAR CHART */}
       <div className="bg-white rounded-xl shadow p-6">
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex justify-between items-center mb-12">
           <h2 className="text-xl font-semibold">Crimes per Zone</h2>
 
           <div className="flex gap-3 items-center">
@@ -210,17 +259,23 @@ const StatsCharts = () => {
             />
             <button
               onClick={fetchBarData}
-              className="px-4 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700"
+              className="px-4 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
             >
               Apply
             </button>
           </div>
         </div>
 
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={barData}>
+        <ResponsiveContainer width="100%" height={400}>
+          <BarChart data={barData} margin={{ bottom: 5, left: 10, right: 10 }}>
             <CartesianGrid strokeDasharray="4 4" />
-            <XAxis dataKey="zone" />
+            <XAxis 
+              dataKey="zone" 
+              tick={<CustomXAxisTick />} 
+              height={70} 
+              interval={0}
+              angle={0}
+            />
             <YAxis />
             <Tooltip />
             <Bar dataKey="crimeCount" fill="#1E90FF" />
@@ -248,7 +303,7 @@ const StatsCharts = () => {
           />
           <button
             onClick={fetchPieData}
-            className="px-4 py-1 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+            className="px-4 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
             Apply
           </button>
@@ -265,6 +320,7 @@ const StatsCharts = () => {
             <Tooltip />
           </PieChart>
         </ResponsiveContainer>
+
       </div>
 
     </div>
