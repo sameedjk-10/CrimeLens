@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import RecordsTable from "./RecordsTable";
 import GreenButton from "../../../components/GreenButton";
-import BackButton from "../../../components/BackButton";
 import AllRecordsSearch from "./AllRecordsSearch";
 import DetailsPopup from "./DetailsPopup"
+import { downloadCSV } from "./downloadCSV";
+
 interface AllRecordsProps {
   version: "admin" | "police" | "user" | null;
 }
@@ -295,7 +296,7 @@ export default function AllRecords({ version }: AllRecordsProps) {
             </div>
 
             <div className="mt-1">
-              <GreenButton label="Download CSV" width={200} height={40} rounded="full" />
+              <GreenButton label="Download CSV" width={200} height={40} rounded="full" onClick={() => downloadCSV(version, records)}/>
             </div>
           </div>
 
