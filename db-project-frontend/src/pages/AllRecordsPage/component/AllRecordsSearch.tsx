@@ -54,7 +54,7 @@ export default function AllRecordsSearch({ version, onSearchChange }: AllRecords
 
       {/* Dropdown */}
       <select
-        className="border cursor-pointer rounded-[5px] px-3 py-2 text-sm bg-gray-50"
+        className="border-2 border-[#ababab] cursor-pointer rounded-[5px] px-3 py-2 text-sm bg-gray-50"
         value={searchBy}
         onChange={(e) => {
           setSearchBy(e.target.value);
@@ -73,14 +73,14 @@ export default function AllRecordsSearch({ version, onSearchChange }: AllRecords
       {(searchBy === "incidentDate" || searchBy === "createdAt") ? (
         <input
           type="date"
-          className="border cursor-text rounded-[5px] px-3 py-2 w-64 text-sm"
+          className="border-2 border-[#ababab] cursor-text rounded-[5px] px-3 py-2 w-64 text-sm"
           value={value}
           onChange={(e) => setValue(e.target.value)}
         />
       ) : (
         <input
           type="text"
-          className="border cursor-text rounded-[5px] px-3 py-2 w-64 text-sm"
+          className="border-2 border-[#ababab] cursor-text rounded-[5px] px-3 py-2 w-64 text-sm"
           placeholder={placeholderText}
           value={value}
           onChange={(e) => setValue(e.target.value)}
@@ -91,7 +91,7 @@ export default function AllRecordsSearch({ version, onSearchChange }: AllRecords
       {/* Search Button */}
       <button
         onClick={handleSearch}
-        className="bg-[#237E54] w-[125px] cursor-pointer text-white px-4 py-2 rounded-[5px] font-outfit text-sm hover:bg-[#1d6b48]"
+        className="bg-[#237E54] w-[125px] border-2 border-[#268b5e] cursor-pointer text-white px-4 py-2 rounded-[5px] font-outfit text-sm hover:bg-[#1d6b48]"
       >
         Search
       </button>

@@ -23,7 +23,7 @@ function RecordsTable({
 
   return (
     <div className="w-full bg-white rounded-lg shadow-md overflow-hidden">
-      <div className="overflow-y-auto max-h-[350px] rounded-b-lg">
+      <div className="overflow-y-auto max-h-[500px] rounded-b-lg">
         <table className="min-w-full text-left border-collapse">
           <thead className="sticky top-0 bg-[#237E54] text-white text-sm">
             <tr>

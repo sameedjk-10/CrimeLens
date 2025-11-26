@@ -304,7 +304,7 @@ export default function AllRecords({ version }: AllRecordsProps) {
             <AllRecordsSearch version={version} onSearchChange={handleSearch} />
 
             {selectedRecords.length > 0 && (
-              <div className="bg-white p-4 rounded-xl shadow mb-4 flex items-center gap-x-3">
+              <div className="bg-white p-4 rounded-xl shadow-[0_0_5px_rgba(0,0,0,0.15)] mb-4 flex items-center gap-x-3">
                 <button
                   onClick={handleBulkDelete}
                   className="bg-red-600 cursor-pointer text-white px-4 py-2 w-[125px] rounded-[5px] font-outfit text-sm hover:bg-red-700"
