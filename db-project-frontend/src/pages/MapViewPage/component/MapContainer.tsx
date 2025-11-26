@@ -6,9 +6,14 @@ import RadiusVisual from "./RadiusVisual";
 import ZonePolygon from "./ZonePolygons";
 import LayerToggle from "./LayerToggle";
 
-const MapContainer: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+interface MapContainerProps {
+  children: React.ReactNode;
+  embedded?: boolean;
+}
+
+const MapContainer: React.FC<MapContainerProps> = ({children, embedded = false }: MapContainerProps) => {
   return (
-    <div className="w-screen h-screen">
+    <div className={embedded ? "w-full h-full" : "w-screen h-screen"}>
       <LeafletMap
         center={[24.920017, 67.061234]}
         zoom={12}

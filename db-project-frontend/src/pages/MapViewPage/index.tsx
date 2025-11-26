@@ -118,12 +118,17 @@ const MapContent = () => {
   return <CrimeMarkersClusters crimes={crimeData} />;
 };
 
-const MapPage = () => {
+interface MapPageProps {
+  embedded?: boolean;
+}
+
+const MapPage = ({ embedded = false }: MapPageProps) => {
   return (
     <MapProvider>
-      <MapContainer>
-        <SearchBar />
+      <MapContainer embedded={embedded}>
         
+        {!embedded && <SearchBar />}
+
         <MapContent />
       </MapContainer>
     </MapProvider>
