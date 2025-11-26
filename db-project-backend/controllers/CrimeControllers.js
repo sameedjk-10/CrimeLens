@@ -1,7 +1,7 @@
 // controllers/crimeController.js
 import { Op, fn, col, literal } from "sequelize";
 import db from "../models/index.js";
-const { Crime, User, Criminal , CrimeSubmission, CrimeReportsSubmitter, CrimeType, Zone, PoliceBranch } = db;
+const { Crime, CrimeSubmission, CrimeReportsSubmitter, CrimeType, Zone } = db;
 
 // ===================================================
 // 🌍 GET CRIMES FOR MAP (GeoJSON)
@@ -109,7 +109,7 @@ export const getCrimesForMap = async (req, res) => {
 
 export const getAllCrimeTypes = async (req, res) => {
   try {
-    const crimeTypes = await db.CrimeType.findAll({
+    const crimeTypes = await CrimeType.findAll({
       attributes: ["id", "name"], // only id and name
       order: [["name", "ASC"]],
     });

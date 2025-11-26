@@ -1,28 +1,67 @@
+import { useEffect, useState } from "react";
 import StatsCard from "../../../components/StatsCards";
 import MapBackground from "../../../assets/MapBackground.png";
 import BackButton from "../../../components/BackButton";
-import StatsCharts from "../../../components/StatsCharts";
+import StatsCharts from "./StatsCharts";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
+// ---------------------------
+// Types
+// ---------------------------
+interface CrimeTypeSummary {
+  id: number;
+  name: string;
+  crimeCount: number;
+}
+
+interface ZoneSummary {
+  id: number;
+  name: string;
+  crimeCount: number;
+}
+
+interface StatsSummary {
+  totalZones: number;
+  totalCrimes: number;
+  topCrimeType: CrimeTypeSummary;
+  topZone: ZoneSummary;
+}
 
 const Statistics = () => {
-
   const navigate = useNavigate();
 
+  const [summary, setSummary] = useState<StatsSummary | null>(null);
+
+  // ---------------------------
+  // Fetch Summary for Cards
+  // ---------------------------
+  const fetchSummary = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/stats/summary");
+      setSummary(res.data);
+    } catch (err) {
+      console.error("Failed to fetch summary:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchSummary();
+  }, []);
+
   const NavigateDashboard = () => {
-    navigate('/dashboard');
-  }
+    navigate("/dashboard");
+  };
 
   return (
-    <section className="flex flex-row items-start p-4 h-180 overflow-y-auto">
-      <div className="flex flex-col gap-y-4 ml-68 pb-3">
-        {/* STATS CARDS AND STUFF */}
+    <section className="flex flex-row h-screen w-full bg-red-100">
+      <div className="flex flex-col gap-y-4 pl-76 p-4 w-full overflow-y-auto ">
+        {/* STATS CARDS */}
         <div className="ml-4 bg-[#fefefe] p-4 rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.15)] flex flex-col gap-y-2">
           <div className="flex items-start ml-2" onClick={NavigateDashboard}>
             <BackButton textSize="text-sm" iconSize={16} />
           </div>
           <div className="flex flex-row justify-between items-start w-full">
-            {/* Left Text Section */}
             <div className="flex flex-col gap-y-2 ml-2">
               <div className="font-outfit font-semibold text-4xl text-black flex items-start">
                 Statistics
@@ -34,132 +73,76 @@ const Statistics = () => {
             </div>
           </div>
 
-          <div className="flex flex-col gap-y-4">
+          <div className="flex flex-col gap-y-4 mt-[25px]">
             <div className="flex gap-x-4">
               <StatsCard
                 title="Total Zones"
-                value={32}
+                value={summary?.totalZones ?? 0}
                 subText="City regions divided into blocks"
                 bgColor="bg-[#ffffff]"
-                width="w-[280px]"
+                width="w-[100%]"
                 height="h-[180px]"
                 mainTextColor="text-black"
                 smallTextColor="text-[#237E54]"
               />
 
               <StatsCard
-                title="Green Zones"
-                value={20}
-                subText="Zones marked as ‘Safe’"
+                title="Total Crimes"
+                value={summary?.totalCrimes ?? 0}
+                subText="Crimes recorded in the system"
                 bgColor="bg-[#ffffff]"
-                width="w-[280px]"
-                height="h-[180px]"
-                mainTextColor="text-black"
-                smallTextColor="text-[#237E54]"
-                sphereProps={{ diameter: 12, bgColor: "bg-green-500" }}
-              />
-
-              <StatsCard
-                title="Yellow Zones"
-                value="07"
-                subText="Zones marked as ‘Caution’"
-                bgColor="bg-[#ffffff]"
-                width="w-[280px]"
-                height="h-[180px]"
-                mainTextColor="text-black"
-                smallTextColor="text-[#237E54]"
-                sphereProps={{ diameter: 12, bgColor: "bg-yellow-500" }}
-              />
-
-              <StatsCard
-                title="Yellow Zones"
-                value="05"
-                subText="Zones marked as ‘High-Risk’"
-                bgColor="bg-[#ffffff]"
-                width="w-[280px]"
-                height="h-[180px]"
-                mainTextColor="text-black"
-                smallTextColor="text-[#237E54]"
-                sphereProps={{ diameter: 12, bgColor: "bg-red-500" }}
-              />
-            </div>
-
-            <div className="flex gap-x-4">
-              <StatsCard
-                title="Total Zones"
-                value={32}
-                subText="City regions divided into blocks"
-                bgColor="bg-[#ffffff]"
-                width="w-[280px]"
+                width="w-[100%]"
                 height="h-[180px]"
                 mainTextColor="text-black"
                 smallTextColor="text-[#237E54]"
               />
 
               <StatsCard
-                title="Green Zones"
-                value={20}
-                subText="Zones marked as ‘Safe’"
+                title="Top Crime"
+                value={summary?.topCrimeType?.name ?? "N/A"}
+                subText={`Most frequent crime`}
                 bgColor="bg-[#ffffff]"
-                width="w-[280px]"
+                width="w-[100%]"
                 height="h-[180px]"
                 mainTextColor="text-black"
-                smallTextColor="text-[#237E54]"
-                sphereProps={{ diameter: 12, bgColor: "bg-green-500" }}
+                smallTextColor="text-[#FFD700]"
+                fontSize="text-[35px]"
               />
 
               <StatsCard
-                title="Yellow Zones"
-                value="07"
-                subText="Zones marked as ‘Caution’"
+                title="Top Zone"
+                value={summary?.topZone?.name ?? "N/A"}
+                subText={`Most crime-prone zone`}
                 bgColor="bg-[#ffffff]"
-                width="w-[280px]"
+                width="w-[100%]"
                 height="h-[180px]"
                 mainTextColor="text-black"
-                smallTextColor="text-[#237E54]"
-                sphereProps={{ diameter: 12, bgColor: "bg-yellow-500" }}
-              />
-
-              <StatsCard
-                title="Yellow Zones"
-                value="05"
-                subText="Zones marked as ‘High-Risk’"
-                bgColor="bg-[#ffffff]"
-                width="w-[280px]"
-                height="h-[180px]"
-                mainTextColor="text-black"
-                smallTextColor="text-[#237E54]"
-                sphereProps={{ diameter: 12, bgColor: "bg-red-500" }}
+                smallTextColor="text-[#FF6347]"
+                fontSize="text-[30px]"              
               />
             </div>
           </div>
         </div>
 
-        {/* THE CRIME MAP AND STUFF */}
-        <div className="ml-4 bg-[#fefefe] p-4 rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.15)]"
-        style={{
+        {/* GRAPHICAL STATISTICS */}
+        <div
+          className="ml-4 bg-[#fefefe] p-4 rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.15)]"
+          style={{
             backgroundImage: `url(${MapBackground})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
-          }}>
-          <div className="flex flex-row justify-between items-start w-full">
-            {/* Left Text Section */}
-            <div className="flex flex-col gap-y-2 ml-2">
-              <div className="font-outfit font-semibold text-3xl text-white flex items-start">
-                Graphical Statistics
-              </div>
-              <div className="font-outfit font-normal text-md text-[#efecec] flex items-start mb-2">
-                Dynamic charts showcasing accurate, real-time crime data across
-                the city.
-              </div>
-              <div>
-                <StatsCharts />
-              </div>
+          }}
+        >
+          <div className="flex flex-col gap-y-2 ml-2 w-full">
+            <div className="font-outfit font-semibold text-3xl text-white flex items-start">
+              Graphical Statistics
             </div>
-
-            {/* Right Arrow Button Section */}
-            <div className="flex items-start mt-2 mr-2">
-            
+            <div className="font-outfit font-normal text-md text-[#efecec] flex items-start mb-2">
+              Dynamic charts showcasing accurate, real-time crime data across
+              the city.
+            </div>
+            <div className="p-5">
+              <StatsCharts />
             </div>
           </div>
         </div>

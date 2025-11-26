@@ -1,147 +1,143 @@
-// src/components/UploadFile.tsx
-import React from "react";
-import Sidebar from "../../components/Sidebar";
-import GreenButton from "../../components/GreenButton"; // ✅ import your button component
-import WhiteButton from "../../components/WhiteButton"; // ✅ import your button component
+// import Verification from "./component/Verification";
+import { useSelector } from "react-redux";
+import { type RootState } from "../../store";
 
-interface UploadFileProps {
-    fileName: string | null;
-    fileSize: string | null;
-    isDragging: boolean;
-    isUploading: boolean;
-    resultStats: {
-        total: number;
-        inserted: number;
-        duplicates: number;
-        invalid: number;
-    } | null;
-    onFileSelect: (file: File) => void;
-    onDragOver: (e: React.DragEvent<HTMLDivElement>) => void;
-    onDragLeave: (e: React.DragEvent<HTMLDivElement>) => void;
-    onDrop: (e: React.DragEvent<HTMLDivElement>) => void;
-    onUpload: () => void;
-    onUploadAnother: () => void;
-    version: "admin" | "police";
-}
+// // interface VerificationPageProps {
+// //   version?: "admin" | "police" | "user" | null;
+// // }
 
-const UploadFile: React.FC<UploadFileProps> = ({
-    fileName,
-    fileSize,
-    isDragging,
-    isUploading,
-    resultStats,
-    onFileSelect,
-    onDragOver,
-    onDragLeave,
-    onDrop,
-    onUpload,
-    onUploadAnother,
-    version,
-}) => {
-    return (
-        <div className="flex h-screen">
-           
-            <div className="flex-1 ml-72 p-8 relative">
-                {/* Loader Overlay */}
-                {isUploading && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50">
-                        <div className="bg-green-400/30 backdrop-blur-lg rounded-2xl shadow-2xl p-10 flex flex-col items-center border border-white/30">
-                            <div className="animate-spin animate-pulse border-4 border-white border-t-green-500 rounded-full w-14 h-14 mb-6"></div>
-                            <p className="text-white text-lg font-medium tracking-wide">
-                                Processing file...
-                            </p>
-                            <p className="text-white/80 text-sm mt-1">Please wait a moment</p>
-                        </div>
-                    </div>
-                )}
+// // const VerificationPage = ({ version }: VerificationPageProps) => {
+// //   const role = useSelector((state: RootState) => state.currentRole.role);
 
-                {/* Upload Card */}
-                <div className="bg-white rounded-2xl shadow-md p-8 mt-8 max-w-xl mx-auto">
-                    <h2 className="text-2xl font-semibold mb-4">Bulk CSV Upload</h2>
-                    <p className="text-gray-500 mb-6">
-                        Upload a CSV file to insert multiple crime records at once.
-                    </p>
 
-                    {/* Drag & Drop Area */}
-                    <div
-                        className={`border-2 border-dashed rounded-xl p-12 text-center cursor-pointer mb-2 ${isDragging ? "border-green-500 bg-green-50" : "border-gray-300"
-                            }`}
-                        onDragOver={onDragOver}
-                        onDragLeave={onDragLeave}
-                        onDrop={onDrop}
-                        onClick={() => document.getElementById("fileInput")?.click()}
-                    >
-                        <p className="text-gray-400">
-                            Drag & drop your CSV file here, or click to select
-                        </p>
-                        <input
-                            type="file"
-                            id="fileInput"
-                            accept=".csv"
-                            className="hidden"
-                            onChange={(e) =>
-                                e.target.files && onFileSelect(e.target.files[0])
-                            }
-                        />
-                    </div>
 
-                    <p className="text-sm text-gray-400 mb-1">
-                        Max file size allowed: 1 MB, Format Supported: CSV
-                    </p>
+// const VerificationPage = () => {
+//   const role = useSelector((state: RootState) => state.currentRole.role);
 
-                    {/* Selected File Info */}
-                    {fileName && (
-                        <p className="text-sm text-gray-500 mt-6 mb-4">
-                            File: {fileName} {fileSize && `(${fileSize})`}
-                        </p>
-                    )}
-                    {/* ✅ Upload Button using GreenButton */}
-                    {fileName && !resultStats && !isUploading && (
-                        <div className="flex justify-center mt-2">
-                            <GreenButton
-                                label="Start Processing File"
-                                width={600}
-                                onClick={onUpload} // triggers UploadPage handler
-                            />
-                        </div>
-                    )}
+//   return <Verification version={role}/>;
+// };
 
-                    {/* Result Summary */}
-                    {resultStats && (
-                        <div className="grid grid-cols-2 gap-4 mb-4">
-                            <div className="bg-green-50 rounded-xl p-4 text-center">
-                                <p className="text-gray-400 text-sm">Total Records</p>
-                                <p className="font-semibold text-lg">{resultStats.total}</p>
-                            </div>
-                            <div className="bg-green-100 rounded-xl p-4 text-center">
-                                <p className="text-gray-400 text-sm">Inserted</p>
-                                <p className="font-semibold text-lg">{resultStats.inserted}</p>
-                            </div>
-                            <div className="bg-yellow-100 rounded-xl p-4 text-center">
-                                <p className="text-gray-400 text-sm">Duplicates</p>
-                                <p className="font-semibold text-lg">{resultStats.duplicates}</p>
-                            </div>
-                            <div className="bg-red-100 rounded-xl p-4 text-center">
-                                <p className="text-gray-400 text-sm">Invalid</p>
-                                <p className="font-semibold text-lg">{resultStats.invalid}</p>
-                            </div>
-                        </div>
-                    )}
+// export default VerificationPage;
 
-                    {/* Upload Another Button */}
-                    {resultStats && (
-                        <div className="mt-8 flex justify-center mt-2">
-                            <WhiteButton
-                                label="Upload Another File"
-                                width={600}
-                                onClick={onUploadAnother} // triggers UploadPage handler
-                            />
-                        </div>
-                    )}
-                </div>
-            </div>
-        </div>
-    );
+
+
+// src/pages/UploadPage.tsx
+import React, { useState } from "react";
+import axios from "axios";
+import UploadFile from "./component/UploadFile";
+import { toast, Toaster } from "react-hot-toast";
+
+const UploadPage: React.FC<{ }> = ({ }) => {
+
+    const role = useSelector((state: RootState) => state.currentRole.role);
+
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [fileName, setFileName] = useState<string | null>(null);
+  const [fileSize, setFileSize] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [resultStats, setResultStats] = useState<{
+    total: number;
+    inserted: number;
+    duplicates: number;
+    invalid: number;
+  } | null>(null);
+
+  // Drag & Drop Handlers
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleFileSelect(e.dataTransfer.files[0]);
+    }
+  };
+
+  // File selection
+  const handleFileSelect = (file: File) => {
+    if (file.type !== "text/csv") {
+      toast.error("Only CSV files are allowed.");
+      return;
+    }
+    if (file.size > 1 * 1024 * 1024) {
+      toast.error("File size exceeds 1 MB.");
+      return;
+    }
+    setSelectedFile(file);
+    setFileName(file.name);
+    setFileSize(`${(file.size / 1024).toFixed(2)} KB`);
+    setResultStats(null); // reset previous results
+  };
+
+  // Upload
+  const handleUpload = async () => {
+    if (!selectedFile) {
+      toast.error("Please select a file first.");
+      return;
+    }
+
+    setIsUploading(true);
+
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+
+    try {
+      const response = await axios.post("http://localhost:5000/api/admin/upload-crimes", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      const stats = response.data.stats;
+      if (!stats) throw new Error("No stats returned from server");
+
+      setResultStats(stats);
+      toast.success("Upload completed successfully!");
+    } catch (err: any) {
+      console.error("Upload error:", err);
+      const msg =
+        err.response?.data?.message ||
+        err.response?.statusText ||
+        err.message ||
+        "Upload failed. Please try again.";
+      toast.error(msg);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  // Upload Another File
+  const handleUploadAnother = () => {
+    setSelectedFile(null);
+    setFileName(null);
+    setFileSize(null);
+    setResultStats(null);
+  };
+
+  return (
+    <>
+      <UploadFile
+        fileName={fileName}
+        fileSize={fileSize}
+        isDragging={isDragging}
+        isUploading={isUploading}
+        resultStats={resultStats}
+        onFileSelect={handleFileSelect}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        onUpload={handleUpload}
+        onUploadAnother={handleUploadAnother}
+        version={role}
+      />
+      <Toaster position="top-right" />
+    </>
+  );
 };
 
-export default UploadFile;
+export default UploadPage;

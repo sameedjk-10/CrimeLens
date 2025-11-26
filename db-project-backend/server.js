@@ -1,6 +1,7 @@
 import dns from "dns";
 dns.setDefaultResultOrder("ipv4first");
 import agentRoutes from "./routes/agentRoutes.js";
+import statsRoutes from "./routes/statsRoutes.js";
 
 
 import express from "express";
@@ -24,6 +25,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/agent", agentRoutes);
+app.use("/api/stats", statsRoutes);
 
 
 // Destructure sequelize from db

@@ -8,6 +8,7 @@ interface StatsCardProps {
   subText: string;
   bgColor?: string; // Solid color background (Tailwind or hex)
   gradientBg?: string; // New: gradient background class or inline style
+  fontSize?: string;
   width?: string;
   height?: string;
   mainTextColor?: string;
@@ -32,11 +33,12 @@ const StatsCard = ({
   subText,
   bgColor = "bg-white",
   gradientBg,
-  width = "w-[280px]",
-  height = "h-[160px]",
+  width,// = "w-[280px]",
+  height,// = "h-[160px]",
   mainTextColor = "text-black",
   smallTextColor = "text-green-600",
   LiveButton = null,
+  fontSize = "text-[50px]",
   arrowProps,
   sphereProps,
 }: StatsCardProps) => {
@@ -66,7 +68,7 @@ const StatsCard = ({
       </div>
 
       {/* Middle Section */}
-      <h2 className={`text-6xl font-normal mb-4 leading-none ${mainTextColor}`}>
+      <h2 className={`${fontSize} font-medium mb-4 leading-none ${mainTextColor}`}>
         {value}
       </h2>
 
