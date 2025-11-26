@@ -4,7 +4,7 @@ import { Marker, Circle } from "react-leaflet";
 import { useContext } from "react";
 import { MapContext } from "./MapContext";
 import L from "leaflet";
-import Icon from "../../../assets/leaflet/marker-icon-2x.png";
+import Icon from "../../../assets/leaflet/marker-icon-2x-red.png";
 
 const redIcon = new L.Icon({
   iconUrl: Icon,

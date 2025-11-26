@@ -8,13 +8,12 @@ const LayerToggle: React.FC = () => {
   return (
     <div style={{ position: "absolute", bottom: 20, right: 20, zIndex: 1000 }}>
       <button
-        className="p-2 bg-white border rounded shadow"
+        className="px-6 py-2 font-semibold bg-linear-to-r from-[#145332] to-[#237E54] border-2 border-[#237E54] hover:from-[#145332] hover:to-[#145332] rounded-2xl text-md text-[#FFFFFF] shadow"
         onClick={() => setHighlightZoneLayer(prev => !prev)}
       >
         {highlightZoneLayer ? "Hide Zones" : "Highlight Zones"}
       </button>
-      {/* Future Heatmap button */}
-      {/* <button className="p-2 bg-white border rounded shadow ml-2">Toggle Heatmap</button> */}
+
     </div>
   );
 };

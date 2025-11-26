@@ -260,7 +260,7 @@ export default function VerificationCard(props: VerificationCardProps) {
             style={{ width: 200, height: 40 }}
           >
             {loading ? "Processing..." : "Approve"}
-          </button>
+          </button> 
         </div>
       </div>
 
