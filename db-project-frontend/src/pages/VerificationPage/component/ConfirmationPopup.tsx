@@ -1,4 +1,5 @@
-//VerificationPage/components/ConfirmationPopup.tsx
+
+// VerificationPage/components/ConfirmationPopup.tsx
 import { useState } from "react";
 import GreenButton from "../../../components/GreenButton";
 import WhiteButton from "../../../components/WhiteButton";
@@ -8,7 +9,6 @@ interface ConfirmationPopupProps {
   isOpen: boolean;
   onClose: () => void;
 
-  // Admin fields
   requestId?: string | number;
   branchId?: string;
   branchContact?: string;
@@ -16,7 +16,6 @@ interface ConfirmationPopupProps {
   password?: string;
   requestDate?: string;
 
-  // Police fields
   submissionId?: string | number;
   fullName?: string;
   contact?: string;
@@ -40,14 +39,11 @@ export default function ConfirmationPopup({
   ...initialData
 }: ConfirmationPopupProps) {
   const [formData, setFormData] = useState({
-    // Admin fields
     branchId: initialData.branchId || "",
     branchContact: initialData.branchContact || "",
     username: initialData.username || "",
     password: initialData.password || "",
     requestDate: initialData.requestDate || "",
-
-    // Police fields
     fullName: initialData.fullName || "",
     contact: initialData.contact || "",
     cnic: initialData.cnic || "",
@@ -55,22 +51,48 @@ export default function ConfirmationPopup({
     description: initialData.description || "",
     date: initialData.date || "",
     zone: initialData.zone || "",
-    address: initialData.address || "", // Officer can edit
-
-    // Extra fields for police (to be added by officer)
+    address: initialData.address || "",
     latitude: "",
     longitude: "",
-
   });
+
+  // 🆕 Error States Added
+  const [latError, setLatError] = useState("");
+  const [longError, setLongError] = useState("");
 
   if (!isOpen) return null;
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  // 🆕 Updated handleInputChange WITH RANGE VALIDATION
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
+
+    // Validate Latitude
+    if (name === "latitude") {
+      const num = Number(value);
+      if (num < 23 || num > 26) {
+        setLatError("Latitude must be between 23 and 26");
+      } else {
+        setLatError("");
+      }
+    }
+
+    // Validate Longitude
+    if (name === "longitude") {
+      const num = Number(value);
+      if (num < 65 || num > 68) {
+        setLongError("Longitude must be between 65 and 68");
+      } else {
+        setLongError("");
+      }
+    }
+
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = () => {
+    if (latError || longError) return; // prevent submit if invalid
     onApprove?.(formData);
   };
 
@@ -85,13 +107,12 @@ export default function ConfirmationPopup({
 
         <div className="flex flex-col gap-4">
           {version === "admin" ? (
-            /* ADMIN VERSION - Read Only */
             <>
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <label className="text-sm font-medium text-gray-700">
-                  Branch ID
-                </label>
-                <input
+             <div className="bg-gray-50 p-4 rounded-lg">
+                 <label className="text-sm font-medium text-gray-700">
+                   Branch ID
+                 </label>
+                 <input
                   type="text"
                   name="branchId"
                   onChange={handleInputChange}
@@ -269,7 +290,9 @@ export default function ConfirmationPopup({
                 <h3 className="font-semibold text-blue-900 mb-3">
                   ✏️ Officer Additions
                 </h3>
+
                 <div className="grid grid-cols-2 gap-3">
+                  {/* LATITUDE */}
                   <div>
                     <label className="text-sm font-medium text-gray-700 block mb-1">
                       Latitude <span className="text-red-500">*</span>
@@ -280,11 +303,15 @@ export default function ConfirmationPopup({
                       name="latitude"
                       value={formData.latitude}
                       onChange={handleInputChange}
-                      placeholder="24.8607"
+                      placeholder="23.0001"
                       className="inputBox mt-1"
                     />
+                    {latError && (
+                      <p className="text-red-600 text-xs mt-1">{latError}</p>
+                    )}
                   </div>
 
+                  {/* LONGITUDE */}
                   <div>
                     <label className="text-sm font-medium text-gray-700 block mb-1">
                       Longitude <span className="text-red-500">*</span>
@@ -295,28 +322,30 @@ export default function ConfirmationPopup({
                       name="longitude"
                       value={formData.longitude}
                       onChange={handleInputChange}
-                      placeholder="67.0011"
+                      placeholder="65.0001"
                       className="inputBox mt-1"
                     />
+                    {longError && (
+                      <p className="text-red-600 text-xs mt-1">{longError}</p>
+                    )}
                   </div>
                 </div>
-
               </div>
             </>
           )}
         </div>
 
-        {/* Action Buttons */}
         <div className="flex justify-center mt-6 pb-6 gap-3 sticky bottom-0 bg-white pt-4">
           <WhiteButton label="Cancel" width={150} height={45} onClick={onClose} />
-          <GreenButton
-            label="Approve"
-            width={300}
-            height={45}
+
+          {/* Disable Approve if errors exist */}
+          <button
             onClick={handleSubmit}
-          />
+            disabled={!!latError || !!longError}
+            className="px-6 py-1 bg-linear-to-r from-[#145332] to-[#237E54] border-2 border-[#237E54] hover:from-[#145332] hover:to-[#145332] disabled:bg-gray-400 text-white text-sm rounded-full font-normal transition-colors"
+            style={{ width: 300, height: 45 }}
+          > Approve </button>
         </div>
-      </div>
 
       {/* Styling */}
       <style>{`
@@ -351,6 +380,7 @@ export default function ConfirmationPopup({
           }
         }
       `}</style>
+      </div>
     </div>
   );
 }

@@ -284,9 +284,6 @@ export default function AllRecords({ version }: AllRecordsProps) {
                 </>
               ) : (
                 <>
-                  <div className="flex items-start">
-                    <BackButton textSize="text-sm" iconSize={16} />
-                  </div>
                   <div className="font-outfit font-semibold text-4xl text-black">
                     All Crime Records
                   </div>
