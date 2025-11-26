@@ -1,4 +1,4 @@
-import Upload from "../pages/UploadPage";
+import UploadPage from "../pages/UploadPage";
 import AddPolicePage from "../pages/AddPolicePage";
 import AllRecordsPage from "../pages/AllRecordsPage";
 import DashboardPage from "../pages/DashboardPage";
@@ -72,7 +72,7 @@ export const ProtectedRoutes = () => {
       },
       {
         path: "/upload-crimes",
-        element: <Upload/>
+        element: <UploadPage/>
       }
   
     ];

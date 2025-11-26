@@ -1,9 +1,9 @@
 // MapViewPage/index.tsx
 import { useEffect, useContext } from "react";
-import MapContainer from "./components/MapContainer";
-import CrimeMarkersClusters from "./components/CrimeMarkerCluster";
-import { MapProvider, MapContext } from "./components/MapContext";
-import SearchBar from "./components/SearchBar"
+import MapContainer from "./component/MapContainer";
+import CrimeMarkersClusters from "./component/CrimeMarkerCluster";
+import { MapProvider, MapContext } from "./component/MapContext";
+import SearchBar from "./component/SearchBar"
 
 import "leaflet/dist/leaflet.css";
 import "../../assets/leaflet/MarkerCluster.Default.css";
@@ -123,7 +123,7 @@ const MapPage = () => {
     <MapProvider>
       <MapContainer>
         <SearchBar />
-
+        
         <MapContent />
       </MapContainer>
     </MapProvider>

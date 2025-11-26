@@ -117,11 +117,11 @@ const SearchBar: React.FC = () => {
       onMouseDown={(e) => e.stopPropagation()}
       onTouchStart={(e) => e.stopPropagation()}
     >
-      <div className="flex text-[14px] w-[1020px] bg-[rgba(255,255,255,0.9)] shadow-lg rounded-full overflow-hidden">
+      <div className="flex font-medium text-[14px] w-[1100px] bg-[rgba(255,255,255,0.9)] shadow-lg rounded-full overflow-hidden p-2">
         {/* Mode Selector */}
         <div className="flex-none">
           <select
-            className="w-30 text-[17px] text-center h-full px-4 bg-linear-to-r from-[#145332] to-[#237E54] text-white font-semibold rounded-full focus:outline-none hover:bg-[#0F805C] border border-grey-300"
+            className="w-30 text-[17px] text-center h-full px-2 bg-linear-to-r from-[#145332] to-[#237E54] text-white font-medium rounded-full focus:outline-none hover:bg-[#0F805C] border border-grey-300"
             value={mode}
             onChange={(e) => switchMode(e.target.value as "basic" | "radius")}
           >
@@ -134,7 +134,7 @@ const SearchBar: React.FC = () => {
         <div className="flex-1 flex items-center justify-center mt-2 mb-2 px-4 gap-2 bg-[rgba(255,255,255,0)]">
           {mode === "basic" ? (
             <>
-              <span>Show</span>
+              <span>Show:</span>
               <select
                 className="pl-2 mx-1 h-8 w-25 rounded-full shadow-[0px_0px_5px_rgba(0,0,0,0.3)] border-none focus:outline-none pr-4"
                 value={filters.crimeType}
@@ -144,7 +144,7 @@ const SearchBar: React.FC = () => {
                   <option key={c}>{c}</option>
                 ))}
               </select>
-              <span>crimes in</span>
+              <span>Crimes in:</span>
               <select
                 className="pl-2 mx-1 h-8 w-26 rounded-full shadow-[0px_0px_5px_rgba(0,0,0,0.3)] border-none focus:outline-none pr-4"
                 value={filters.zoneId}
@@ -158,7 +158,7 @@ const SearchBar: React.FC = () => {
                   </option>
                 ))}
               </select>
-              <span>from</span>
+              <span>From:</span>
               <input
                 type="date"
                 className="p-2 mx-1 w-32 h-8 rounded-full shadow-[0px_0px_5px_rgba(0,0,0,0.3)] border-none focus:outline-none"

@@ -13,6 +13,10 @@ const Dashboard = () => {
     navigate('/statistics');
   }
 
+  const NavigateMap = () => {
+    navigate('/map');
+  }
+
   return (
     <section className="flex flex-row h-screen overflow-hidden">
       {/* MAIN CONTENT */}
@@ -150,6 +154,7 @@ const Dashboard = () => {
                 iconColor="text-[#237E54]"
                 hoverBgColor="hover:bg-green-100"
                 hoverIconColor="group-hover:text-green-600"
+                onClick={NavigateMap}
               />
             </div>
 

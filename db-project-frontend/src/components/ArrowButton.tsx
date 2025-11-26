@@ -3,9 +3,10 @@ import { ArrowUpRight } from "lucide-react";
 interface ArrowButtonProps {
   size?: number;
   bgColor?: string;
-  iconColor?: string; // e.g. "text-green-600" or "#237E54"
+  iconColor?: string;
   hoverBgColor?: string;
-  hoverIconColor?: string; // e.g. "group-hover:text-green-700" or "#145C39"
+  hoverIconColor?: string;
+  onClick?: () => void;
 }
 
 const ArrowButton = ({
@@ -14,6 +15,7 @@ const ArrowButton = ({
   iconColor = "text-green-600",
   hoverBgColor = "hover:bg-green-100",
   hoverIconColor = "group-hover:text-green-700",
+  onClick,
 }: ArrowButtonProps) => {
   // Handle both Tailwind and custom hex/RGB color formats
   const getColorValue = (className: string) => {
@@ -35,7 +37,8 @@ const ArrowButton = ({
   const hoverColor = getColorValue(hoverIconColor);
 
   return (
-    <div
+    <button
+      onClick={onClick}
       className={`group ${bgColor} ${hoverBgColor} rounded-full border flex items-center justify-center transition-all duration-300 cursor-pointer`}
       style={{
         width: `${size}px`,
@@ -46,10 +49,10 @@ const ArrowButton = ({
       onMouseLeave={(e) => (e.currentTarget.style.borderColor = normalColor)}
     >
       <ArrowUpRight
-        size={size * 0.45} // ✅ this is what actually controls icon size
+        size={size * 0.45}
         className={`${iconColor} ${hoverIconColor} transition-colors duration-300`}
       />
-    </div>
+    </button>
   );
 };
 
