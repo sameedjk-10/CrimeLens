@@ -33,7 +33,7 @@ export default function AllRecordsSearch({ version, onSearchChange }: AllRecords
           { value: "createdAt", label: "Date of Creation" },
         ]
       : [
-          { value: "id", label: "Case ID" },
+          { value: "id", label: "Crime ID" },
           { value: "incidentDate", label: "Date" },
           { value: "zoneName", label: "Zone Name" },
           { value: "crimeTypeName", label: "Crime Type" },

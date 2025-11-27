@@ -1,5 +1,5 @@
 // controllers/agentController.js
-import { v4 as uuidv4 } from "uuid";
+// import { v4 as uuidv4 } from "uuid";
 import { QueryTypes, Op, fn, col, literal } from "sequelize";
 import sequelize from "../config/db.js";
 import db from "../models/index.js";
@@ -104,7 +104,7 @@ export const verifyAgentRequest = async (req, res) => {
 
     // 1️⃣ Create user in User table with temp credentials
     const newUser = await User.create({
-      id: uuidv4(),
+      // id: uuidv4(),
       username: tempData.username,
       passwordHash: tempData.password, // ⚠️ In production, HASH the password
       roleId: roleId || 2, // Default to police officer role
