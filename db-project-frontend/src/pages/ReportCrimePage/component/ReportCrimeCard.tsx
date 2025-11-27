@@ -5,6 +5,7 @@ export default function ReportCrimeCard() {
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
   const [formData, setFormData] = useState({
+    title: "",
     fullName: "",
     cnic: "",
     contact: "",
@@ -37,10 +38,10 @@ export default function ReportCrimeCard() {
 
   const handleCnicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    
+
     // Allow only digits and hyphens
     const sanitized = value.replace(/[^\d-]/g, "");
-    
+
     // Format as user types: 12345-6789012-3
     let formatted = sanitized;
     if (sanitized.length > 5 && !sanitized.includes("-")) {
@@ -49,11 +50,11 @@ export default function ReportCrimeCard() {
     if (sanitized.length > 13 && sanitized.split("-").length === 1) {
       formatted = sanitized.slice(0, 5) + "-" + sanitized.slice(5, 12) + "-" + sanitized.slice(12);
     }
-    
+
     // Update form data
     formData.cnic = formatted;
     handleChange({ target: { name: "cnic", value: formatted } } as any);
-    
+
     // Validate
     if (formatted && !cnicRegex.test(formatted)) {
       setCnicError("CNIC must be in format: 12345-6789012-3");
@@ -95,6 +96,7 @@ export default function ReportCrimeCard() {
 
         // Reset form
         setFormData({
+          title: "",
           fullName: "",
           cnic: "",
           contact: "",
@@ -155,11 +157,9 @@ export default function ReportCrimeCard() {
                 onChange={handleCnicChange}
                 maxLength={17}
                 required
-                className={`border ${
-                  cnicError ? "border-red-500" : "border-[#d9d9d9]"
-                } rounded-md px-3 py-2 text-sm placeholder:text-[#ababab] focus:outline-none focus:ring-2 ${
-                  cnicError ? "focus:ring-red-500" : "focus:ring-green-500"
-                } ${getInputTextColor(formData.cnic)}`}
+                className={`border ${cnicError ? "border-red-500" : "border-[#d9d9d9]"
+                  } rounded-md px-3 py-2 text-sm placeholder:text-[#ababab] focus:outline-none focus:ring-2 ${cnicError ? "focus:ring-red-500" : "focus:ring-green-500"
+                  } ${getInputTextColor(formData.cnic)}`}
               />
               {cnicError && (
                 <p className="text-red-500 text-xs mt-1 font-medium">
@@ -228,7 +228,6 @@ export default function ReportCrimeCard() {
                 <option value="6">Gulistan-e-Johar</option>
                 <option value="7">North Nazimabad</option>
                 <option value="8">North Karachi</option>
-                <option value="9">Federal B Area</option>
                 <option value="10">Korangi</option>
                 <option value="11">Malir</option>
                 <option value="12">Shah Faisal Colony</option>
@@ -310,7 +309,23 @@ export default function ReportCrimeCard() {
               )}`}
             />
           </div>
-
+          {/* Title */}
+          <div className="flex flex-col mt-6">
+            <label className="font-medium text-gray-700">
+              Title: <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              name="title"
+              placeholder="Enter a short title for the crime..."
+              value={formData.title}
+              onChange={handleChange}
+              required
+              className={`border border-[#d9d9d9] rounded-md px-3 py-2 text-sm placeholder:text-[#ababab] focus:outline-none focus:ring-2 focus:ring-green-500 ${getInputTextColor(
+                formData.title
+              )}`}
+            />
+          </div>
           {/* Description */}
           <div className="flex flex-col mt-6">
             <label className="font-medium text-gray-700">Description:</label>

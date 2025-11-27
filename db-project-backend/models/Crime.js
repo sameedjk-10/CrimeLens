@@ -34,7 +34,7 @@ export default (sequelize) => {
     },
     location: {
       type: DataTypes.GEOMETRY("POINT", 4326),
-      allowNull: false,
+      allowNull: true,
     },
     address: {
       type: DataTypes.TEXT,
@@ -58,7 +58,7 @@ export default (sequelize) => {
   Crime.associate = (models) => {
     Crime.belongsTo(models.CrimeType, { foreignKey: "crimeTypeId", onDelete: "RESTRICT", onUpdate: "CASCADE" });
     Crime.belongsTo(models.Zone, { foreignKey: "zoneId", onDelete: "SET NULL", onUpdate: "CASCADE" });
-    Crime.hasMany(models.CrimeSubmission, { foreignKey: "verifiedCrimeId", onDelete: "SET NULL", onUpdate: "CASCADE" });
+    Crime.hasMany(models.CrimeSubmission, { foreignKey: "CrimeId", onDelete: "SET NULL", onUpdate: "CASCADE" });
   };
 
   return Crime;

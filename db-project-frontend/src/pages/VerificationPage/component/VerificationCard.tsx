@@ -7,32 +7,33 @@ import ConfirmationPopup from "./ConfirmationPopup";
 
 type VerificationCardProps =
   | {
-      version: "admin";
-      requestId: string | number;
-      branchId: string;
-      branchContact: string;
-      username: string;
-      password: string;
-      requestDate: string;
-      onContact?: () => void;
-      onReject?: (reason?: string) => void;
-      onApprove?: () => void;
-    }
+    version: "admin";
+    requestId: string | number;
+    branchId: string;
+    branchContact: string;
+    username: string;
+    password: string;
+    requestDate: string;
+    onContact?: () => void;
+    onReject?: (reason?: string) => void;
+    onApprove?: () => void;
+  }
   | {
-      version: "police";
-      submissionId: string | number;
-      fullName: string;
-      contact: string;
-      cnic: string;
-      crimeType: string;
-      description: string;
-      date: string;
-      zone: number;
-      address: string;
-      onContact?: () => void;
-      onReject?: (reason?: string) => void;
-      onApprove?: () => void;
-    };
+    version: "police";
+    title: string,
+    submissionId: string | number;
+    fullName: string;
+    contact: string;
+    cnic: string;
+    crimeType: string;
+    description: string;
+    date: string;
+    zone: number;
+    address: string;
+    onContact?: () => void;
+    onReject?: (reason?: string) => void;
+    onApprove?: () => void;
+  };
 
 export default function VerificationCard(props: VerificationCardProps) {
   const [openConfirm, setOpenConfirm] = useState(false);
@@ -46,9 +47,9 @@ export default function VerificationCard(props: VerificationCardProps) {
     const num =
       props.version === "admin"
         ? // @ts-ignore - branchContact exists on admin variant
-          (props as any).branchContact
+        (props as any).branchContact
         : // @ts-ignore - contact exists on police variant
-          (props as any).contact;
+        (props as any).contact;
 
     if (num) {
       try {
@@ -90,6 +91,8 @@ export default function VerificationCard(props: VerificationCardProps) {
           address: updatedValues.address || "",
           latitude: Number(updatedValues.latitude),
           longitude: Number(updatedValues.longitude),
+          title: updatedValues.title || "",
+          description: updatedValues.description || "",
         };
       }
 
@@ -208,6 +211,10 @@ export default function VerificationCard(props: VerificationCardProps) {
           <h3 className="font-semibold text-[#7d7d7d]">Crime Info:</h3>
           <div className="grid grid-cols-2 gap-y-3 text-sm text-gray-800">
             <p>
+              <span className="font-semibold">Title:</span>{" "}
+              {props.title || "--"}
+            </p>
+            <p>
               <span className="font-semibold">Crime Type:</span>{" "}
               {props.crimeType}
             </p>
@@ -217,10 +224,10 @@ export default function VerificationCard(props: VerificationCardProps) {
             <p>
               <span className="font-semibold">Zone #:</span> {props.zone}
             </p>
-            {/* <p>
+            <p>
               <span className="font-semibold">Address:</span>{" "}
               {props.address || "--"}
-            </p> */}
+            </p>
             <p>
               <span className="font-semibold">Description:</span>{" "}
               {props.description || "--"}
@@ -260,7 +267,7 @@ export default function VerificationCard(props: VerificationCardProps) {
             style={{ width: 200, height: 40 }}
           >
             {loading ? "Processing..." : "Approve"}
-          </button> 
+          </button>
         </div>
       </div>
 

@@ -27,7 +27,6 @@ export default (sequelize) => {
   Zone.associate = (models) => {
     Zone.hasMany(models.PoliceBranch, { foreignKey: "zoneId", onDelete: "RESTRICT", onUpdate: "CASCADE" });
     Zone.hasMany(models.Crime, { foreignKey: "zoneId", onDelete: "SET NULL", onUpdate: "CASCADE" });
-    Zone.hasMany(models.CrimeSubmission, { foreignKey: "zoneId", onDelete: "SET NULL", onUpdate: "CASCADE" });
   };
 
   return Zone;

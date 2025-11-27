@@ -129,15 +129,48 @@ export const getAllCrimeTypes = async (req, res) => {
 // ===================================================
 // 📋 GET ALL PENDING CRIME SUBMISSIONS
 // ===================================================
+// export const getPendingSubmissions = async (req, res) => {
+//   try {
+//     const pendingSubmissions = await CrimeSubmission.findAll({
+//       where: { status: "pending" },
+//       include: [
+//         {
+//           model: CrimeReportsSubmitter,
+//           attributes: ["submitterCnic", "submitterName", "submitterContact"],
+//         },
+//         {
+//           model: CrimeType,
+//           attributes: ["id", "name"],
+//           required: false,
+//         },
+//         {
+//           model: Zone,
+//           attributes: ["id"],
+//           required: false,
+//         },
+//       ],
+//     });
+
+//     res.status(200).json({ success: true, data: pendingSubmissions });
+//   } catch (error) {
+//     console.error("Fetch Submissions Error:", error);
+//     res
+//       .status(500)
+//       .json({ success: false, message: "Error fetching submissions" });
+//   }
+// };
+
+// at top of file (if not already imported)
+// import { literal } from "sequelize";
+
+// controller
 export const getPendingSubmissions = async (req, res) => {
   try {
-    const pendingSubmissions = await CrimeSubmission.findAll({
+    const pendingCrimes = await Crime.findAll({
       where: { status: "pending" },
+
+      // include standard relations (CrimeType, Zone) so frontend can use them
       include: [
-        {
-          model: CrimeReportsSubmitter,
-          attributes: ["submitterCnic", "submitterName", "submitterContact"],
-        },
         {
           model: CrimeType,
           attributes: ["id", "name"],
@@ -145,32 +178,179 @@ export const getPendingSubmissions = async (req, res) => {
         },
         {
           model: Zone,
-          attributes: ["id"],
+          attributes: ["id"], // zone only has id as you said
           required: false,
         },
       ],
+
+      // add flattened fields using SQL subqueries (aliased)
+      attributes: {
+        include: [
+          // submission id
+          [
+            literal(`(
+              SELECT cs."id"
+              FROM "CrimeSubmission" cs
+              WHERE cs."CrimeId" = "Crime"."id"
+              ORDER BY cs."submittedAt" DESC
+              LIMIT 1
+            )`),
+            "submissionId",
+          ],
+
+          // submitter CNIC from CrimeSubmission
+          [
+            literal(`(
+              SELECT cs."submitterCnic"
+              FROM "CrimeSubmission" cs
+              WHERE cs."CrimeId" = "Crime"."id"
+              ORDER BY cs."submittedAt" DESC
+              LIMIT 1
+            )`),
+            "submitterCnic",
+          ],
+
+          // submittedAt
+          [
+            literal(`(
+              SELECT cs."submittedAt"
+              FROM "CrimeSubmission" cs
+              WHERE cs."CrimeId" = "Crime"."id"
+              ORDER BY cs."submittedAt" DESC
+              LIMIT 1
+            )`),
+            "submittedAt",
+          ],
+
+          // submitterName from CrimeReportsSubmitter joined by submitterCnic
+          [
+            literal(`(
+              SELECT crs."submitterName"
+              FROM "CrimeSubmission" cs
+              JOIN "CrimeReportsSubmitter" crs
+                ON crs."submitterCnic" = cs."submitterCnic"
+              WHERE cs."CrimeId" = "Crime"."id"
+              ORDER BY cs."submittedAt" DESC
+              LIMIT 1
+            )`),
+            "submitterName",
+          ],
+
+          // submitterContact from CrimeReportsSubmitter
+          [
+            literal(`(
+              SELECT crs."submitterContact"
+              FROM "CrimeSubmission" cs
+              JOIN "CrimeReportsSubmitter" crs
+                ON crs."submitterCnic" = cs."submitterCnic"
+              WHERE cs."CrimeId" = "Crime"."id"
+              ORDER BY cs."submittedAt" DESC
+              LIMIT 1
+            )`),
+            "submitterContact",
+          ],
+        ],
+      },
+
+      order: [["reportedAt", "DESC"]],
+      limit: 100, // optional: protect large responses
     });
 
-    res.status(200).json({ success: true, data: pendingSubmissions });
+    res.status(200).json({ success: true, data: pendingCrimes });
   } catch (error) {
-    console.error("Fetch Submissions Error:", error);
-    res
-      .status(500)
-      .json({ success: false, message: "Error fetching submissions" });
+    console.error("Fetch Pending Crimes Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching pending submissions",
+    });
   }
 };
+
+
+
 
 // ===================================================
 // ✅ VERIFY & APPROVE CRIME REPORT (Police Agent)
 // ===================================================
+// export const approveCrimeReport = async (req, res) => {
+//   try {
+//     const { submissionId } = req.params;
+
+//     // Now receiving LAT & LNG separately
+//     const { address, latitude, longitude } = req.body;
+
+//     // Find submission
+//     const submission = await CrimeSubmission.findByPk(submissionId);
+//     if (!submission) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Crime submission not found",
+//       });
+//     }
+
+//     if (submission.status !== "pending") {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Submission already processed",
+//       });
+//     }
+
+//     // Prepare Base Crime Data
+//     let crimeData = {
+//       title: submission.description.substring(0, 100),
+//       description: submission.description,
+//       crimeTypeId: submission.crimeTypeId,
+//       incidentDate: submission.incidentDate,
+//       address: address,
+//       zoneId: submission.zoneId,
+//       status: "approved",
+//     };
+
+//     // Add geometry only if lat & lng exist
+//     if (
+//       latitude !== undefined &&
+//       longitude !== undefined &&
+//       !isNaN(latitude) &&
+//       !isNaN(longitude)
+//     ) {
+//       crimeData.location = literal(
+//         `ST_SetSRID(ST_Point(${Number(longitude)}, ${Number(latitude)}), 4326)`
+//       );
+//     }
+
+//     // Save Crime
+//     const verifiedCrime = await Crime.create(crimeData);
+
+//     // Update Submission
+//     await submission.update({
+//       status: "approved",
+//       verifiedCrimeId: verifiedCrime.id,
+//       verifiedAt: new Date(),
+//     });
+
+//     res.status(200).json({
+//       success: true,
+//       message: "Crime report approved and verified",
+//       data: {
+//         submissionId: submission.id,
+//         crimeId: verifiedCrime.id,
+//         status: submission.status,
+//       },
+//     });
+//   } catch (error) {
+//     console.error("Approve Crime Error:", error);
+//     res.status(500).json({
+//       success: false,
+//       message: "Error approving crime report",
+//     });
+//   }
+// };
+
 export const approveCrimeReport = async (req, res) => {
   try {
     const { submissionId } = req.params;
-
-    // Now receiving LAT & LNG separately
     const { address, latitude, longitude } = req.body;
-
-    // Find submission
+    // 1️⃣ Find the CrimeSubmission record
     const submission = await CrimeSubmission.findByPk(submissionId);
     if (!submission) {
       return res.status(404).json({
@@ -179,53 +359,51 @@ export const approveCrimeReport = async (req, res) => {
       });
     }
 
-    if (submission.status !== "pending") {
-      return res.status(400).json({
+
+    // 2️⃣ Find the corresponding Crime record
+    const crime = await Crime.findByPk(submission.CrimeId);
+    if (!crime) {
+      return res.status(404).json({
         success: false,
-        message: "Submission already processed",
+        message: "Associated crime record not found",
       });
     }
 
-    // Prepare Base Crime Data
-    let crimeData = {
-      title: submission.description.substring(0, 100),
-      description: submission.description,
-      crimeTypeId: submission.crimeTypeId,
-      incidentDate: submission.incidentDate,
-      address: address,
-      zoneId: submission.zoneId,
+    if (crime.status !== "pending") {
+      return res.status(400).json({
+        success: false,
+        message: "Crime report already processed",
+      });
+    }
+
+    // 3️⃣ Update Crime record with approval info
+    const updatedData = {
       status: "approved",
+      address: address || crime.address,
+      location: crime.location
     };
 
-    // Add geometry only if lat & lng exist
+    // Add geometry if lat & lng provided
     if (
       latitude !== undefined &&
       longitude !== undefined &&
       !isNaN(latitude) &&
       !isNaN(longitude)
     ) {
-      crimeData.location = literal(
+      updatedData.location = literal(
         `ST_SetSRID(ST_Point(${Number(longitude)}, ${Number(latitude)}), 4326)`
       );
     }
 
-    // Save Crime
-    const verifiedCrime = await Crime.create(crimeData);
-
-    // Update Submission
-    await submission.update({
-      status: "approved",
-      verifiedCrimeId: verifiedCrime.id,
-      verifiedAt: new Date(),
-    });
+    await crime.update(updatedData);
 
     res.status(200).json({
       success: true,
       message: "Crime report approved and verified",
       data: {
-        submissionId: submission.id,
-        crimeId: verifiedCrime.id,
-        status: submission.status,
+        submissionId: submissionId,
+        crimeId: crime.id,
+        status: crime.status,
       },
     });
   } catch (error) {
@@ -236,15 +414,51 @@ export const approveCrimeReport = async (req, res) => {
     });
   }
 };
-
 // ===================================================
 // ❌ REJECT CRIME REPORT (Police Agent)
 // ===================================================
+// export const rejectCrimeReport = async (req, res) => {
+//   try {
+//     const { submissionId } = req.params;
+//     const { reason } = req.body;
+
+//     const submission = await CrimeSubmission.findByPk(submissionId);
+//     if (!submission) {
+//       return res
+//         .status(404)
+//         .json({ success: false, message: "Crime submission not found" });
+//     }
+
+//     // Update submission status
+//     await submission.update({
+//       status: "rejected",
+//       rejectionReason: reason,
+//       verifiedAt: new Date(),
+//     });
+
+//     res.status(200).json({
+//       success: true,
+//       message: "Crime report rejected",
+//       data: { submissionId: submission.id, status: submission.status },
+//     });
+//   } catch (error) {
+//     console.error("Reject Crime Error:", error);
+//     res
+//       .status(500)
+//       .json({ success: false, message: "Error rejecting crime report" });
+//   }
+// };
+
 export const rejectCrimeReport = async (req, res) => {
   try {
     const { submissionId } = req.params;
     const { reason } = req.body;
 
+    console.log("\n")
+    console.log(submissionId)
+    console.log("\n")
+
+    // 1️⃣ Find the CrimeSubmission record
     const submission = await CrimeSubmission.findByPk(submissionId);
     if (!submission) {
       return res
@@ -252,17 +466,23 @@ export const rejectCrimeReport = async (req, res) => {
         .json({ success: false, message: "Crime submission not found" });
     }
 
-    // Update submission status
-    await submission.update({
+    // 2️⃣ Find the corresponding Crime record
+    const crime = await Crime.findByPk(submission.CrimeId);
+    if (!crime) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Associated crime record not found" });
+    }
+
+    // 3️⃣ Update Crime status to rejected
+    await crime.update({
       status: "rejected",
-      rejectionReason: reason,
-      verifiedAt: new Date(),
     });
 
     res.status(200).json({
       success: true,
       message: "Crime report rejected",
-      data: { submissionId: submission.id, status: submission.status },
+      data: { crimeId: crime.id, status: crime.status },
     });
   } catch (error) {
     console.error("Reject Crime Error:", error);
@@ -276,6 +496,66 @@ export const rejectCrimeReport = async (req, res) => {
 //  SUBMIT A CRIME REPORT
 // ===================================================
 
+// export const reportCrime = async (req, res) => {
+//   try {
+//     const {
+//       fullName,
+//       cnic,
+//       contact,
+//       zone,
+//       crimeTypeId,
+//       date,
+//       address,
+//       description,
+//     } = req.body;
+
+//     if (!cnic || !date) {
+//       return res
+//         .status(400)
+//         .json({ success: false, message: "Missing required fields" });
+//     }
+
+//     // 1️⃣ Check if submitter exists, if not create new record
+//     let submitterRecord = await CrimeReportsSubmitter.findByPk(cnic);
+
+//     if (!submitterRecord) {
+//       submitterRecord = await CrimeReportsSubmitter.create({
+//         submitterCnic: cnic,
+//         submitterName: fullName,
+//         submitterContact: contact,
+//       });
+//     } else {
+//       // Optional: Update existing submitter's info if provided
+//       if (fullName || contact) {
+//         await submitterRecord.update({
+//           ...(fullName && { submitterName: fullName }),
+//           ...(contact && { submitterContact: contact }),
+//         });
+//       }
+//     }
+
+//     // 2️⃣ Create crime submission (pending status)
+//     const newCrime = await CrimeSubmission.create({
+//       submitterCnic: cnic,
+//       zoneId: zone,
+//       incidentDate: date,
+//       description: description,
+//       status: "pending",
+//       crimeTypeId: crimeTypeId,
+//       address: address,
+//     });
+
+//     res.status(201).json({
+//       success: true,
+//       message: "Crime report submitted successfully",
+//       data: newCrime,
+//     });
+//   } catch (error) {
+//     console.error("Add Crime Error:", error);
+//     res.status(500).json({ success: false, message: "Error adding crime" });
+//   }
+// };
+
 export const reportCrime = async (req, res) => {
   try {
     const {
@@ -287,9 +567,10 @@ export const reportCrime = async (req, res) => {
       date,
       address,
       description,
+      title, // optional, if you want a title
     } = req.body;
 
-    if (!cnic || !date) {
+    if (!cnic || !date || !crimeTypeId) {
       return res
         .status(400)
         .json({ success: false, message: "Missing required fields" });
@@ -305,7 +586,7 @@ export const reportCrime = async (req, res) => {
         submitterContact: contact,
       });
     } else {
-      // Optional: Update existing submitter's info if provided
+      // Optional: Update existing submitter info
       if (fullName || contact) {
         await submitterRecord.update({
           ...(fullName && { submitterName: fullName }),
@@ -314,27 +595,40 @@ export const reportCrime = async (req, res) => {
       }
     }
 
-    // 2️⃣ Create crime submission (pending status)
-    const newCrime = await CrimeSubmission.create({
-      submitterCnic: cnic,
-      zoneId: zone,
-      incidentDate: date,
+    // 2️⃣ Create the Crime record directly with pending status
+    const newCrime = await Crime.create({
+      title: title || "Untitled Crime",
       description: description,
-      status: "pending",
       crimeTypeId: crimeTypeId,
+      incidentDate: date,
+      reportedAt: new Date(),
+      status: "pending",
+      location: null, // Assuming you pass { type: "Point", coordinates: [lng, lat] }
       address: address,
+      zoneId: zone, // if zoneId is same as location id; otherwise adjust
+    });
+
+    // 3️⃣ Create CrimeSubmission metadata record
+    const newCrimeSubmission = await CrimeSubmission.create({
+      submitterCnic: cnic,
+      submittedAt: new Date(),
+      CrimeId: newCrime.id,
     });
 
     res.status(201).json({
       success: true,
       message: "Crime report submitted successfully",
-      data: newCrime,
+      data: {
+        crime: newCrime,
+        submission: newCrimeSubmission,
+      },
     });
   } catch (error) {
-    console.error("Add Crime Error:", error);
+    console.error("Report Crime Error:", error);
     res.status(500).json({ success: false, message: "Error adding crime" });
   }
 };
+
 
 
 // ===================================================
@@ -371,7 +665,7 @@ export const getAllCrimes = async (req, res) => {
         [
           Sequelize.literal(`(
             SELECT "submitterCnic" FROM "CrimeSubmission" AS cs
-            WHERE cs."verifiedCrimeId" = "Crime"."id"
+            WHERE cs."CrimeId" = "Crime"."id"
             LIMIT 1
           )`),
           "submitterCnic"

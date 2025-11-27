@@ -16,6 +16,7 @@ interface ConfirmationPopupProps {
   password?: string;
   requestDate?: string;
 
+  title?: string;
   submissionId?: string | number;
   fullName?: string;
   contact?: string;
@@ -44,6 +45,7 @@ export default function ConfirmationPopup({
     username: initialData.username || "",
     password: initialData.password || "",
     requestDate: initialData.requestDate || "",
+    title: initialData.title || "",
     fullName: initialData.fullName || "",
     contact: initialData.contact || "",
     cnic: initialData.cnic || "",
@@ -261,6 +263,17 @@ export default function ConfirmationPopup({
                       className="w-full text-sm bg-gray-100 mt-1 p-2 rounded border"
                     />
                   </div>
+                </div>
+                <div className="bg-gray-50 p-3 rounded-lg mb-3">
+                  <label className="text-xs font-medium text-gray-700">
+                    Title
+                  </label>
+                  <textarea
+                    value={formData.title}
+                    name="title"
+                  onChange={handleInputChange}
+                    className="w-full text-sm bg-gray-100 mt-1 p-2 rounded border h-20 resize-none"
+                  />
                 </div>
                 <div className="bg-gray-50 p-3 rounded-lg mb-3">
                   <label className="text-xs font-medium text-gray-700">
