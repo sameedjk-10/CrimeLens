@@ -349,7 +349,7 @@ export const getPendingSubmissions = async (req, res) => {
 export const approveCrimeReport = async (req, res) => {
   try {
     const { submissionId } = req.params;
-    const { address, latitude, longitude } = req.body;
+    const { address, latitude, longitude, title, description } = req.body;
     // 1️⃣ Find the CrimeSubmission record
     const submission = await CrimeSubmission.findByPk(submissionId);
     if (!submission) {
@@ -380,7 +380,9 @@ export const approveCrimeReport = async (req, res) => {
     const updatedData = {
       status: "approved",
       address: address || crime.address,
-      location: crime.location
+      location: crime.location,
+      title: title || crime.title,
+      description: description || crime.description
     };
 
     // Add geometry if lat & lng provided
