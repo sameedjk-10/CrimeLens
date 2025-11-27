@@ -89,7 +89,7 @@ const Statistics = () => {
               <StatsCard
                 title="Total Crimes"
                 value={summary?.totalCrimes ?? 0}
-                subText="Crimes recorded in the system"
+                subText="Crimes recorded in last 30 Days"
                 bgColor="bg-[#ffffff]"
                 width="w-[100%]"
                 height="h-[180px]"
