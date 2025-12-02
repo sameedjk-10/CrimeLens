@@ -186,18 +186,103 @@ export const agentRequest = async (req, res) => {
 // ===================================================
 // ✅ VERIFY & APPROVE AGENT REQUEST (Admin Only)
 // ===================================================
+// export const verifyAgentRequest = async (req, res) => {
+//   try {
+//     const { requestId } = req.params;
+//     const { roleId } = req.body; // roleId for the new agent
+
+//     // Find the pending request
+//     const agentRequest = await PoliceAgentRequest.findByPk(requestId, {
+//       include: {
+//         model: PoliceAgentRequestsTemp,
+//         // as: "PoliceAgentRequestsTemp",
+//       },
+//     });
+
+//     if (!agentRequest) {
+//       return res
+//         .status(404)
+//         .json({ success: false, message: "Request not found" });
+//     }
+
+//     if (agentRequest.status !== "pending") {
+//       return res
+//         .status(400)
+//         .json({ success: false, message: "Request has already been processed" });
+//     }
+
+//     // Get temp data
+//     const tempData = agentRequest.PoliceAgentRequestsTemp;
+
+//     // 1️⃣ Create user in User table with temp credentials
+//     const newUser = await User.create({
+//       // id: uuidv4(),
+//       username: tempData.username,
+//       passwordHash: tempData.password, // ⚠️ In production, HASH the password
+//       roleId: roleId || 2, // Default to police officer role
+//       createdAt: new Date(),
+//       updatedAt: new Date(),
+//     });
+
+//     // 2️⃣ Update PoliceAgentRequest to link userId and change status
+//     await agentRequest.update({
+//       userId: newUser.id,
+//       status: "approved",
+//       verifiedAt: new Date(),
+//     });
+
+//     // 3️⃣ Delete the temp entry (no longer needed)
+//     await tempData.destroy();
+
+//     res.status(200).json({
+//       success: true,
+//       message: "Agent request approved and user created successfully",
+//       data: {
+//         userId: newUser.id,
+//         username: newUser.username,
+//         branchId: newUser.branchId,
+//         status: agentRequest.status,
+//       },
+//     });
+//   } catch (error) {
+//     console.error("Verify Agent Error:", error);
+//     res
+//       .status(500)
+//       .json({ success: false, message: "Error verifying agent request" });
+//   }
+// };
+
+
 export const verifyAgentRequest = async (req, res) => {
   try {
     const { requestId } = req.params;
     const { roleId } = req.body; // roleId for the new agent
 
-    // Find the pending request
-    const agentRequest = await PoliceAgentRequest.findByPk(requestId, {
-      include: {
-        model: PoliceAgentRequestsTemp,
-        // as: "PoliceAgentRequestsTemp",
-      },
-    });
+    // ---------------------------
+    // 1️⃣ Fetch pending agent request + temp data
+    // ---------------------------
+    const agentRequestRows = await sequelize.query(
+      `
+      SELECT ar.id AS "agentRequestId",
+             ar."userId",
+             ar."branchId",
+             ar.status,
+             t.id AS "tempId",
+             t.username,
+             t.password
+      FROM "PoliceAgentRequest" ar
+      JOIN "PoliceAgentRequestsTemp" t
+        ON t.id = ar."policeAgentRequestsTempId"
+      WHERE ar.id = :requestId
+      LIMIT 1;
+      `,
+      {
+        replacements: { requestId },
+        type: QueryTypes.SELECT,
+      }
+    );
+
+    const agentRequest = agentRequestRows[0];
 
     if (!agentRequest) {
       return res
@@ -206,42 +291,82 @@ export const verifyAgentRequest = async (req, res) => {
     }
 
     if (agentRequest.status !== "pending") {
-      return res
-        .status(400)
-        .json({ success: false, message: "Request has already been processed" });
+      return res.status(400).json({
+        success: false,
+        message: "Request has already been processed",
+      });
     }
 
-    // Get temp data
-    const tempData = agentRequest.PoliceAgentRequestsTemp;
+    // ---------------------------
+    // 2️⃣ Create new user in User table
+    // ---------------------------
+    const now = new Date();
 
-    // 1️⃣ Create user in User table with temp credentials
-    const newUser = await User.create({
-      // id: uuidv4(),
-      username: tempData.username,
-      passwordHash: tempData.password, // ⚠️ In production, HASH the password
-      roleId: roleId || 2, // Default to police officer role
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
+    const newUserResult = await sequelize.query(
+      `
+      INSERT INTO "User" (username, "passwordHash", "roleId", "createdAt", "updatedAt")
+      VALUES (:username, :passwordHash, :roleId, :createdAt, :updatedAt)
+      RETURNING id, username, "roleId";  -- ⚠ returning fields used in response
+      `,
+      {
+        replacements: {
+          username: agentRequest.username,
+          passwordHash: agentRequest.password, // ⚠ in production, hash password
+          roleId: roleId || 2,
+          createdAt: now,
+          updatedAt: now,
+        },
+        type: QueryTypes.INSERT,
+      }
+    );
 
-    // 2️⃣ Update PoliceAgentRequest to link userId and change status
-    await agentRequest.update({
-      userId: newUser.id,
-      status: "approved",
-      verifiedAt: new Date(),
-    });
+    const newUser = newUserResult[0][0];
 
-    // 3️⃣ Delete the temp entry (no longer needed)
-    await tempData.destroy();
+    // ---------------------------
+    // 3️⃣ Update PoliceAgentRequest to link new user and change status
+    // ---------------------------
+    await sequelize.query(
+      `
+      UPDATE "PoliceAgentRequest"
+      SET "userId" = :userId,
+          status = 'approved'
+      WHERE id = :requestId
+      `,
+      {
+        replacements: {
+          userId: newUser.id,
+          verifiedAt: now,
+          requestId,
+        },
+        type: QueryTypes.UPDATE,
+      }
+    );
 
+    // ---------------------------
+    // 4️⃣ Delete temp entry
+    // ---------------------------
+    await sequelize.query(
+      `
+      DELETE FROM "PoliceAgentRequestsTemp"
+      WHERE id = :tempId
+      `,
+      {
+        replacements: { tempId: agentRequest.tempId },
+        type: QueryTypes.DELETE,
+      }
+    );
+
+    // ---------------------------
+    // 5️⃣ Send response (frontend format unchanged)
+    // ---------------------------
     res.status(200).json({
       success: true,
       message: "Agent request approved and user created successfully",
       data: {
         userId: newUser.id,
         username: newUser.username,
-        branchId: newUser.branchId,
-        status: agentRequest.status,
+        branchId: agentRequest.branchId,
+        status: "approved",
       },
     });
   } catch (error) {
@@ -251,6 +376,8 @@ export const verifyAgentRequest = async (req, res) => {
       .json({ success: false, message: "Error verifying agent request" });
   }
 };
+
+
 
 // ===================================================
 // ❌ REJECT AGENT REQUEST (Admin Only)
