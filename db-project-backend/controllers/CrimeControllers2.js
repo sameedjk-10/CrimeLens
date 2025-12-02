@@ -1,6 +1,6 @@
 // controllers/crimeController.js
 import { Sequelize } from "sequelize";
-import { Op, fn, col, literal, QueryTypes ,  } from "sequelize";
+import { Op, fn, col, literal, QueryTypes, } from "sequelize";
 import sequelize from "../config/db.js";
 import db from "../models/index.js";
 const { Crime, CrimeSubmission, CrimeReportsSubmitter, CrimeType, Zone } = db;
@@ -134,97 +134,114 @@ export const getAllCrimeTypes = async (req, res) => {
   }
 };
 
+// export const getPendingSubmissions = async (req, res) => {
+//   try {
+//     const pendingCrimes = await Crime.findAll({
+//       where: { status: "pending" },
+
+//       // include standard relations (CrimeType, Zone) so frontend can use them
+//       include: [
+//         {
+//           model: CrimeType,
+//           attributes: ["id", "name"],
+//           required: false,
+//         },
+//         {
+//           model: Zone,
+//           attributes: ["id"], // zone only has id as you said
+//           required: false,
+//         },
+//       ],
+
+//       // add flattened fields using SQL subqueries (aliased)
+//       attributes: {
+//         include: [
+//           // submission id
+//           [
+//             literal(`(
+//               SELECT cs."id"
+//               FROM "CrimeSubmission" cs
+//               WHERE cs."CrimeId" = "Crime"."id"
+//               ORDER BY cs."submittedAt" DESC
+//               LIMIT 1
+//             )`),
+//             "submissionId",
+//           ],
+
+//           // submitter CNIC from CrimeSubmission
+//           [
+//             literal(`(
+//               SELECT cs."submitterCnic"
+//               FROM "CrimeSubmission" cs
+//               WHERE cs."CrimeId" = "Crime"."id"
+//               ORDER BY cs."submittedAt" DESC
+//               LIMIT 1
+//             )`),
+//             "submitterCnic",
+//           ],
+
+//           // submittedAt
+//           [
+//             literal(`(
+//               SELECT cs."submittedAt"
+//               FROM "CrimeSubmission" cs
+//               WHERE cs."CrimeId" = "Crime"."id"
+//               ORDER BY cs."submittedAt" DESC
+//               LIMIT 1
+//             )`),
+//             "submittedAt",
+//           ],
+
+//           // submitterName from CrimeReportsSubmitter joined by submitterCnic
+//           [
+//             literal(`(
+//               SELECT crs."submitterName"
+//               FROM "CrimeSubmission" cs
+//               JOIN "CrimeReportsSubmitter" crs
+//                 ON crs."submitterCnic" = cs."submitterCnic"
+//               WHERE cs."CrimeId" = "Crime"."id"
+//               ORDER BY cs."submittedAt" DESC
+//               LIMIT 1
+//             )`),
+//             "submitterName",
+//           ],
+
+//           // submitterContact from CrimeReportsSubmitter
+//           [
+//             literal(`(
+//               SELECT crs."submitterContact"
+//               FROM "CrimeSubmission" cs
+//               JOIN "CrimeReportsSubmitter" crs
+//                 ON crs."submitterCnic" = cs."submitterCnic"
+//               WHERE cs."CrimeId" = "Crime"."id"
+//               ORDER BY cs."submittedAt" DESC
+//               LIMIT 1
+//             )`),
+//             "submitterContact",
+//           ],
+//         ],
+//       },
+
+//       order: [["reportedAt", "DESC"]],
+//       limit: 100, // optional: protect large responses
+//     });
+
+//     res.status(200).json({ success: true, data: pendingCrimes });
+//   } catch (error) {
+//     console.error("Fetch Pending Crimes Error:", error);
+//     res.status(500).json({
+//       success: false,
+//       message: "Error fetching pending submissions",
+//     });
+//   }
+// };
+
 export const getPendingSubmissions = async (req, res) => {
   try {
-    const pendingCrimes = await Crime.findAll({
-      where: { status: "pending" },
-
-      // include standard relations (CrimeType, Zone) so frontend can use them
-      include: [
-        {
-          model: CrimeType,
-          attributes: ["id", "name"],
-          required: false,
-        },
-        {
-          model: Zone,
-          attributes: ["id"], // zone only has id as you said
-          required: false,
-        },
-      ],
-
-      // add flattened fields using SQL subqueries (aliased)
-      attributes: {
-        include: [
-          // submission id
-          [
-            literal(`(
-              SELECT cs."id"
-              FROM "CrimeSubmission" cs
-              WHERE cs."CrimeId" = "Crime"."id"
-              ORDER BY cs."submittedAt" DESC
-              LIMIT 1
-            )`),
-            "submissionId",
-          ],
-
-          // submitter CNIC from CrimeSubmission
-          [
-            literal(`(
-              SELECT cs."submitterCnic"
-              FROM "CrimeSubmission" cs
-              WHERE cs."CrimeId" = "Crime"."id"
-              ORDER BY cs."submittedAt" DESC
-              LIMIT 1
-            )`),
-            "submitterCnic",
-          ],
-
-          // submittedAt
-          [
-            literal(`(
-              SELECT cs."submittedAt"
-              FROM "CrimeSubmission" cs
-              WHERE cs."CrimeId" = "Crime"."id"
-              ORDER BY cs."submittedAt" DESC
-              LIMIT 1
-            )`),
-            "submittedAt",
-          ],
-
-          // submitterName from CrimeReportsSubmitter joined by submitterCnic
-          [
-            literal(`(
-              SELECT crs."submitterName"
-              FROM "CrimeSubmission" cs
-              JOIN "CrimeReportsSubmitter" crs
-                ON crs."submitterCnic" = cs."submitterCnic"
-              WHERE cs."CrimeId" = "Crime"."id"
-              ORDER BY cs."submittedAt" DESC
-              LIMIT 1
-            )`),
-            "submitterName",
-          ],
-
-          // submitterContact from CrimeReportsSubmitter
-          [
-            literal(`(
-              SELECT crs."submitterContact"
-              FROM "CrimeSubmission" cs
-              JOIN "CrimeReportsSubmitter" crs
-                ON crs."submitterCnic" = cs."submitterCnic"
-              WHERE cs."CrimeId" = "Crime"."id"
-              ORDER BY cs."submittedAt" DESC
-              LIMIT 1
-            )`),
-            "submitterContact",
-          ],
-        ],
-      },
-
-      order: [["reportedAt", "DESC"]],
-      limit: 100, // optional: protect large responses
-    });
+    const pendingCrimes = await sequelize.query(
+      `SELECT * FROM "view_PendingSubmissions";`,
+      { type: QueryTypes.SELECT }
+    );
 
     res.status(200).json({ success: true, data: pendingCrimes });
   } catch (error) {
@@ -236,6 +253,9 @@ export const getPendingSubmissions = async (req, res) => {
   }
 };
 
+
+
+
 export const approveCrimeReport = async (req, res) => {
   try {
     const { submissionId } = req.params;
@@ -244,6 +264,10 @@ export const approveCrimeReport = async (req, res) => {
     // ---------------------------
     // 1️⃣ Fetch CrimeSubmission record
     // ---------------------------
+
+    const t = await sequelize.transaction();
+
+
     const submissionRows = await sequelize.query(
       `
       SELECT id, "CrimeId"
@@ -254,6 +278,7 @@ export const approveCrimeReport = async (req, res) => {
       {
         replacements: { submissionId },
         type: QueryTypes.SELECT,
+        transaction: t,
       }
     );
 
@@ -278,6 +303,7 @@ export const approveCrimeReport = async (req, res) => {
       {
         replacements: { crimeId: submission.CrimeId },
         type: QueryTypes.SELECT,
+        transaction: t,
       }
     );
 
@@ -330,11 +356,12 @@ export const approveCrimeReport = async (req, res) => {
           crimeId: crime.id,
         },
         type: QueryTypes.UPDATE,
+        transaction: t,
       }
     );
 
     const updatedCrime = updatedCrimeRows[0][0];
-
+    await t.commit();
     // ---------------------------
     // 4️⃣ Response
     // ---------------------------
@@ -361,6 +388,9 @@ export const rejectCrimeReport = async (req, res) => {
     const { submissionId } = req.params;
     const { reason } = req.body;
 
+    
+  const t = await sequelize.transaction();
+
     // ---------------------------
     // 1️⃣ Fetch CrimeSubmission record
     // ---------------------------
@@ -374,6 +404,7 @@ export const rejectCrimeReport = async (req, res) => {
       {
         replacements: { submissionId },
         type: QueryTypes.SELECT,
+        transaction: t,
       }
     );
 
@@ -398,6 +429,7 @@ export const rejectCrimeReport = async (req, res) => {
       {
         replacements: { crimeId: submission.CrimeId },
         type: QueryTypes.SELECT,
+        transaction: t,
       }
     );
 
@@ -422,11 +454,12 @@ export const rejectCrimeReport = async (req, res) => {
       {
         replacements: { crimeId: crime.id },
         type: QueryTypes.UPDATE,
+        transaction: t,
       }
     );
 
     const updatedCrime = updatedCrimeRows[0][0];
-
+    await t.commit();
     // ---------------------------
     // 4️⃣ Response
     // ---------------------------
@@ -588,52 +621,73 @@ export const reportCrime = async (req, res) => {
 // ===================================================
 // 📌 GET ALL CRIMES (For Records Table)
 // ===================================================
+// export const getAllCrimes = async (req, res) => {
+//   try {
+//     const crimes = await Crime.findAll({
+//       where: { status: "approved" },  // ✅ Only approved crimes
+//       attributes: [
+//         "id",
+//         "incidentDate",
+//         // Zone Name
+//         [
+//           Sequelize.literal(`(
+//             SELECT "name" FROM "Zone" AS z
+//             WHERE z.id = "Crime"."zoneId"
+//             LIMIT 1
+//           )`),
+//           "zoneName"
+//         ],
+//         // Registered Branch ID
+//         [
+//           Sequelize.literal(`(
+//             SELECT "id" FROM "PoliceBranch" AS pb
+//             WHERE pb."zoneId" = "Crime"."zoneId"
+//             LIMIT 1
+//           )`),
+//           "registeredBranchId"
+//         ],
+//         // Submitter CNIC
+//         [
+//           Sequelize.literal(`(
+//             SELECT "submitterCnic" FROM "CrimeSubmission" AS cs
+//             WHERE cs."CrimeId" = "Crime"."id"
+//             LIMIT 1
+//           )`),
+//           "submitterCnic"
+//         ],
+//         // Crime Type Name
+//         [
+//           Sequelize.literal(`(
+//             SELECT "name" FROM "CrimeType" AS ct
+//             WHERE ct.id = "Crime"."crimeTypeId"
+//             LIMIT 1
+//           )`),
+//           "crimeTypeName"
+//         ]
+//       ],
+//       order: [["incidentDate", "DESC"]]
+//     });
+
+//     return res.status(200).json({
+//       success: true,
+//       data: crimes
+//     });
+
+//   } catch (error) {
+//     console.error("❌ Error fetching crimes:", error);
+//     return res.status(500).json({
+//       success: false,
+//       message: "Error fetching crime records",
+//     });
+//   }
+// };
+
 export const getAllCrimes = async (req, res) => {
   try {
-    const crimes = await Crime.findAll({
-      where: { status: "approved" },  // ✅ Only approved crimes
-      attributes: [
-        "id",
-        "incidentDate",
-        // Zone Name
-        [
-          Sequelize.literal(`(
-            SELECT "name" FROM "Zone" AS z
-            WHERE z.id = "Crime"."zoneId"
-            LIMIT 1
-          )`),
-          "zoneName"
-        ],
-        // Registered Branch ID
-        [
-          Sequelize.literal(`(
-            SELECT "id" FROM "PoliceBranch" AS pb
-            WHERE pb."zoneId" = "Crime"."zoneId"
-            LIMIT 1
-          )`),
-          "registeredBranchId"
-        ],
-        // Submitter CNIC
-        [
-          Sequelize.literal(`(
-            SELECT "submitterCnic" FROM "CrimeSubmission" AS cs
-            WHERE cs."CrimeId" = "Crime"."id"
-            LIMIT 1
-          )`),
-          "submitterCnic"
-        ],
-        // Crime Type Name
-        [
-          Sequelize.literal(`(
-            SELECT "name" FROM "CrimeType" AS ct
-            WHERE ct.id = "Crime"."crimeTypeId"
-            LIMIT 1
-          )`),
-          "crimeTypeName"
-        ]
-      ],
-      order: [["incidentDate", "DESC"]]
-    });
+    const crimes = await sequelize.query(
+      `SELECT * FROM "view_AllCrimes";`,
+      { type: QueryTypes.SELECT }
+    );
 
     return res.status(200).json({
       success: true,
@@ -641,13 +695,15 @@ export const getAllCrimes = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("❌ Error fetching crimes:", error);
+    console.error("❌ Error fetching crimes from view:", error);
     return res.status(500).json({
       success: false,
-      message: "Error fetching crime records",
+      message: "Error fetching crime records"
     });
   }
 };
+
+
 
 // --------------------------------------------------
 // GET SINGLE CRIME BY ID
