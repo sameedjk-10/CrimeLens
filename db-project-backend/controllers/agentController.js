@@ -377,22 +377,76 @@ export const verifyAgentRequest = async (req, res) => {
   }
 };
 
-
-
 // ===================================================
 // ❌ REJECT AGENT REQUEST (Admin Only)
 // ===================================================
+// export const rejectAgentRequest = async (req, res) => {
+//   try {
+//     const { requestId } = req.params;
+//     const { reason } = req.body;
+
+//     const agentRequest = await PoliceAgentRequest.findByPk(requestId, {
+//       include: {
+//         model: PoliceAgentRequestsTemp,
+//         // as: "policeAgentRequestsTemp",
+//       },
+//     });
+
+//     if (!agentRequest) {
+//       return res
+//         .status(404)
+//         .json({ success: false, message: "Request not found" });
+//     }
+
+//     // Update status and add rejection reason
+//     await agentRequest.update({
+//       status: "rejected",
+//       rejectionReason: reason,
+//       verifiedAt: new Date(),
+//     });
+
+//     // Delete temp entry
+//     await agentRequest.PoliceAgentRequestsTemp.destroy();
+
+//     res.status(200).json({
+//       success: true,
+//       message: "Agent request rejected",
+//       data: { requestId: agentRequest.id, status: agentRequest.status },
+//     });
+//   } catch (error) {
+//     console.error("Reject Agent Error:", error);
+//     res
+//       .status(500)
+//       .json({ success: false, message: "Error rejecting agent request" });
+//   }
+// };
+
 export const rejectAgentRequest = async (req, res) => {
   try {
     const { requestId } = req.params;
     const { reason } = req.body;
 
-    const agentRequest = await PoliceAgentRequest.findByPk(requestId, {
-      include: {
-        model: PoliceAgentRequestsTemp,
-        // as: "policeAgentRequestsTemp",
-      },
-    });
+    // ---------------------------
+    // 1️⃣ Fetch agent request + temp entry
+    // ---------------------------
+    const agentRequestRows = await sequelize.query(
+      `
+      SELECT ar.id AS "agentRequestId",
+             ar.status,
+             t.id AS "tempId"
+      FROM "PoliceAgentRequest" ar
+      JOIN "PoliceAgentRequestsTemp" t
+        ON t.id = ar."policeAgentRequestsTempId"
+      WHERE ar.id = :requestId
+      LIMIT 1;
+      `,
+      {
+        replacements: { requestId },
+        type: QueryTypes.SELECT,
+      }
+    );
+
+    const agentRequest = agentRequestRows[0];
 
     if (!agentRequest) {
       return res
@@ -400,20 +454,47 @@ export const rejectAgentRequest = async (req, res) => {
         .json({ success: false, message: "Request not found" });
     }
 
-    // Update status and add rejection reason
-    await agentRequest.update({
-      status: "rejected",
-      rejectionReason: reason,
-      verifiedAt: new Date(),
-    });
+    // ---------------------------
+    // 2️⃣ Update status and add rejection reason
+    // ---------------------------
+    const now = new Date();
+    await sequelize.query(
+      `
+      UPDATE "PoliceAgentRequest"
+      SET status = 'rejected'
+      WHERE id = :requestId
+      `,
+      {
+        replacements: {
+          reason,
+          verifiedAt: now,
+          requestId,
+        },
+        type: QueryTypes.UPDATE,
+      }
+    );
 
-    // Delete temp entry
-    await agentRequest.PoliceAgentRequestsTemp.destroy();
+    // ---------------------------
+    // 3️⃣ Delete temp entry
+    // ---------------------------
+    await sequelize.query(
+      `
+      DELETE FROM "PoliceAgentRequestsTemp"
+      WHERE id = :tempId
+      `,
+      {
+        replacements: { tempId: agentRequest.tempId },
+        type: QueryTypes.DELETE,
+      }
+    );
 
+    // ---------------------------
+    // 4️⃣ Response (frontend format unchanged)
+    // ---------------------------
     res.status(200).json({
       success: true,
       message: "Agent request rejected",
-      data: { requestId: agentRequest.id, status: agentRequest.status },
+      data: { requestId: agentRequest.agentRequestId, status: "rejected" },
     });
   } catch (error) {
     console.error("Reject Agent Error:", error);
@@ -422,6 +503,7 @@ export const rejectAgentRequest = async (req, res) => {
       .json({ success: false, message: "Error rejecting agent request" });
   }
 };
+
 
 // ===================================================
 // 📋 GET ALL PENDING AGENT REQUESTS (Admin Only)
