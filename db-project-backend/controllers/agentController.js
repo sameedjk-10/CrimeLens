@@ -10,6 +10,70 @@ const { Crime, User, Criminal , CrimeSubmission, PoliceAgentRequestsTemp, CrimeR
 // ===================================================
 // ➕ CREATE AGENT REQUEST
 // ===================================================
+// export const agentRequest = async (req, res) => {
+//   try {
+//     const { branchId, username, password } = req.body;
+
+//     // Validate required fields
+//     if (!branchId || !username || !password) {
+//       return res
+//         .status(400)
+//         .json({ success: false, message: "Missing required fields" });
+//     }
+
+//     // Validate branch exists
+//     const branch = await PoliceBranch.findByPk(branchId);
+//     if (!branch) {
+//       return res
+//         .status(404)
+//         .json({ success: false, message: "Branch not found" });
+//     }
+
+//     // Check if username already exists
+//     const existingUser = await User.findOne({ where: { username } });
+//     if (existingUser) {
+//       return res
+//         .status(409)
+//         .json({ success: false, message: "Username already exists" });
+//     }
+
+//     // 1️⃣ Create entry in PoliceAgentRequestsTemp (stores username & password)
+//     const requestTemp = await PoliceAgentRequestsTemp.create({
+//       username: username,
+//       password: password,
+//       createdAt: new Date(),
+//     });
+
+//     // 2️⃣ Create entry in PoliceAgentRequest (references temp, stores branchId)
+//     const agentRequest = await PoliceAgentRequest.create({
+//       policeAgentRequestsTempId: requestTemp.id, // FK to temp table
+//       userId: null, // Will be set after verification
+//       branchId: branchId,
+//       status: "pending", // Default status
+//       createdAt: new Date(),
+//     });
+
+//     res.status(201).json({
+//       success: true,
+//       message: "Agent request submitted successfully. Awaiting verification.",
+//       data: {
+//         requestId: agentRequest.id,
+//         tempId: requestTemp.id,
+//         status: agentRequest.status,
+//         branchId: agentRequest.branchId,
+//       },
+//     });
+//   } catch (error) {
+//     console.error("Agent Request Error:", error);
+//     res
+//       .status(500)
+//       .json({ success: false, message: "Error submitting agent request" });
+//   }
+// };
+
+// import { sequelize } from "../models/index.js";
+// import { QueryTypes } from "sequelize";
+
 export const agentRequest = async (req, res) => {
   try {
     const { branchId, username, password } = req.body;
@@ -21,46 +85,93 @@ export const agentRequest = async (req, res) => {
         .json({ success: false, message: "Missing required fields" });
     }
 
-    // Validate branch exists
-    const branch = await PoliceBranch.findByPk(branchId);
-    if (!branch) {
+    // 1️⃣ Validate branch exists (PoliceBranch)
+    // Assuming table name = "PoliceBranch" and PK = "id"  ⚠ verify
+    const branch = await sequelize.query(
+      `
+      SELECT * FROM "PoliceBranch" WHERE id = :branchId
+      `,
+      {
+        replacements: { branchId },
+        type: QueryTypes.SELECT,
+      }
+    );
+
+    if (branch.length === 0) {
       return res
         .status(404)
         .json({ success: false, message: "Branch not found" });
     }
 
-    // Check if username already exists
-    const existingUser = await User.findOne({ where: { username } });
-    if (existingUser) {
+    // 2️⃣ Check if username already exists (User table)
+    const existingUser = await sequelize.query(
+      `
+      SELECT * FROM "User" WHERE username = :username
+      `,
+      {
+        replacements: { username },
+        type: QueryTypes.SELECT,
+      }
+    );
+
+    if (existingUser.length > 0) {
       return res
         .status(409)
         .json({ success: false, message: "Username already exists" });
     }
 
-    // 1️⃣ Create entry in PoliceAgentRequestsTemp (stores username & password)
-    const requestTemp = await PoliceAgentRequestsTemp.create({
-      username: username,
-      password: password,
-      createdAt: new Date(),
-    });
+    // 3️⃣ Insert into PoliceAgentRequestsTemp
+    // Table name = "PoliceAgentRequestsTemp"  ⚠ verify
+    const requestTempResult = await sequelize.query(
+      `
+      INSERT INTO "PoliceAgentRequestsTemp" (username, password, "createdAt")
+      VALUES (:username, :password, :createdAt)
+      RETURNING id;
+      `,
+      {
+        replacements: {
+          username,
+          password,
+          createdAt: new Date(),
+        },
+        type: QueryTypes.INSERT,
+      }
+    );
 
-    // 2️⃣ Create entry in PoliceAgentRequest (references temp, stores branchId)
-    const agentRequest = await PoliceAgentRequest.create({
-      policeAgentRequestsTempId: requestTemp.id, // FK to temp table
-      userId: null, // Will be set after verification
-      branchId: branchId,
-      status: "pending", // Default status
-      createdAt: new Date(),
-    });
+    // The returned INSERT format is: [ [ { id: X } ], metadata ]
+    const requestTempId = requestTempResult[0][0].id;
 
+    // 4️⃣ Insert into PoliceAgentRequest
+    // Table name = "PoliceAgentRequest"  ⚠ verify
+    const agentRequestResult = await sequelize.query(
+      `
+      INSERT INTO "PoliceAgentRequest" 
+      ("policeAgentRequestsTempId", "userId", "branchId", status, "createdAt")
+      VALUES (:tempId, NULL, :branchId, 'pending', :createdAt)
+      RETURNING id, status, "branchId";
+      `,
+      {
+        replacements: {
+          tempId: requestTempId,
+          branchId,
+          createdAt: new Date(),
+        },
+        type: QueryTypes.INSERT,
+      }
+    );
+
+    const requestData = agentRequestResult[0][0];
+
+    // 5️⃣ Send same structure back to frontend (DO NOT CHANGE ANY FIELDS)
     res.status(201).json({
       success: true,
-      message: "Agent request submitted successfully. Awaiting verification.",
+      message:
+        "Agent request submitted successfully. Awaiting verification.",
       data: {
-        requestId: agentRequest.id,
-        tempId: requestTemp.id,
-        status: agentRequest.status,
-        branchId: agentRequest.branchId,
+        requestId: requestData.id,
+        tempId: requestTempId,
+        status: requestData.status,
+        branchId: requestData.branchId,
       },
     });
   } catch (error) {
@@ -70,6 +181,7 @@ export const agentRequest = async (req, res) => {
       .json({ success: false, message: "Error submitting agent request" });
   }
 };
+
 
 // ===================================================
 // ✅ VERIFY & APPROVE AGENT REQUEST (Admin Only)
