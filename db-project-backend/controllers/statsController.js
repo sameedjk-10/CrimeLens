@@ -101,41 +101,9 @@ export const getStatsSummary = async (req, res) => {
 };
 
 
-
 // -----------------------------
 // 📌 PIE CHART — Crimes by Type
 // -----------------------------
-// export const getCrimesByType = async (req, res) => {
-//   try {
-//     const { start, end } = req.query;
-//     const { Crime, CrimeType } = db;
-
-//     const rows = await Crime.findAll({
-//       attributes: [
-//         "crimeTypeId",
-//         [fn("COUNT", col("Crime.id")), "count"]
-//       ],
-//       where: {
-//         status: "approved",
-//         ...(start && end ? { reportedAt: { [Op.between]: [start, end] } } : {})
-//       },
-//       include: [
-//         {
-//           model: CrimeType,
-//           attributes: ["name"]
-//         }
-//       ],
-//       group: ["crimeTypeId", "CrimeType.id"]
-//     });
-
-//     res.json(rows);
-
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).json({ error: "Pie chart failed" });
-//   }
-// };
-
 
 export const getCrimesByType = async (req, res) => {
   try {
@@ -185,42 +153,9 @@ export const getCrimesByType = async (req, res) => {
 };
 
 
-
-
 // -----------------------------
 // 📌 BAR CHART — Crimes by Zone
 // -----------------------------
-// export const getCrimesByZone = async (req, res) => {
-//   try {
-//     const { start, end } = req.query;
-//     const { Crime, Zone } = db;
-
-//     const rows = await Crime.findAll({
-//       attributes: [
-//         "zoneId",
-//         [fn("COUNT", col("Crime.id")), "count"]
-//       ],
-//       where: {
-//         status: "approved",
-//         ...(start && end ? { reportedAt: { [Op.between]: [start, end] } } : {})
-//       },
-//       include: [
-//         {
-//           model: Zone,
-//           attributes: ["name"]
-//         }
-//       ],
-//       group: ["zoneId", "Zone.id"]
-//     });
-
-//     res.json(rows);
-
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).json({ error: "Bar chart failed" });
-//   }
-// };
-
 export const getCrimesByZone = async (req, res) => {
   try {
     const { start, end } = req.query;
@@ -237,7 +172,7 @@ export const getCrimesByZone = async (req, res) => {
     const query = `
       SELECT
         c."zoneId",
-        z.name AS "zoneName",     -- 🔥 quoted to preserve camelCase
+        z.name AS "zoneName",
         COUNT(c.id) AS count
       FROM "Crime" c
       JOIN "Zone" z
@@ -274,30 +209,45 @@ export const getCrimesByZone = async (req, res) => {
 export const getCrimeTrend = async (req, res) => {
   try {
     const { crimeTypeId, start, end } = req.query;
-    const { Crime } = db;
 
-    const whereClause = {
-      status: "approved"
-    };
+    // -------------------
+    // Build dynamic WHERE
+    // -------------------
+    let whereClause = `WHERE c.status = 'approved'`;
+    const replacements = {};
 
+    // crimeTypeId filter
     if (crimeTypeId && !isNaN(Number(crimeTypeId))) {
-      whereClause.crimeTypeId = Number(crimeTypeId);
+      whereClause += ` AND c."crimeTypeId" = :crimeTypeId`;
+      replacements.crimeTypeId = Number(crimeTypeId);
     }
 
+    // date filter
     if (start && end) {
-      whereClause.reportedAt = { [Op.between]: [start, end] };
+      whereClause += ` AND c."reportedAt" BETWEEN :start AND :end`;
+      replacements.start = start;
+      replacements.end = end;
     }
 
-    const rows = await Crime.findAll({
-      attributes: [
-        [fn("DATE_TRUNC", "month", col("reportedAt")), "month"],
-        [fn("COUNT", col("id")), "count"]
-      ],
-      where: whereClause,
-      group: [literal("month")],
-      order: [[literal("month"), "ASC"]]
+    // -------------------
+    // Raw SQL Query
+    // -------------------
+    const query = `
+      SELECT
+        DATE_TRUNC('month', c."reportedAt") AS "month",   -- 🔥 use quotes to preserve exact key name
+        COUNT(c.id) AS count
+      FROM "Crime" c
+      ${whereClause}
+      GROUP BY DATE_TRUNC('month', c."reportedAt")
+      ORDER BY DATE_TRUNC('month', c."reportedAt") ASC;
+    `;
+
+    const rows = await db.sequelize.query(query, {
+      type: QueryTypes.SELECT,
+      replacements
     });
 
+    // No reshaping required since output matches original format
     res.json(rows);
 
   } catch (err) {
