@@ -216,6 +216,11 @@ export const getCrimeTrend = async (req, res) => {
     let whereClause = `WHERE c.status = 'approved'`;
     const replacements = {};
 
+    //const { Crime } = db;``
+    /*const whereClause = {
+      status: "approved"
+    };*/
+
     // crimeTypeId filter
     if (crimeTypeId && !isNaN(Number(crimeTypeId))) {
       whereClause += ` AND c."crimeTypeId" = :crimeTypeId`;

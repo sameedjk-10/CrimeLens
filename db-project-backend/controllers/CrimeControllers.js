@@ -115,7 +115,7 @@ export const getCrimesForMap = async (req, res) => {
 export const getAllCrimeTypes = async (req, res) => {
   try {
     const crimeTypes = await CrimeType.findAll({
-      attributes: ["id", "name"], 
+      attributes: ["id", "name"], // only id and name
       order: [["name", "ASC"]],
     });
 
@@ -430,7 +430,7 @@ import { Sequelize } from "sequelize";
 export const getAllCrimes = async (req, res) => {
   try {
     const crimes = await Crime.findAll({
-      where: { status: "approved" }, 
+      where: { status: "approved" },  // ✅ Only approved crimes
       attributes: [
         "id",
         "incidentDate",
@@ -498,7 +498,7 @@ export const getCrimeById = async (req, res) => {
     const crime = await Crime.findOne({
       where: {
         id,
-        status: "approved" 
+        status: "approved"   // ✅ Only approved crimes
       },
       attributes: [
         "id",
