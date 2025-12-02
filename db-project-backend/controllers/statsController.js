@@ -105,28 +105,76 @@ export const getStatsSummary = async (req, res) => {
 // -----------------------------
 // 📌 PIE CHART — Crimes by Type
 // -----------------------------
+// export const getCrimesByType = async (req, res) => {
+//   try {
+//     const { start, end } = req.query;
+//     const { Crime, CrimeType } = db;
+
+//     const rows = await Crime.findAll({
+//       attributes: [
+//         "crimeTypeId",
+//         [fn("COUNT", col("Crime.id")), "count"]
+//       ],
+//       where: {
+//         status: "approved",
+//         ...(start && end ? { reportedAt: { [Op.between]: [start, end] } } : {})
+//       },
+//       include: [
+//         {
+//           model: CrimeType,
+//           attributes: ["name"]
+//         }
+//       ],
+//       group: ["crimeTypeId", "CrimeType.id"]
+//     });
+
+//     res.json(rows);
+
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ error: "Pie chart failed" });
+//   }
+// };
+
+
 export const getCrimesByType = async (req, res) => {
   try {
     const { start, end } = req.query;
-    const { Crime, CrimeType } = db;
 
-    const rows = await Crime.findAll({
-      attributes: [
-        "crimeTypeId",
-        [fn("COUNT", col("Crime.id")), "count"]
-      ],
-      where: {
-        status: "approved",
-        ...(start && end ? { reportedAt: { [Op.between]: [start, end] } } : {})
-      },
-      include: [
-        {
-          model: CrimeType,
-          attributes: ["name"]
-        }
-      ],
-      group: ["crimeTypeId", "CrimeType.id"]
+    let whereClause = `WHERE c.status = 'approved'`;
+    const replacements = {};
+
+    if (start && end) {
+      whereClause += ` AND c."reportedAt" BETWEEN :start AND :end`;
+      replacements.start = start;
+      replacements.end = end;
+    }
+
+    const query = `
+      SELECT
+        c."crimeTypeId",
+        ct.name AS "crimeTypeName",
+        COUNT(c.id) AS count
+      FROM "Crime" c
+      JOIN "CrimeType" ct 
+        ON ct.id = c."crimeTypeId"
+      ${whereClause}
+      GROUP BY c."crimeTypeId", ct.id;
+    `;
+
+    const rawRows = await db.sequelize.query(query, {
+      type: QueryTypes.SELECT,
+      replacements,
     });
+
+    // 🔥 Convert raw SQL into the SAME structure as before
+    const rows = rawRows.map(row => ({
+      crimeTypeId: row.crimeTypeId,
+      count: row.count,
+      CrimeType: {
+        name: row.crimeTypeName
+      }
+    }));
 
     res.json(rows);
 
@@ -135,6 +183,7 @@ export const getCrimesByType = async (req, res) => {
     res.status(500).json({ error: "Pie chart failed" });
   }
 };
+
 
 
 
