@@ -180,7 +180,7 @@ export const getCrimesByZone = async (req, res) => {
 export const getCrimeTrend = async (req, res) => {
   try {
     const { crimeTypeId, start, end } = req.query;
-    const { Crime } = db;
+    const { Crime } = db;``
 
     const whereClause = {
       status: "approved"
