@@ -896,30 +896,105 @@ export const updateAgent = async (req, res) => {
 };
 
 
+// export const deleteAgent = async (req, res) => {
+//   const agentId = req.params.id;
+
+//   try {
+//     // Find the agent first
+//     const agent = await PoliceAgentRequest.findByPk(agentId);
+//     if (!agent) {
+//       return res.status(404).json({ success: false, message: "Agent not found" });
+//     }
+
+//     // Get the userId from the agent record BEFORE deletion
+//     const userId = agent.userId;
+
+//     // Delete the agent record
+//     await agent.destroy();
+
+//     // Delete the associated user record if userId exists
+//     if (userId) {
+//       await User.destroy({ where: { id: userId } });
+//     }
+
+//     return res.json({ success: true, message: "Agent and associated user deleted successfully" });
+//   } catch (err) {
+//     console.error("Error deleting agent:", err);
+//     return res.status(500).json({ success: false, message: "Server error" });
+//   }
+// };
+
 export const deleteAgent = async (req, res) => {
   const agentId = req.params.id;
 
   try {
-    // Find the agent first
-    const agent = await PoliceAgentRequest.findByPk(agentId);
+    // ---------------------------
+    // 1️⃣ Fetch agent
+    // ---------------------------
+    const agentRows = await sequelize.query(
+      `
+      SELECT id, "userId"
+      FROM "PoliceAgentRequest"
+      WHERE id = :agentId
+      LIMIT 1;
+      `,
+      {
+        replacements: { agentId },
+        type: QueryTypes.SELECT,
+      }
+    );
+
+    const agent = agentRows[0];
+
     if (!agent) {
-      return res.status(404).json({ success: false, message: "Agent not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Agent not found" });
     }
 
-    // Get the userId from the agent record BEFORE deletion
     const userId = agent.userId;
 
-    // Delete the agent record
-    await agent.destroy();
+    // ---------------------------
+    // 2️⃣ Delete agent record
+    // ---------------------------
+    await sequelize.query(
+      `
+      DELETE FROM "PoliceAgentRequest"
+      WHERE id = :agentId
+      `,
+      {
+        replacements: { agentId },
+        type: QueryTypes.DELETE,
+      }
+    );
 
-    // Delete the associated user record if userId exists
+    // ---------------------------
+    // 3️⃣ Delete associated user if exists
+    // ---------------------------
     if (userId) {
-      await User.destroy({ where: { id: userId } });
+      await sequelize.query(
+        `
+        DELETE FROM "User"
+        WHERE id = :userId
+        `,
+        {
+          replacements: { userId },
+          type: QueryTypes.DELETE,
+        }
+      );
     }
 
-    return res.json({ success: true, message: "Agent and associated user deleted successfully" });
+    // ---------------------------
+    // 4️⃣ Response
+    // ---------------------------
+    return res.json({
+      success: true,
+      message: "Agent and associated user deleted successfully",
+    });
   } catch (err) {
     console.error("Error deleting agent:", err);
-    return res.status(500).json({ success: false, message: "Server error" });
+    return res
+      .status(500)
+      .json({ success: false, message: "Server error" });
   }
 };
