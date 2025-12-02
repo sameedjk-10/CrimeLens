@@ -190,28 +190,75 @@ export const getCrimesByType = async (req, res) => {
 // -----------------------------
 // 📌 BAR CHART — Crimes by Zone
 // -----------------------------
+// export const getCrimesByZone = async (req, res) => {
+//   try {
+//     const { start, end } = req.query;
+//     const { Crime, Zone } = db;
+
+//     const rows = await Crime.findAll({
+//       attributes: [
+//         "zoneId",
+//         [fn("COUNT", col("Crime.id")), "count"]
+//       ],
+//       where: {
+//         status: "approved",
+//         ...(start && end ? { reportedAt: { [Op.between]: [start, end] } } : {})
+//       },
+//       include: [
+//         {
+//           model: Zone,
+//           attributes: ["name"]
+//         }
+//       ],
+//       group: ["zoneId", "Zone.id"]
+//     });
+
+//     res.json(rows);
+
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ error: "Bar chart failed" });
+//   }
+// };
+
 export const getCrimesByZone = async (req, res) => {
   try {
     const { start, end } = req.query;
-    const { Crime, Zone } = db;
 
-    const rows = await Crime.findAll({
-      attributes: [
-        "zoneId",
-        [fn("COUNT", col("Crime.id")), "count"]
-      ],
-      where: {
-        status: "approved",
-        ...(start && end ? { reportedAt: { [Op.between]: [start, end] } } : {})
-      },
-      include: [
-        {
-          model: Zone,
-          attributes: ["name"]
-        }
-      ],
-      group: ["zoneId", "Zone.id"]
+    let whereClause = `WHERE c.status = 'approved'`;
+    const replacements = {};
+
+    if (start && end) {
+      whereClause += ` AND c."reportedAt" BETWEEN :start AND :end`;
+      replacements.start = start;
+      replacements.end = end;
+    }
+
+    const query = `
+      SELECT
+        c."zoneId",
+        z.name AS "zoneName",     -- 🔥 quoted to preserve camelCase
+        COUNT(c.id) AS count
+      FROM "Crime" c
+      JOIN "Zone" z
+        ON z.id = c."zoneId"
+      ${whereClause}
+      GROUP BY c."zoneId", z.id;
+    `;
+
+    const rawRows = await db.sequelize.query(query, {
+      type: QueryTypes.SELECT,
+      replacements
     });
+
+    // 🔥 Reshape output to match old Sequelize ORM format
+    const rows = rawRows.map(row => ({
+      zoneId: row.zoneId,
+      count: row.count,
+      Zone: {
+        name: row.zoneName
+      }
+    }));
 
     res.json(rows);
 
@@ -220,8 +267,6 @@ export const getCrimesByZone = async (req, res) => {
     res.status(500).json({ error: "Bar chart failed" });
   }
 };
-
-
 
 // -----------------------------
 // 📌 LINE CHART — Monthly Trend
