@@ -424,7 +424,7 @@ export const verifyAgentRequest = async (req, res) => {
 export const rejectAgentRequest = async (req, res) => {
   try {
     const { requestId } = req.params;
-    const { reason } = req.body;
+    // const { reason } = req.body;
 
     // ---------------------------
     // 1️⃣ Fetch agent request + temp entry
@@ -508,23 +508,121 @@ export const rejectAgentRequest = async (req, res) => {
 // ===================================================
 // 📋 GET ALL PENDING AGENT REQUESTS (Admin Only)
 // ===================================================
+// export const getPendingRequests = async (req, res) => {
+//   try {
+//     const pendingRequests = await PoliceAgentRequest.findAll({
+//       where: { status: "pending" },
+//       include: [
+//         {
+//           model: PoliceAgentRequestsTemp,
+//           attributes: ["id", "username", "password", "createdAt"],
+//         },
+//         {
+//           model: PoliceBranch,
+//           attributes: ["id", "name", "contactNumber"],
+//         },
+//       ],
+//     });
+
+//     res.status(200).json({ success: true, data: pendingRequests });
+//   } catch (error) {
+//     console.error("Fetch Requests Error:", error);
+//     res
+//       .status(500)
+//       .json({ success: false, message: "Error fetching requests" });
+//   }
+// };
+
+// ===================================================
+// 🔍 GET REQUEST BY ID
+// ===================================================
+// export const getRequestById = async (req, res) => {
+//   try {
+//     const { requestId } = req.params;
+
+//     const agentRequest = await PoliceAgentRequest.findByPk(requestId, {
+//       include: [
+//         {
+//           model: PoliceAgentRequestsTemp,
+//           // as: "policeAgentRequestsTemp",
+//         },
+//         {
+//           model: PoliceBranch,
+//           // as: "branch",
+//         },
+//       ],
+//     });
+
+//     if (!agentRequest) {
+//       return res
+//         .status(404)
+//         .json({ success: false, message: "Request not found" });
+//     }
+
+//     res.status(200).json({ success: true, data: agentRequest });
+//   } catch (error) {
+//     console.error("Fetch Request Error:", error);
+//     res
+//       .status(500)
+//       .json({ success: false, message: "Error fetching request" });
+//   }
+// };
+
+// ===================================================
+// 🔹 GET ALL PENDING REQUESTS
+// ===================================================
 export const getPendingRequests = async (req, res) => {
   try {
-    const pendingRequests = await PoliceAgentRequest.findAll({
-      where: { status: "pending" },
-      include: [
-        {
-          model: PoliceAgentRequestsTemp,
-          attributes: ["id", "username", "password", "createdAt"],
-        },
-        {
-          model: PoliceBranch,
-          attributes: ["id", "name", "contactNumber"],
-        },
-      ],
-    });
+    const pendingRequests = await sequelize.query(
+      `
+      SELECT 
+        ar.id AS "agentRequestId",
+        ar.status,
+        ar."userId",
+        ar."branchId",
 
-    res.status(200).json({ success: true, data: pendingRequests });
+        t.id AS "tempId",
+        t.username AS "tempUsername",
+        t.password AS "tempPassword",
+        t."createdAt" AS "tempCreatedAt",
+
+        b.id AS "branchId",
+        b.name AS "branchName",
+        b."contactNumber" AS "branchContactNumber"
+      FROM "PoliceAgentRequest" ar
+      JOIN "PoliceAgentRequestsTemp" t
+        ON t.id = ar."policeAgentRequestsTempId"
+      JOIN "PoliceBranch" b
+        ON b.id = ar."branchId"
+      WHERE ar.status = 'pending'
+      ORDER BY ar.id ASC;
+      `,
+      {
+        type: QueryTypes.SELECT,
+      }
+    );
+
+    // Reshape to mimic Sequelize include format
+    const formattedRequests = pendingRequests.map(r => ({
+      id: r.agentRequestId,
+      status: r.status,
+      userId: r.userId,
+      branchId: r.branchId,
+
+      PoliceAgentRequestsTemp: {
+        id: r.tempId,
+        username: r.tempUsername,
+        password: r.tempPassword,
+        createdAt: r.tempCreatedAt,
+      },
+      PoliceBranch: {
+        id: r.branchId,
+        name: r.branchName,
+        contactNumber: r.branchContactNumber,
+      },
+    }));
+
+    res.status(200).json({ success: true, data: formattedRequests });
   } catch (error) {
     console.error("Fetch Requests Error:", error);
     res
@@ -534,32 +632,70 @@ export const getPendingRequests = async (req, res) => {
 };
 
 // ===================================================
-// 🔍 GET REQUEST BY ID
+// 🔹 GET REQUEST BY ID
 // ===================================================
 export const getRequestById = async (req, res) => {
   try {
     const { requestId } = req.params;
 
-    const agentRequest = await PoliceAgentRequest.findByPk(requestId, {
-      include: [
-        {
-          model: PoliceAgentRequestsTemp,
-          // as: "policeAgentRequestsTemp",
-        },
-        {
-          model: PoliceBranch,
-          // as: "branch",
-        },
-      ],
-    });
+    const requestRows = await sequelize.query(
+      `
+      SELECT 
+        ar.id AS "agentRequestId",
+        ar.status,
+        ar."userId",
+        ar."branchId",
 
-    if (!agentRequest) {
+        t.id AS "tempId",
+        t.username AS "tempUsername",
+        t.password AS "tempPassword",
+        t."createdAt" AS "tempCreatedAt",
+
+        b.id AS "branchId",
+        b.name AS "branchName",
+        b."contactNumber" AS "branchContactNumber"
+      FROM "PoliceAgentRequest" ar
+      JOIN "PoliceAgentRequestsTemp" t
+        ON t.id = ar."policeAgentRequestsTempId"
+      JOIN "PoliceBranch" b
+        ON b.id = ar."branchId"
+      WHERE ar.id = :requestId
+      LIMIT 1;
+      `,
+      {
+        replacements: { requestId },
+        type: QueryTypes.SELECT,
+      }
+    );
+
+    const r = requestRows[0];
+
+    if (!r) {
       return res
         .status(404)
         .json({ success: false, message: "Request not found" });
     }
 
-    res.status(200).json({ success: true, data: agentRequest });
+    // Reshape like Sequelize include
+    const formattedRequest = {
+      id: r.agentRequestId,
+      status: r.status,
+      userId: r.userId,
+      branchId: r.branchId,
+      PoliceAgentRequestsTemp: {
+        id: r.tempId,
+        username: r.tempUsername,
+        password: r.tempPassword,
+        createdAt: r.tempCreatedAt,
+      },
+      PoliceBranch: {
+        id: r.branchId,
+        name: r.branchName,
+        contactNumber: r.branchContactNumber,
+      },
+    };
+
+    res.status(200).json({ success: true, data: formattedRequest });
   } catch (error) {
     console.error("Fetch Request Error:", error);
     res
@@ -567,6 +703,7 @@ export const getRequestById = async (req, res) => {
       .json({ success: false, message: "Error fetching request" });
   }
 };
+
 
 
 export const getAllAgents = async (req, res) => {
@@ -601,6 +738,46 @@ export const getAllAgents = async (req, res) => {
 };
 
 
+// export const updateAgent = async (req, res) => {
+//   const agentId = req.params.id;
+//   const { username, password, branchId } = req.body;
+
+//   const t = await sequelize.transaction();
+
+//   try {
+//     // Find the agent
+//     const agent = await PoliceAgentRequest.findByPk(agentId, { transaction: t });
+//     if (!agent) {
+//       await t.rollback();
+//       return res.status(404).json({ success: false, message: "Agent not found" });
+//     }
+
+//     // Update branchId in PoliceAgentRequest
+//     agent.branchId = branchId ?? agent.branchId;
+//     await agent.save({ transaction: t });
+
+//     // Update username/password in User table
+//     const user = await User.findByPk(agent.userId, { transaction: t });
+//     if (!user) {
+//       await t.rollback();
+//       return res.status(404).json({ success: false, message: "User not found" });
+//     }
+
+//     if (username) user.username = username;
+//     if (password) user.passwordHash = password; // ideally hash password in real app
+//     await user.save({ transaction: t });
+
+//     await t.commit();
+//     return res.json({ success: true, message: "Agent updated successfully" });
+//   } catch (err) {
+//     await t.rollback();
+//     console.error("Error updating agent:", err);
+//     return res.status(500).json({ success: false, message: "Server error" });
+//   }
+// };
+
+// ----------------- DELETE AGENT -----------------
+
 export const updateAgent = async (req, res) => {
   const agentId = req.params.id;
   const { username, password, branchId } = req.body;
@@ -608,29 +785,108 @@ export const updateAgent = async (req, res) => {
   const t = await sequelize.transaction();
 
   try {
-    // Find the agent
-    const agent = await PoliceAgentRequest.findByPk(agentId, { transaction: t });
+    // ---------------------------
+    // 1️⃣ Fetch agent
+    // ---------------------------
+    const agentRows = await sequelize.query(
+      `
+      SELECT id, "userId", "branchId"
+      FROM "PoliceAgentRequest"
+      WHERE id = :agentId
+      LIMIT 1
+      FOR UPDATE;
+      `,
+      {
+        replacements: { agentId },
+        type: QueryTypes.SELECT,
+        transaction: t,
+      }
+    );
+
+    const agent = agentRows[0];
+
     if (!agent) {
       await t.rollback();
-      return res.status(404).json({ success: false, message: "Agent not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Agent not found" });
     }
 
-    // Update branchId in PoliceAgentRequest
-    agent.branchId = branchId ?? agent.branchId;
-    await agent.save({ transaction: t });
+    // ---------------------------
+    // 2️⃣ Update branchId in PoliceAgentRequest
+    // ---------------------------
+    await sequelize.query(
+      `
+      UPDATE "PoliceAgentRequest"
+      SET "branchId" = :branchId
+      WHERE id = :agentId
+      `,
+      {
+        replacements: {
+          branchId: branchId ?? agent.branchId,
+          agentId,
+        },
+        type: QueryTypes.UPDATE,
+        transaction: t,
+      }
+    );
 
-    // Update username/password in User table
-    const user = await User.findByPk(agent.userId, { transaction: t });
+    // ---------------------------
+    // 3️⃣ Fetch user
+    // ---------------------------
+    const userRows = await sequelize.query(
+      `
+      SELECT id, username, "passwordHash"
+      FROM "User"
+      WHERE id = :userId
+      LIMIT 1
+      FOR UPDATE;
+      `,
+      {
+        replacements: { userId: agent.userId },
+        type: QueryTypes.SELECT,
+        transaction: t,
+      }
+    );
+
+    const user = userRows[0];
+
     if (!user) {
       await t.rollback();
-      return res.status(404).json({ success: false, message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
-    if (username) user.username = username;
-    if (password) user.passwordHash = password; // ideally hash password in real app
-    await user.save({ transaction: t });
+    // ---------------------------
+    // 4️⃣ Update username/password in User
+    // ---------------------------
+    const updatedUsername = username ?? user.username;
+    const updatedPassword = password ?? user.passwordHash;
 
+    await sequelize.query(
+      `
+      UPDATE "User"
+      SET username = :username,
+          "passwordHash" = :passwordHash
+      WHERE id = :userId
+      `,
+      {
+        replacements: {
+          username: updatedUsername,
+          passwordHash: updatedPassword,
+          userId: user.id,
+        },
+        type: QueryTypes.UPDATE,
+        transaction: t,
+      }
+    );
+
+    // ---------------------------
+    // 5️⃣ Commit transaction
+    // ---------------------------
     await t.commit();
+
     return res.json({ success: true, message: "Agent updated successfully" });
   } catch (err) {
     await t.rollback();
@@ -639,7 +895,7 @@ export const updateAgent = async (req, res) => {
   }
 };
 
-// ----------------- DELETE AGENT -----------------
+
 export const deleteAgent = async (req, res) => {
   const agentId = req.params.id;
 

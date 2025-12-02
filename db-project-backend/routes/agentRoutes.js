@@ -24,6 +24,6 @@ router.post("/request", agentRequest);
 router.post("/verify/:requestId", verifyAgentRequest);
 router.post("/reject/:requestId", rejectAgentRequest);
 router.get("/pending", getPendingRequests);
-router.get("/:requestId", getRequestById);
+// router.get("/:requestId", getRequestById);
 
 export default router;

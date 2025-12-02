@@ -122,8 +122,7 @@ export default function VerificationCard(props: VerificationCardProps) {
 
   // Handle Reject
   const handleRejectSubmit = async () => {
-    const reason = prompt("Please provide a reason for rejection:");
-    if (!reason) return;
+    const reason = "";
 
     setLoading(true);
     setError("");
