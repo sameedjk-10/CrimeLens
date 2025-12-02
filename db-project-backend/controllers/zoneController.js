@@ -1,6 +1,6 @@
 // backend/controllers/zoneController.js
 import db from "../models/index.js";
-import { Op } from "sequelize";
+import { Op , QueryTypes } from "sequelize";
 
 export const getZoneSeverity = async (req, res) => {
   try {
@@ -58,7 +58,7 @@ export const getZoneSeverity = async (req, res) => {
       LEFT JOIN "CrimeType" 
         ON "CrimeType".id = "Crime"."crimeTypeId"
       WHERE 1=1
-        ${filterApproved}  -- << ONLY APPROVED CRIMES >>
+        ${filterApproved}
         ${filterCrimeType}
         ${filterZone}
         ${filterStart}
@@ -94,13 +94,36 @@ export const getZoneSeverity = async (req, res) => {
  * GET /api/zones
  * Returns all zones from Zones table
  */
+// export const getAllZones = async (req, res) => {
+//   try {
+//     const zones = await db.Zone.findAll({
+//       attributes: ["id", "name"],
+//       order: [["id", "ASC"]],
+//     });
+
+//     res.json(zones);
+//   } catch (err) {
+//     console.error("Error fetching zones:", err);
+//     res.status(500).json({ message: "Internal server error" });
+//   }
+// };
+
 export const getAllZones = async (req, res) => {
   try {
-    const zones = await db.Zone.findAll({
-      attributes: ["id", "name"],
-      order: [["id", "ASC"]],
-    });
+    const zones = await db.sequelize.query(
+      `
+      SELECT 
+        id,
+        name
+      FROM "Zone"
+      ORDER BY id ASC;
+      `,
+      {
+        type: QueryTypes.SELECT,
+      }
+    );
 
+    // zones is already an array of objects like: [{ id: 1, name: "Zone A" }, ...]
     res.json(zones);
   } catch (err) {
     console.error("Error fetching zones:", err);

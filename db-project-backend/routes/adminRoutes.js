@@ -7,11 +7,9 @@ import { verifyToken, authorizeRoles } from "../middleware/authMiddleware.js";
 const router = express.Router();
 
 // POST /api/admin/upload-crimes
-// 'file' is the form field name from frontend
+
 router.post(
   "/upload-crimes",
-  // verifyToken,
-  // authorizeRoles("admin"),
   upload.single("file"),
   uploadCrimesCSV
 );

@@ -1,6 +1,6 @@
 
 
-import { Op, fn, col, literal } from "sequelize";
+import { Op, fn, col, literal, QueryTypes } from "sequelize";
 import db from "../models/index.js";
 
 export const getStatsSummary = async (req, res) => {

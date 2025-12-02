@@ -29,7 +29,7 @@ const SearchBar: React.FC = () => {
   useEffect(() => {
     const fetchCrimeTypes = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/crimes/types"); // create this endpoint if not exist
+        const res = await fetch("http://localhost:5000/api/crimes/types");
         const data = await res.json();
         setCrimeTypes(["All", ...data.map((ct: any) => ct.name)]);
       } catch (err) {
