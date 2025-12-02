@@ -1,4 +1,5 @@
 // controllers/crimeController.js
+import { Sequelize } from "sequelize";
 import { Op, fn, col, literal, QueryTypes ,  } from "sequelize";
 import sequelize from "../config/db.js";
 import db from "../models/index.js";
@@ -115,10 +116,16 @@ export const getCrimesForMap = async (req, res) => {
 
 export const getAllCrimeTypes = async (req, res) => {
   try {
-    const crimeTypes = await CrimeType.findAll({
-      attributes: ["id", "name"], // only id and name
-      order: [["name", "ASC"]],
-    });
+    const crimeTypes = await sequelize.query(
+      `
+      SELECT id, name
+      FROM "CrimeType"
+      ORDER BY name ASC;
+      `,
+      {
+        type: QueryTypes.SELECT,
+      }
+    );
 
     res.json(crimeTypes);
   } catch (err) {
@@ -233,8 +240,24 @@ export const approveCrimeReport = async (req, res) => {
   try {
     const { submissionId } = req.params;
     const { address, latitude, longitude, title, description } = req.body;
-    // 1️⃣ Find the CrimeSubmission record
-    const submission = await CrimeSubmission.findByPk(submissionId);
+
+    // ---------------------------
+    // 1️⃣ Fetch CrimeSubmission record
+    // ---------------------------
+    const submissionRows = await sequelize.query(
+      `
+      SELECT id, "CrimeId"
+      FROM "CrimeSubmission"
+      WHERE id = :submissionId
+      LIMIT 1;
+      `,
+      {
+        replacements: { submissionId },
+        type: QueryTypes.SELECT,
+      }
+    );
+
+    const submission = submissionRows[0];
     if (!submission) {
       return res.status(404).json({
         success: false,
@@ -242,9 +265,23 @@ export const approveCrimeReport = async (req, res) => {
       });
     }
 
+    // ---------------------------
+    // 2️⃣ Fetch corresponding Crime record
+    // ---------------------------
+    const crimeRows = await sequelize.query(
+      `
+      SELECT *
+      FROM "Crime"
+      WHERE id = :crimeId
+      LIMIT 1;
+      `,
+      {
+        replacements: { crimeId: submission.CrimeId },
+        type: QueryTypes.SELECT,
+      }
+    );
 
-    // 2️⃣ Find the corresponding Crime record
-    const crime = await Crime.findByPk(submission.CrimeId);
+    const crime = crimeRows[0];
     if (!crime) {
       return res.status(404).json({
         success: false,
@@ -259,36 +296,55 @@ export const approveCrimeReport = async (req, res) => {
       });
     }
 
-    // 3️⃣ Update Crime record with approval info
-    const updatedData = {
-      status: "approved",
-      address: address || crime.address,
-      location: crime.location,
-      title: title || crime.title,
-      description: description || crime.description
-    };
-
-    // Add geometry if lat & lng provided
+    // ---------------------------
+    // 3️⃣ Prepare updated data
+    // ---------------------------
+    let locationSQL = "location"; // keep existing if no lat/lng
     if (
       latitude !== undefined &&
       longitude !== undefined &&
       !isNaN(latitude) &&
       !isNaN(longitude)
     ) {
-      updatedData.location = literal(
-        `ST_SetSRID(ST_Point(${Number(longitude)}, ${Number(latitude)}), 4326)`
-      );
+      locationSQL = `ST_SetSRID(ST_Point(${Number(longitude)}, ${Number(
+        latitude
+      )}), 4326)`;
     }
 
-    await crime.update(updatedData);
+    const updatedCrimeRows = await sequelize.query(
+      `
+      UPDATE "Crime"
+      SET status = 'approved',
+          address = :address,
+          title = :title,
+          description = :description,
+          location = ${locationSQL}
+      WHERE id = :crimeId
+      RETURNING id, status;
+      `,
+      {
+        replacements: {
+          address: address || crime.address,
+          title: title || crime.title,
+          description: description || crime.description,
+          crimeId: crime.id,
+        },
+        type: QueryTypes.UPDATE,
+      }
+    );
 
+    const updatedCrime = updatedCrimeRows[0][0];
+
+    // ---------------------------
+    // 4️⃣ Response
+    // ---------------------------
     res.status(200).json({
       success: true,
       message: "Crime report approved and verified",
       data: {
         submissionId: submissionId,
-        crimeId: crime.id,
-        status: crime.status,
+        crimeId: updatedCrime.id,
+        status: updatedCrime.status,
       },
     });
   } catch (error) {
@@ -299,9 +355,8 @@ export const approveCrimeReport = async (req, res) => {
     });
   }
 };
-// ===================================================
-// ❌ REJECT CRIME REPORT (Police Agent)
-// ===================================================
+
+
 
 export const rejectCrimeReport = async (req, res) => {
   try {
@@ -361,7 +416,7 @@ export const reportCrime = async (req, res) => {
       date,
       address,
       description,
-      title, // optional, if you want a title
+      title,
     } = req.body;
 
     if (!cnic || !date || !crimeTypeId) {
@@ -370,45 +425,109 @@ export const reportCrime = async (req, res) => {
         .json({ success: false, message: "Missing required fields" });
     }
 
-    // 1️⃣ Check if submitter exists, if not create new record
-    let submitterRecord = await CrimeReportsSubmitter.findByPk(cnic);
+    // ---------------------------
+    // 1️⃣ Check if submitter exists
+    // ---------------------------
+    let submitterRecord = await sequelize.query(
+      `
+      SELECT submitterCnic, submitterName, submitterContact
+      FROM "CrimeReportsSubmitter"
+      WHERE submitterCnic = :cnic
+      LIMIT 1;
+      `,
+      {
+        replacements: { cnic },
+        type: QueryTypes.SELECT,
+      }
+    );
 
-    if (!submitterRecord) {
-      submitterRecord = await CrimeReportsSubmitter.create({
-        submitterCnic: cnic,
-        submitterName: fullName,
-        submitterContact: contact,
-      });
+    let submitter = submitterRecord[0];
+
+    // ---------------------------
+    // 2️⃣ Create submitter if not exists, else update info
+    // ---------------------------
+    if (!submitter) {
+      await sequelize.query(
+        `
+        INSERT INTO "CrimeReportsSubmitter" (submitterCnic, submitterName, submitterContact)
+        VALUES (:cnic, :name, :contact)
+        `,
+        {
+          replacements: { cnic, name: fullName || null, contact: contact || null },
+          type: QueryTypes.INSERT,
+        }
+      );
     } else {
-      // Optional: Update existing submitter info
+      // Update existing submitter info
       if (fullName || contact) {
-        await submitterRecord.update({
-          ...(fullName && { submitterName: fullName }),
-          ...(contact && { submitterContact: contact }),
-        });
+        await sequelize.query(
+          `
+          UPDATE "CrimeReportsSubmitter"
+          SET 
+            submitterName = COALESCE(:name, submitterName),
+            submitterContact = COALESCE(:contact, submitterContact)
+          WHERE submitterCnic = :cnic
+          `,
+          {
+            replacements: { cnic, name: fullName, contact },
+            type: QueryTypes.UPDATE,
+          }
+        );
       }
     }
 
-    // 2️⃣ Create the Crime record directly with pending status
-    const newCrime = await Crime.create({
-      title: title || "Untitled Crime",
-      description: description,
-      crimeTypeId: crimeTypeId,
-      incidentDate: date,
-      reportedAt: new Date(),
-      status: "pending",
-      location: null, // Assuming you pass { type: "Point", coordinates: [lng, lat] }
-      address: address,
-      zoneId: zone, // if zoneId is same as location id; otherwise adjust
-    });
+    // ---------------------------
+    // 3️⃣ Insert Crime record
+    // ---------------------------
+    const newCrimeRows = await sequelize.query(
+      `
+      INSERT INTO "Crime" 
+        (title, description, "crimeTypeId", "incidentDate", "reportedAt", status, location, address, "zoneId")
+      VALUES 
+        (:title, :description, :crimeTypeId, :incidentDate, :reportedAt, 'pending', :location, :address, :zoneId)
+      RETURNING *
+      `,
+      {
+        replacements: {
+          title: title || "Untitled Crime",
+          description: description || null,
+          crimeTypeId,
+          incidentDate: date,
+          reportedAt: new Date(),
+          location: null, // adjust if using GeoJSON Point
+          address: address || null,
+          zoneId: zone || null,
+        },
+        type: QueryTypes.INSERT,
+      }
+    );
 
-    // 3️⃣ Create CrimeSubmission metadata record
-    const newCrimeSubmission = await CrimeSubmission.create({
-      submitterCnic: cnic,
-      submittedAt: new Date(),
-      CrimeId: newCrime.id,
-    });
+    const newCrime = newCrimeRows[0][0]; // RETURNING * gives array of inserted row(s)
 
+    // ---------------------------
+    // 4️⃣ Insert CrimeSubmission metadata
+    // ---------------------------
+    const newCrimeSubmissionRows = await sequelize.query(
+      `
+      INSERT INTO "CrimeSubmission" ("submitterCnic", "submittedAt", "CrimeId")
+      VALUES (:cnic, :submittedAt, :crimeId)
+      RETURNING *
+      `,
+      {
+        replacements: {
+          cnic,
+          submittedAt: new Date(),
+          crimeId: newCrime.id,
+        },
+        type: QueryTypes.INSERT,
+      }
+    );
+
+    const newCrimeSubmission = newCrimeSubmissionRows[0][0];
+
+    // ---------------------------
+    // 5️⃣ Response
+    // ---------------------------
     res.status(201).json({
       success: true,
       message: "Crime report submitted successfully",
@@ -422,12 +541,12 @@ export const reportCrime = async (req, res) => {
     res.status(500).json({ success: false, message: "Error adding crime" });
   }
 };
+//done
+
 
 // ===================================================
 // 📌 GET ALL CRIMES (For Records Table)
 // ===================================================
-import { Sequelize } from "sequelize";
-
 export const getAllCrimes = async (req, res) => {
   try {
     const crimes = await Crime.findAll({
