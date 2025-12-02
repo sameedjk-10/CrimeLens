@@ -356,54 +356,95 @@ export const approveCrimeReport = async (req, res) => {
   }
 };
 
-
-
 export const rejectCrimeReport = async (req, res) => {
   try {
     const { submissionId } = req.params;
     const { reason } = req.body;
 
-    console.log("\n")
-    console.log(submissionId)
-    console.log("\n")
+    // ---------------------------
+    // 1️⃣ Fetch CrimeSubmission record
+    // ---------------------------
+    const submissionRows = await sequelize.query(
+      `
+      SELECT id, "CrimeId"
+      FROM "CrimeSubmission"
+      WHERE id = :submissionId
+      LIMIT 1;
+      `,
+      {
+        replacements: { submissionId },
+        type: QueryTypes.SELECT,
+      }
+    );
 
-    // 1️⃣ Find the CrimeSubmission record
-    const submission = await CrimeSubmission.findByPk(submissionId);
+    const submission = submissionRows[0];
     if (!submission) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Crime submission not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Crime submission not found",
+      });
     }
 
-    // 2️⃣ Find the corresponding Crime record
-    const crime = await Crime.findByPk(submission.CrimeId);
+    // ---------------------------
+    // 2️⃣ Fetch corresponding Crime record
+    // ---------------------------
+    const crimeRows = await sequelize.query(
+      `
+      SELECT id, status
+      FROM "Crime"
+      WHERE id = :crimeId
+      LIMIT 1;
+      `,
+      {
+        replacements: { crimeId: submission.CrimeId },
+        type: QueryTypes.SELECT,
+      }
+    );
+
+    const crime = crimeRows[0];
     if (!crime) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Associated crime record not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Associated crime record not found",
+      });
     }
 
+    // ---------------------------
     // 3️⃣ Update Crime status to rejected
-    await crime.update({
-      status: "rejected",
-    });
+    // ---------------------------
+    const updatedCrimeRows = await sequelize.query(
+      `
+      UPDATE "Crime"
+      SET status = 'rejected'
+      WHERE id = :crimeId
+      RETURNING id, status;
+      `,
+      {
+        replacements: { crimeId: crime.id },
+        type: QueryTypes.UPDATE,
+      }
+    );
 
+    const updatedCrime = updatedCrimeRows[0][0];
+
+    // ---------------------------
+    // 4️⃣ Response
+    // ---------------------------
     res.status(200).json({
       success: true,
       message: "Crime report rejected",
-      data: { crimeId: crime.id, status: crime.status },
+      data: { crimeId: updatedCrime.id, status: updatedCrime.status },
     });
   } catch (error) {
     console.error("Reject Crime Error:", error);
-    res
-      .status(500)
-      .json({ success: false, message: "Error rejecting crime report" });
+    res.status(500).json({
+      success: false,
+      message: "Error rejecting crime report",
+    });
   }
 };
 
-// ===================================================
-//  SUBMIT A CRIME REPORT
-// ===================================================
+
 
 export const reportCrime = async (req, res) => {
   try {
@@ -430,9 +471,9 @@ export const reportCrime = async (req, res) => {
     // ---------------------------
     let submitterRecord = await sequelize.query(
       `
-      SELECT submitterCnic, submitterName, submitterContact
+      SELECT "submitterCnic", "submitterName", "submitterContact"
       FROM "CrimeReportsSubmitter"
-      WHERE submitterCnic = :cnic
+      WHERE "submitterCnic" = :cnic
       LIMIT 1;
       `,
       {
@@ -449,7 +490,7 @@ export const reportCrime = async (req, res) => {
     if (!submitter) {
       await sequelize.query(
         `
-        INSERT INTO "CrimeReportsSubmitter" (submitterCnic, submitterName, submitterContact)
+        INSERT INTO "CrimeReportsSubmitter" ("submitterCnic", "submitterName", "submitterContact")
         VALUES (:cnic, :name, :contact)
         `,
         {
@@ -464,9 +505,9 @@ export const reportCrime = async (req, res) => {
           `
           UPDATE "CrimeReportsSubmitter"
           SET 
-            submitterName = COALESCE(:name, submitterName),
-            submitterContact = COALESCE(:contact, submitterContact)
-          WHERE submitterCnic = :cnic
+            "submitterName" = COALESCE(:name, "submitterName"),
+            "submitterContact" = COALESCE(:contact, "submitterContact")
+          WHERE "submitterCnic" = :cnic
           `,
           {
             replacements: { cnic, name: fullName, contact },
@@ -611,28 +652,57 @@ export const getAllCrimes = async (req, res) => {
 // --------------------------------------------------
 // GET SINGLE CRIME BY ID
 // --------------------------------------------------
+// export const getCrimeById = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+
+//     const crime = await Crime.findOne({
+//       where: {
+//         id,
+//         status: "approved"   // ✅ Only approved crimes
+//       },
+//       attributes: [
+//         "id",
+//         "title",
+//         "description",
+//         "crimeTypeId",
+//         "incidentDate",
+//         "status",
+//         "address",
+//         "zoneId",
+//         "location"
+//       ]
+//     });
+
+//     if (!crime) {
+//       return res.status(404).json({ success: false, message: "Crime not found" });
+//     }
+
+//     res.json({ success: true, data: crime });
+//   } catch (err) {
+//     console.error("Error fetching crime:", err);
+//     res.status(500).json({ success: false, message: "Server error" });
+//   }
+// };
+
 export const getCrimeById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const crime = await Crime.findOne({
-      where: {
-        id,
-        status: "approved"   // ✅ Only approved crimes
-      },
-      attributes: [
-        "id",
-        "title",
-        "description",
-        "crimeTypeId",
-        "incidentDate",
-        "status",
-        "address",
-        "zoneId",
-        "location"
-      ]
-    });
+    const crimeRows = await sequelize.query(
+      `
+      SELECT id, title, description, "crimeTypeId", "incidentDate", status, address, "zoneId", location
+      FROM "Crime"
+      WHERE id = :id AND status = 'approved'
+      LIMIT 1;
+      `,
+      {
+        replacements: { id },
+        type: QueryTypes.SELECT,
+      }
+    );
 
+    const crime = crimeRows[0];
     if (!crime) {
       return res.status(404).json({ success: false, message: "Crime not found" });
     }
@@ -644,51 +714,126 @@ export const getCrimeById = async (req, res) => {
   }
 };
 
+
 // --------------------------------------------------
 // UPDATE CRIME
 // --------------------------------------------------
+// export const updateCrime = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+
+//     const {
+//       title,
+//       description,
+//       address,
+//       zoneId,
+//       latitude,
+//       longitude
+//     } = req.body;
+
+//     const crime = await Crime.findByPk(id);
+//     if (!crime) {
+//       return res.status(404).json({ success: false, message: "Crime not found" });
+//     }
+
+//     // Build base update object
+//     const updatedData = {
+//       title,
+//       description,
+//       address,
+//       zoneId: zoneId || null,
+//     };
+
+//     // Proper location update
+//     if (
+//       latitude !== undefined &&
+//       longitude !== undefined &&
+//       !isNaN(latitude) &&
+//       !isNaN(longitude)
+//     ) {
+//       updatedData.location = literal(
+//         `ST_SetSRID(ST_Point(${Number(longitude)}, ${Number(latitude)}), 4326)`
+//       );
+//     }
+
+//     await crime.update(updatedData);
+
+//     res.json({ success: true, message: "Crime updated successfully" });
+
+//   } catch (err) {
+//     console.error("Error updating crime:", err);
+//     res.status(500).json({ success: false, message: "Server error" });
+//   }
+// };
+
 export const updateCrime = async (req, res) => {
   try {
     const { id } = req.params;
+    const { title, description, address, zoneId, latitude, longitude } = req.body;
 
-    const {
-      title,
-      description,
-      address,
-      zoneId,
-      latitude,
-      longitude
-    } = req.body;
+    // ---------------------------
+    // 1️⃣ Fetch the existing crime
+    // ---------------------------
+    const crimeRows = await sequelize.query(
+      `
+      SELECT *
+      FROM "Crime"
+      WHERE id = :id
+      LIMIT 1;
+      `,
+      {
+        replacements: { id },
+        type: QueryTypes.SELECT,
+      }
+    );
 
-    const crime = await Crime.findByPk(id);
+    const crime = crimeRows[0];
     if (!crime) {
       return res.status(404).json({ success: false, message: "Crime not found" });
     }
 
-    // Build base update object
-    const updatedData = {
-      title,
-      description,
-      address,
-      zoneId: zoneId || null,
-    };
-
-    // Proper location update
+    // ---------------------------
+    // 2️⃣ Build SQL for location
+    // ---------------------------
+    let locationSQL = "location"; // keep existing if lat/lng not provided
     if (
       latitude !== undefined &&
       longitude !== undefined &&
       !isNaN(latitude) &&
       !isNaN(longitude)
     ) {
-      updatedData.location = literal(
-        `ST_SetSRID(ST_Point(${Number(longitude)}, ${Number(latitude)}), 4326)`
-      );
+      locationSQL = `ST_SetSRID(ST_Point(${Number(longitude)}, ${Number(latitude)}), 4326)`;
     }
 
-    await crime.update(updatedData);
+    // ---------------------------
+    // 3️⃣ Update the crime
+    // ---------------------------
+    await sequelize.query(
+      `
+      UPDATE "Crime"
+      SET title = :title,
+          description = :description,
+          address = :address,
+          "zoneId" = :zoneId,
+          location = ${locationSQL}
+      WHERE id = :id;
+      `,
+      {
+        replacements: {
+          title,
+          description,
+          address,
+          zoneId: zoneId || null,
+          id,
+        },
+        type: QueryTypes.UPDATE,
+      }
+    );
 
+    // ---------------------------
+    // 4️⃣ Response
+    // ---------------------------
     res.json({ success: true, message: "Crime updated successfully" });
-
   } catch (err) {
     console.error("Error updating crime:", err);
     res.status(500).json({ success: false, message: "Server error" });

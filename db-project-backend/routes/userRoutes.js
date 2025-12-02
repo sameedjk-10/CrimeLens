@@ -5,7 +5,7 @@ import {
   getPendingSubmissions,
   approveCrimeReport,
   rejectCrimeReport,
-} from "../controllers/CrimeControllers.js";
+} from "../controllers/CrimeControllers2.js";
 
 const router = express.Router();
 

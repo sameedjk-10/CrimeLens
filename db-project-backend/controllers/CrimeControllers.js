@@ -308,10 +308,6 @@ export const rejectCrimeReport = async (req, res) => {
     const { submissionId } = req.params;
     const { reason } = req.body;
 
-    console.log("\n")
-    console.log(submissionId)
-    console.log("\n")
-
     // 1️⃣ Find the CrimeSubmission record
     const submission = await CrimeSubmission.findByPk(submissionId);
     if (!submission) {
