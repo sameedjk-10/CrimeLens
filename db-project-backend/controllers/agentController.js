@@ -75,6 +75,9 @@ const { Crime, User, Criminal , CrimeSubmission, PoliceAgentRequestsTemp, CrimeR
 // import { QueryTypes } from "sequelize";
 
 export const agentRequest = async (req, res) => {
+
+  const t = await sequelize.transaction();
+
   try {
     const { branchId, username, password } = req.body;
 
@@ -135,6 +138,7 @@ export const agentRequest = async (req, res) => {
           createdAt: new Date(),
         },
         type: QueryTypes.INSERT,
+        transaction: t,
       }
     );
 
@@ -157,6 +161,7 @@ export const agentRequest = async (req, res) => {
           createdAt: new Date(),
         },
         type: QueryTypes.INSERT,
+        transaction: t,
       }
     );
 
@@ -254,6 +259,9 @@ export const agentRequest = async (req, res) => {
 
 
 export const verifyAgentRequest = async (req, res) => {
+
+  const t = await sequelize.transaction();
+
   try {
     const { requestId } = req.params;
     const { roleId } = req.body; // roleId for the new agent
@@ -317,6 +325,7 @@ export const verifyAgentRequest = async (req, res) => {
           updatedAt: now,
         },
         type: QueryTypes.INSERT,
+        transaction: t,
       }
     );
 
@@ -339,6 +348,7 @@ export const verifyAgentRequest = async (req, res) => {
           requestId,
         },
         type: QueryTypes.UPDATE,
+        transaction: t,
       }
     );
 
@@ -353,6 +363,7 @@ export const verifyAgentRequest = async (req, res) => {
       {
         replacements: { tempId: agentRequest.tempId },
         type: QueryTypes.DELETE,
+        transaction: t,
       }
     );
 
@@ -422,6 +433,9 @@ export const verifyAgentRequest = async (req, res) => {
 // };
 
 export const rejectAgentRequest = async (req, res) => {
+  
+  const t = await sequelize.transaction();
+
   try {
     const { requestId } = req.params;
     // const { reason } = req.body;
@@ -471,6 +485,7 @@ export const rejectAgentRequest = async (req, res) => {
           requestId,
         },
         type: QueryTypes.UPDATE,
+        transaction: t,
       }
     );
 
@@ -485,6 +500,7 @@ export const rejectAgentRequest = async (req, res) => {
       {
         replacements: { tempId: agentRequest.tempId },
         type: QueryTypes.DELETE,
+        transaction: t,
       }
     );
 
