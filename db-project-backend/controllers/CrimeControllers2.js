@@ -134,108 +134,6 @@ export const getAllCrimeTypes = async (req, res) => {
   }
 };
 
-// export const getPendingSubmissions = async (req, res) => {
-//   try {
-//     const pendingCrimes = await Crime.findAll({
-//       where: { status: "pending" },
-
-//       // include standard relations (CrimeType, Zone) so frontend can use them
-//       include: [
-//         {
-//           model: CrimeType,
-//           attributes: ["id", "name"],
-//           required: false,
-//         },
-//         {
-//           model: Zone,
-//           attributes: ["id"], // zone only has id as you said
-//           required: false,
-//         },
-//       ],
-
-//       // add flattened fields using SQL subqueries (aliased)
-//       attributes: {
-//         include: [
-//           // submission id
-//           [
-//             literal(`(
-//               SELECT cs."id"
-//               FROM "CrimeSubmission" cs
-//               WHERE cs."CrimeId" = "Crime"."id"
-//               ORDER BY cs."submittedAt" DESC
-//               LIMIT 1
-//             )`),
-//             "submissionId",
-//           ],
-
-//           // submitter CNIC from CrimeSubmission
-//           [
-//             literal(`(
-//               SELECT cs."submitterCnic"
-//               FROM "CrimeSubmission" cs
-//               WHERE cs."CrimeId" = "Crime"."id"
-//               ORDER BY cs."submittedAt" DESC
-//               LIMIT 1
-//             )`),
-//             "submitterCnic",
-//           ],
-
-//           // submittedAt
-//           [
-//             literal(`(
-//               SELECT cs."submittedAt"
-//               FROM "CrimeSubmission" cs
-//               WHERE cs."CrimeId" = "Crime"."id"
-//               ORDER BY cs."submittedAt" DESC
-//               LIMIT 1
-//             )`),
-//             "submittedAt",
-//           ],
-
-//           // submitterName from CrimeReportsSubmitter joined by submitterCnic
-//           [
-//             literal(`(
-//               SELECT crs."submitterName"
-//               FROM "CrimeSubmission" cs
-//               JOIN "CrimeReportsSubmitter" crs
-//                 ON crs."submitterCnic" = cs."submitterCnic"
-//               WHERE cs."CrimeId" = "Crime"."id"
-//               ORDER BY cs."submittedAt" DESC
-//               LIMIT 1
-//             )`),
-//             "submitterName",
-//           ],
-
-//           // submitterContact from CrimeReportsSubmitter
-//           [
-//             literal(`(
-//               SELECT crs."submitterContact"
-//               FROM "CrimeSubmission" cs
-//               JOIN "CrimeReportsSubmitter" crs
-//                 ON crs."submitterCnic" = cs."submitterCnic"
-//               WHERE cs."CrimeId" = "Crime"."id"
-//               ORDER BY cs."submittedAt" DESC
-//               LIMIT 1
-//             )`),
-//             "submitterContact",
-//           ],
-//         ],
-//       },
-
-//       order: [["reportedAt", "DESC"]],
-//       limit: 100, // optional: protect large responses
-//     });
-
-//     res.status(200).json({ success: true, data: pendingCrimes });
-//   } catch (error) {
-//     console.error("Fetch Pending Crimes Error:", error);
-//     res.status(500).json({
-//       success: false,
-//       message: "Error fetching pending submissions",
-//     });
-//   }
-// };
-
 export const getPendingSubmissions = async (req, res) => {
   try {
     const pendingCrimes = await sequelize.query(
@@ -252,8 +150,6 @@ export const getPendingSubmissions = async (req, res) => {
     });
   }
 };
-
-
 
 
 export const approveCrimeReport = async (req, res) => {
@@ -284,6 +180,7 @@ export const approveCrimeReport = async (req, res) => {
 
     const submission = submissionRows[0];
     if (!submission) {
+      await t.rollback();
       return res.status(404).json({
         success: false,
         message: "Crime submission not found",
@@ -309,6 +206,7 @@ export const approveCrimeReport = async (req, res) => {
 
     const crime = crimeRows[0];
     if (!crime) {
+      await t.rollback();
       return res.status(404).json({
         success: false,
         message: "Associated crime record not found",
@@ -375,6 +273,7 @@ export const approveCrimeReport = async (req, res) => {
       },
     });
   } catch (error) {
+    if (t) await t.rollback();
     console.error("Approve Crime Error:", error);
     res.status(500).json({
       success: false,
@@ -410,6 +309,7 @@ export const rejectCrimeReport = async (req, res) => {
 
     const submission = submissionRows[0];
     if (!submission) {
+      await t.rollback();
       return res.status(404).json({
         success: false,
         message: "Crime submission not found",
@@ -435,6 +335,7 @@ export const rejectCrimeReport = async (req, res) => {
 
     const crime = crimeRows[0];
     if (!crime) {
+      await t.rollback();
       return res.status(404).json({
         success: false,
         message: "Associated crime record not found",
@@ -469,6 +370,7 @@ export const rejectCrimeReport = async (req, res) => {
       data: { crimeId: updatedCrime.id, status: updatedCrime.status },
     });
   } catch (error) {
+    if (t) await t.rollback();
     console.error("Reject Crime Error:", error);
     res.status(500).json({
       success: false,
@@ -499,6 +401,9 @@ export const reportCrime = async (req, res) => {
         .json({ success: false, message: "Missing required fields" });
     }
 
+    
+  const t = await sequelize.transaction();
+
     // ---------------------------
     // 1️⃣ Check if submitter exists
     // ---------------------------
@@ -512,6 +417,7 @@ export const reportCrime = async (req, res) => {
       {
         replacements: { cnic },
         type: QueryTypes.SELECT,
+        transaction: t,
       }
     );
 
@@ -529,6 +435,7 @@ export const reportCrime = async (req, res) => {
         {
           replacements: { cnic, name: fullName || null, contact: contact || null },
           type: QueryTypes.INSERT,
+          transaction: t,
         }
       );
     } else {
@@ -545,6 +452,7 @@ export const reportCrime = async (req, res) => {
           {
             replacements: { cnic, name: fullName, contact },
             type: QueryTypes.UPDATE,
+            transaction: t,
           }
         );
       }
@@ -573,6 +481,7 @@ export const reportCrime = async (req, res) => {
           zoneId: zone || null,
         },
         type: QueryTypes.INSERT,
+        transaction: t,
       }
     );
 
@@ -594,11 +503,12 @@ export const reportCrime = async (req, res) => {
           crimeId: newCrime.id,
         },
         type: QueryTypes.INSERT,
+        transaction: t,
       }
     );
 
     const newCrimeSubmission = newCrimeSubmissionRows[0][0];
-
+    await t.commit();
     // ---------------------------
     // 5️⃣ Response
     // ---------------------------
@@ -611,76 +521,12 @@ export const reportCrime = async (req, res) => {
       },
     });
   } catch (error) {
+    if (t) await t.rollback();
     console.error("Report Crime Error:", error);
     res.status(500).json({ success: false, message: "Error adding crime" });
   }
 };
-//done
 
-
-// ===================================================
-// 📌 GET ALL CRIMES (For Records Table)
-// ===================================================
-// export const getAllCrimes = async (req, res) => {
-//   try {
-//     const crimes = await Crime.findAll({
-//       where: { status: "approved" },  // ✅ Only approved crimes
-//       attributes: [
-//         "id",
-//         "incidentDate",
-//         // Zone Name
-//         [
-//           Sequelize.literal(`(
-//             SELECT "name" FROM "Zone" AS z
-//             WHERE z.id = "Crime"."zoneId"
-//             LIMIT 1
-//           )`),
-//           "zoneName"
-//         ],
-//         // Registered Branch ID
-//         [
-//           Sequelize.literal(`(
-//             SELECT "id" FROM "PoliceBranch" AS pb
-//             WHERE pb."zoneId" = "Crime"."zoneId"
-//             LIMIT 1
-//           )`),
-//           "registeredBranchId"
-//         ],
-//         // Submitter CNIC
-//         [
-//           Sequelize.literal(`(
-//             SELECT "submitterCnic" FROM "CrimeSubmission" AS cs
-//             WHERE cs."CrimeId" = "Crime"."id"
-//             LIMIT 1
-//           )`),
-//           "submitterCnic"
-//         ],
-//         // Crime Type Name
-//         [
-//           Sequelize.literal(`(
-//             SELECT "name" FROM "CrimeType" AS ct
-//             WHERE ct.id = "Crime"."crimeTypeId"
-//             LIMIT 1
-//           )`),
-//           "crimeTypeName"
-//         ]
-//       ],
-//       order: [["incidentDate", "DESC"]]
-//     });
-
-//     return res.status(200).json({
-//       success: true,
-//       data: crimes
-//     });
-
-//   } catch (error) {
-//     console.error("❌ Error fetching crimes:", error);
-//     return res.status(500).json({
-//       success: false,
-//       message: "Error fetching crime records",
-//     });
-//   }
-// };
 
 export const getAllCrimes = async (req, res) => {
   try {
@@ -770,57 +616,6 @@ export const getCrimeById = async (req, res) => {
   }
 };
 
-
-// --------------------------------------------------
-// UPDATE CRIME
-// --------------------------------------------------
-// export const updateCrime = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-
-//     const {
-//       title,
-//       description,
-//       address,
-//       zoneId,
-//       latitude,
-//       longitude
-//     } = req.body;
-
-//     const crime = await Crime.findByPk(id);
-//     if (!crime) {
-//       return res.status(404).json({ success: false, message: "Crime not found" });
-//     }
-
-//     // Build base update object
-//     const updatedData = {
-//       title,
-//       description,
-//       address,
-//       zoneId: zoneId || null,
-//     };
-
-//     // Proper location update
-//     if (
-//       latitude !== undefined &&
-//       longitude !== undefined &&
-//       !isNaN(latitude) &&
-//       !isNaN(longitude)
-//     ) {
-//       updatedData.location = literal(
-//         `ST_SetSRID(ST_Point(${Number(longitude)}, ${Number(latitude)}), 4326)`
-//       );
-//     }
-
-//     await crime.update(updatedData);
-
-//     res.json({ success: true, message: "Crime updated successfully" });
-
-//   } catch (err) {
-//     console.error("Error updating crime:", err);
-//     res.status(500).json({ success: false, message: "Server error" });
-//   }
-// };
 
 export const updateCrime = async (req, res) => {
   try {
