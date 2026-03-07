@@ -90,23 +90,6 @@ export const getZoneSeverity = async (req, res) => {
 };
 
 
-/**
- * GET /api/zones
- * Returns all zones from Zones table
- */
-// export const getAllZones = async (req, res) => {
-//   try {
-//     const zones = await db.Zone.findAll({
-//       attributes: ["id", "name"],
-//       order: [["id", "ASC"]],
-//     });
-
-//     res.json(zones);
-//   } catch (err) {
-//     console.error("Error fetching zones:", err);
-//     res.status(500).json({ message: "Internal server error" });
-//   }
-// };
 
 export const getAllZones = async (req, res) => {
   try {

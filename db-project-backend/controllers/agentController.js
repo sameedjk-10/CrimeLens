@@ -5,11 +5,10 @@ import sequelize from "../config/db.js";
 import db from "../models/index.js";
 const { Crime, User, Criminal , CrimeSubmission, PoliceAgentRequestsTemp, CrimeReportsSubmitter, PoliceAgentRequest, CrimeType, Zone, PoliceBranch } = db;
 
-// import { Request, Response } from "express";
-
 // ===================================================
 // ➕ CREATE AGENT REQUEST
 // ===================================================
+
 export const agentRequest = async (req, res) => {
 
   const t = await sequelize.transaction();
@@ -105,8 +104,6 @@ export const agentRequest = async (req, res) => {
 
     const requestData = agentRequestResult[0][0];
 
-    await t.commit();
-
     // 5️⃣ Send same structure back to frontend (DO NOT CHANGE ANY FIELDS)
     res.status(201).json({
       success: true,
@@ -120,6 +117,7 @@ export const agentRequest = async (req, res) => {
       },
     });
   } catch (error) {
+    if (t) await t.rollback();
     console.error("Agent Request Error:", error);
     res
       .status(500)
@@ -168,6 +166,7 @@ export const verifyAgentRequest = async (req, res) => {
     const agentRequest = agentRequestRows[0];
 
     if (!agentRequest) {
+      await t.rollback();
       return res
         .status(404)
         .json({ success: false, message: "Request not found" });
@@ -256,6 +255,7 @@ export const verifyAgentRequest = async (req, res) => {
       },
     });
   } catch (error) {
+    if (t) await t.rollback();
     console.error("Verify Agent Error:", error);
     res
       .status(500)
@@ -292,12 +292,14 @@ export const rejectAgentRequest = async (req, res) => {
       {
         replacements: { requestId },
         type: QueryTypes.SELECT,
+        transaction: t,
       }
     );
-
+    await t.commit();
     const agentRequest = agentRequestRows[0];
 
     if (!agentRequest) {
+      await t.rollback();
       return res
         .status(404)
         .json({ success: false, message: "Request not found" });
@@ -339,8 +341,6 @@ export const rejectAgentRequest = async (req, res) => {
       }
     );
 
-    await t.commit();
-
     // ---------------------------
     // 4️⃣ Response (frontend format unchanged)
     // ---------------------------
@@ -350,6 +350,7 @@ export const rejectAgentRequest = async (req, res) => {
       data: { requestId: agentRequest.agentRequestId, status: "rejected" },
     });
   } catch (error) {
+    if (t) await t.rollback();
     console.error("Reject Agent Error:", error);
     res
       .status(500)
@@ -357,6 +358,69 @@ export const rejectAgentRequest = async (req, res) => {
   }
 };
 
+
+// ===================================================
+// 📋 GET ALL PENDING AGENT REQUESTS (Admin Only)
+// ===================================================
+// export const getPendingRequests = async (req, res) => {
+//   try {
+//     const pendingRequests = await PoliceAgentRequest.findAll({
+//       where: { status: "pending" },
+//       include: [
+//         {
+//           model: PoliceAgentRequestsTemp,
+//           attributes: ["id", "username", "password", "createdAt"],
+//         },
+//         {
+//           model: PoliceBranch,
+//           attributes: ["id", "name", "contactNumber"],
+//         },
+//       ],
+//     });
+
+//     res.status(200).json({ success: true, data: pendingRequests });
+//   } catch (error) {
+//     console.error("Fetch Requests Error:", error);
+//     res
+//       .status(500)
+//       .json({ success: false, message: "Error fetching requests" });
+//   }
+// };
+
+// ===================================================
+// 🔍 GET REQUEST BY ID
+// ===================================================
+// export const getRequestById = async (req, res) => {
+//   try {
+//     const { requestId } = req.params;
+
+//     const agentRequest = await PoliceAgentRequest.findByPk(requestId, {
+//       include: [
+//         {
+//           model: PoliceAgentRequestsTemp,
+//           // as: "policeAgentRequestsTemp",
+//         },
+//         {
+//           model: PoliceBranch,
+//           // as: "branch",
+//         },
+//       ],
+//     });
+
+//     if (!agentRequest) {
+//       return res
+//         .status(404)
+//         .json({ success: false, message: "Request not found" });
+//     }
+
+//     res.status(200).json({ success: true, data: agentRequest });
+//   } catch (error) {
+//     console.error("Fetch Request Error:", error);
+//     res
+//       .status(500)
+//       .json({ success: false, message: "Error fetching request" });
+//   }
+// };
 
 // ===================================================
 // 🔹 GET ALL PENDING REQUESTS
@@ -632,13 +696,37 @@ export const updateAgent = async (req, res) => {
 };
 
 
+// export const deleteAgent = async (req, res) => {
+//   const agentId = req.params.id;
+
+//   try {
+//     // Find the agent first
+//     const agent = await PoliceAgentRequest.findByPk(agentId);
+//     if (!agent) {
+//       return res.status(404).json({ success: false, message: "Agent not found" });
+//     }
+
+//     // Get the userId from the agent record BEFORE deletion
+//     const userId = agent.userId;
+
+//     // Delete the agent record
+//     await agent.destroy();
+
+//     // Delete the associated user record if userId exists
+//     if (userId) {
+//       await User.destroy({ where: { id: userId } });
+//     }
+
+//     return res.json({ success: true, message: "Agent and associated user deleted successfully" });
+//   } catch (err) {
+//     console.error("Error deleting agent:", err);
+//     return res.status(500).json({ success: false, message: "Server error" });
+//   }
+// };
+
 export const deleteAgent = async (req, res) => {
   const agentId = req.params.id;
 
-
-  const t = await sequelize.transaction();
-
-  
   try {
     // ---------------------------
     // 1️⃣ Fetch agent
