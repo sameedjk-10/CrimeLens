@@ -12,6 +12,7 @@ const { Crime, User, Criminal , CrimeSubmission, PoliceAgentRequestsTemp, CrimeR
 export const agentRequest = async (req, res) => {
 
   const t = await sequelize.transaction();
+  console.log('controller', req.body)
 
   try {
     const { branchId, username, password } = req.body;
@@ -103,6 +104,7 @@ export const agentRequest = async (req, res) => {
     );
 
     const requestData = agentRequestResult[0][0];
+    await t.commit();
 
     // 5️⃣ Send same structure back to frontend (DO NOT CHANGE ANY FIELDS)
     res.status(201).json({
@@ -358,69 +360,6 @@ export const rejectAgentRequest = async (req, res) => {
   }
 };
 
-
-// ===================================================
-// 📋 GET ALL PENDING AGENT REQUESTS (Admin Only)
-// ===================================================
-// export const getPendingRequests = async (req, res) => {
-//   try {
-//     const pendingRequests = await PoliceAgentRequest.findAll({
-//       where: { status: "pending" },
-//       include: [
-//         {
-//           model: PoliceAgentRequestsTemp,
-//           attributes: ["id", "username", "password", "createdAt"],
-//         },
-//         {
-//           model: PoliceBranch,
-//           attributes: ["id", "name", "contactNumber"],
-//         },
-//       ],
-//     });
-
-//     res.status(200).json({ success: true, data: pendingRequests });
-//   } catch (error) {
-//     console.error("Fetch Requests Error:", error);
-//     res
-//       .status(500)
-//       .json({ success: false, message: "Error fetching requests" });
-//   }
-// };
-
-// ===================================================
-// 🔍 GET REQUEST BY ID
-// ===================================================
-// export const getRequestById = async (req, res) => {
-//   try {
-//     const { requestId } = req.params;
-
-//     const agentRequest = await PoliceAgentRequest.findByPk(requestId, {
-//       include: [
-//         {
-//           model: PoliceAgentRequestsTemp,
-//           // as: "policeAgentRequestsTemp",
-//         },
-//         {
-//           model: PoliceBranch,
-//           // as: "branch",
-//         },
-//       ],
-//     });
-
-//     if (!agentRequest) {
-//       return res
-//         .status(404)
-//         .json({ success: false, message: "Request not found" });
-//     }
-
-//     res.status(200).json({ success: true, data: agentRequest });
-//   } catch (error) {
-//     console.error("Fetch Request Error:", error);
-//     res
-//       .status(500)
-//       .json({ success: false, message: "Error fetching request" });
-//   }
-// };
 
 // ===================================================
 // 🔹 GET ALL PENDING REQUESTS
@@ -696,36 +635,9 @@ export const updateAgent = async (req, res) => {
 };
 
 
-// export const deleteAgent = async (req, res) => {
-//   const agentId = req.params.id;
-
-//   try {
-//     // Find the agent first
-//     const agent = await PoliceAgentRequest.findByPk(agentId);
-//     if (!agent) {
-//       return res.status(404).json({ success: false, message: "Agent not found" });
-//     }
-
-//     // Get the userId from the agent record BEFORE deletion
-//     const userId = agent.userId;
-
-//     // Delete the agent record
-//     await agent.destroy();
-
-//     // Delete the associated user record if userId exists
-//     if (userId) {
-//       await User.destroy({ where: { id: userId } });
-//     }
-
-//     return res.json({ success: true, message: "Agent and associated user deleted successfully" });
-//   } catch (err) {
-//     console.error("Error deleting agent:", err);
-//     return res.status(500).json({ success: false, message: "Server error" });
-//   }
-// };
-
 export const deleteAgent = async (req, res) => {
   const agentId = req.params.id;
+  const t = await sequelize.transaction();
 
   try {
     // ---------------------------
@@ -748,6 +660,7 @@ export const deleteAgent = async (req, res) => {
     const agent = agentRows[0];
 
     if (!agent) {
+      await t.rollback();
       return res
         .status(404)
         .json({ success: false, message: "Agent not found" });
@@ -797,6 +710,7 @@ export const deleteAgent = async (req, res) => {
       message: "Agent and associated user deleted successfully",
     });
   } catch (err) {
+    await t.commit();
     console.error("Error deleting agent:", err);
     return res
       .status(500)
