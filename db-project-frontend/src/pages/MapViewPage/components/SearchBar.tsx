@@ -112,7 +112,7 @@ const SearchBar: React.FC = () => {
   return (
     <div
       ref={searchBarRef}
-      className="absolute top-2 left-2 right-2 sm:left-1/2 sm:right-auto sm:transform sm:-translate-x-1/2 z-[1000] max-w-full sm:max-w-[1100px] sm:w-[1100px]"
+      className="absolute top-2 left-2 right-2 sm:left-1/2 sm:right-auto sm:transform sm:-translate-x-1/2 z-1000 max-w-full sm:max-w-[1100px] sm:w-[1100px]"
       onClick={(e) => e.stopPropagation()}
       onMouseDown={(e) => e.stopPropagation()}
       onTouchStart={(e) => e.stopPropagation()}
