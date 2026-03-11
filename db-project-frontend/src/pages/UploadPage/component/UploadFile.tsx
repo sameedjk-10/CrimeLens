@@ -36,7 +36,6 @@ const UploadFile: React.FC<UploadFileProps> = ({
     onDrop,
     onUpload,
     onUploadAnother,
-    version,
 }) => {
     return (
         <div className="flex flex-col md:flex-row min-h-screen">

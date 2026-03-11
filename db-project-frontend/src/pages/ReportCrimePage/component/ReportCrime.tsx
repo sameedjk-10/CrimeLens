@@ -1,11 +1,8 @@
-import BackButton from "../../../components/BackButton";
 import ReportCrimeCard from "./ReportCrimeCard";
-import { useNavigate } from "react-router-dom";
 
 
 export default function ReportCrime() {
 
-  const navigate = useNavigate();
 
   return (
     <section className="flex flex-row min-h-screen w-full">

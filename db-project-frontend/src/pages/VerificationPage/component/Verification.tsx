@@ -1,6 +1,5 @@
 ////VerificationPage/components/Verification.tsx
 import { useState, useEffect } from "react";
-import BackButton from "../../../components/BackButton";
 import VerificationCard from "./VerificationCard";
 
 interface AllRecordsProps {

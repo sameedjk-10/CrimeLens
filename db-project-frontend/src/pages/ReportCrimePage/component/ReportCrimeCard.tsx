@@ -2,8 +2,8 @@ import { useState } from "react";
 import GreenButton from "../../../components/GreenButton";
 
 export default function ReportCrimeCard() {
-  const [error, setError] = useState("");
-  const [successMsg, setSuccessMsg] = useState("");
+  const [, setError] = useState("");
+  const [, setSuccessMsg] = useState("");
   const [formData, setFormData] = useState({
     title: "",
     fullName: "",
@@ -16,7 +16,7 @@ export default function ReportCrimeCard() {
     description: "",
   });
 
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<

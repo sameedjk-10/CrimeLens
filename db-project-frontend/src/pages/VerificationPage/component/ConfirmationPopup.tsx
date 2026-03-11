@@ -1,7 +1,6 @@
 
 // VerificationPage/components/ConfirmationPopup.tsx
 import { useState } from "react";
-import GreenButton from "../../../components/GreenButton";
 import WhiteButton from "../../../components/WhiteButton";
 
 interface ConfirmationPopupProps {

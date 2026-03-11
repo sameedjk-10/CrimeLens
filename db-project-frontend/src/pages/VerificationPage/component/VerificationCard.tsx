@@ -1,8 +1,6 @@
 //VerificationPage/components/VerificationCard.tsx
 import { useState } from "react";
-import RedButton from "../../../components/RedButton";
 import WhiteButton from "../../../components/WhiteButton";
-import GreenButton from "../../../components/GreenButton";
 import ConfirmationPopup from "./ConfirmationPopup";
 
 type VerificationCardProps =

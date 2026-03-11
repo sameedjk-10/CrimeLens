@@ -1,7 +1,5 @@
 import { useState } from "react";
-import { ArrowLeft } from "lucide-react";
 import LogowithText from "../../../assets/LogowithText.svg";
-import GreenButton from "../../../components/GreenButton";
 import MainBackground from "../../../assets/MainBackground.png";
 import PasswordSeeIcon from "../../../assets/PasswodSeeIcon.svg";
 import PasswordHideIcon from "../../../assets/PasswodHideIcon.svg";
