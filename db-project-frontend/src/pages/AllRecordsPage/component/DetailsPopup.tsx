@@ -28,9 +28,9 @@ export default function UpdateModal({ version, isOpen, data, onClose, onSubmit }
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-xl w-[450px] shadow-xl overflow-y-auto max-h-[550px]">
-        <h2 className="text-2xl font-semibold mb-4">
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+      <div className="bg-white p-4 sm:p-6 rounded-xl w-full max-w-[450px] shadow-xl overflow-y-auto max-h-[90vh] sm:max-h-[550px]">
+        <h2 className="text-xl sm:text-2xl font-semibold mb-4">
           {version === "admin" ? "Update Agent Details" : "Update Crime Details"}
         </h2>
 

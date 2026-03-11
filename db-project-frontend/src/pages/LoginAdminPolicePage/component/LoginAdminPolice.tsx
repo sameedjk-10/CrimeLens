@@ -67,10 +67,10 @@ const LoginAdminPolice = () => {
 
   return (
     <section
-      className="flex items-center justify-center min-h-screen bg-cover bg-center"
+      className="flex items-center justify-center min-h-screen bg-cover bg-center p-4"
       style={{ backgroundImage: `url(${MainBackground})` }}
     >
-      <div className="bg-white rounded-3xl shadow-xl flex flex-col px-8 py-8 w-11/12 max-w-md space-y-4 md:space-y-6">
+      <div className="bg-white rounded-3xl shadow-xl flex flex-col px-4 sm:px-8 py-6 sm:py-8 w-full max-w-md space-y-4 md:space-y-6">
         <div className="flex items-center text-[#145332] cursor-pointer text-sm">
           <div className="flex items-start" onClick={NavigateLogin}>
             <BackButton textSize="text-sm" iconSize={16} />

@@ -54,27 +54,27 @@ const Statistics = () => {
   };
 
   return (
-    <section className="flex flex-row h-screen w-full">
-      <div className="flex flex-col gap-y-4 pl-76 p-4 w-full overflow-y-auto">
+    <section className="flex flex-row min-h-screen w-full">
+      <div className="flex flex-col gap-y-4 p-4 w-full overflow-y-auto">
         {/* STATS CARDS */}
-        <div className=" bg-[#fefefe] p-4 rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.15)] flex flex-col gap-y-2">
-          <div className="flex items-start ml-2" onClick={NavigateDashboard}>
+        <div className="bg-[#fefefe] p-4 rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.15)] flex flex-col gap-y-2">
+          <div className="flex items-start" onClick={NavigateDashboard}>
             <BackButton textSize="text-sm" iconSize={16} />
           </div>
-          <div className="flex flex-row justify-between items-start w-full">
-            <div className="flex flex-col gap-y-2 ml-2">
-              <div className="font-outfit font-semibold text-4xl text-black flex items-start">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start w-full">
+            <div className="flex flex-col gap-y-2">
+              <div className="font-outfit font-semibold text-2xl sm:text-4xl text-black flex items-start">
                 Statistics
               </div>
-              <div className="font-outfit text-md text-[#A0A0A0] flex items-start mb">
+              <div className="font-outfit text-sm sm:text-md text-[#A0A0A0] flex items-start">
                 A detailed overview of crime trends, reports, and key metrics
                 derived from live police data.
               </div>
             </div>
           </div>
 
-          <div className="flex flex-col gap-y-4 mt-[25px]">
-            <div className="flex gap-x-4">
+          <div className="flex flex-col gap-y-4 mt-4 sm:mt-[25px]">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <StatsCard
                 title="Total Zones"
                 value={summary?.totalZones ?? 0}
@@ -133,15 +133,15 @@ const Statistics = () => {
             backgroundPosition: "center",
           }}
         >
-          <div className="flex flex-col gap-y-2 ml-2 w-full">
-            <div className="font-outfit font-semibold text-3xl text-white flex items-start">
+          <div className="flex flex-col gap-y-2 w-full">
+            <div className="font-outfit font-semibold text-xl sm:text-3xl text-white flex items-start">
               Graphical Statistics
             </div>
-            <div className="font-outfit font-normal text-md text-[#efecec] flex items-start mb-2">
+            <div className="font-outfit font-normal text-sm sm:text-md text-[#efecec] flex items-start mb-2">
               Dynamic charts showcasing accurate, real-time crime data across
               the city.
             </div>
-            <div className="p-5">
+            <div className="p-3 sm:p-5 overflow-x-auto">
               <StatsCharts />
             </div>
           </div>

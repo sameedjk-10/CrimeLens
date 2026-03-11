@@ -187,15 +187,15 @@ const StatsCharts = () => {
     <div className="flex flex-col gap-y-10">
 
       {/* LINE CHART */}
-      <div className="bg-white rounded-xl shadow p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">Crime Trend Over Time</h2>
+      <div className="bg-white rounded-xl shadow p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4">
+          <h2 className="text-lg sm:text-xl font-semibold">Crime Trend Over Time</h2>
 
-          <div className="flex gap-3 items-center">
+          <div className="flex flex-wrap gap-2 sm:gap-3 items-center min-w-0">
             <select
               value={selectedCrimeType}
               onChange={(e) => setSelectedCrimeType(e.target.value)}
-              className="border px-3 py-1 rounded-lg shadow-sm"
+              className="border px-3 py-1 rounded-lg shadow-sm text-sm min-w-0 max-w-full"
             >
               <option value="">All Crime Types</option>
               {crimeTypes.map((ct) => (
@@ -209,14 +209,14 @@ const StatsCharts = () => {
               type="date"
               value={startLine}
               onChange={(e) => setStartLine(e.target.value)}
-              className="border px-3 py-1 rounded-lg shadow-sm"
+              className="border px-2 sm:px-3 py-1 rounded-lg shadow-sm text-sm min-w-0"
             />
-            <span className="font-semibold text-gray-600">→</span>
+            <span className="font-semibold text-gray-600 hidden sm:inline">→</span>
             <input
               type="date"
               value={endLine}
               onChange={(e) => setEndLine(e.target.value)}
-              className="border px-3 py-1 rounded-lg shadow-sm"
+              className="border px-2 sm:px-3 py-1 rounded-lg shadow-sm text-sm min-w-0"
             />
             <button
               onClick={fetchLineData}
@@ -239,11 +239,11 @@ const StatsCharts = () => {
       </div>
 
       {/* BAR CHART */}
-      <div className="bg-white rounded-xl shadow p-6">
-        <div className="flex justify-between items-center mb-12">
-          <h2 className="text-xl font-semibold">Crimes per Zone</h2>
+      <div className="bg-white rounded-xl shadow p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 sm:mb-12">
+          <h2 className="text-lg sm:text-xl font-semibold">Crimes per Zone</h2>
 
-          <div className="flex gap-3 items-center">
+          <div className="flex flex-wrap gap-2 sm:gap-3 items-center min-w-0">
             <input
               type="date"
               value={startBar}
@@ -284,10 +284,10 @@ const StatsCharts = () => {
       </div>
 
       {/* PIE CHART */}
-      <div className="bg-white rounded-xl shadow p-6">
-        <h2 className="text-xl font-semibold mb-4">Crime Type Distribution</h2>
+      <div className="bg-white rounded-xl shadow p-4 sm:p-6">
+        <h2 className="text-lg sm:text-xl font-semibold mb-4">Crime Type Distribution</h2>
 
-        <div className="flex gap-3 items-center mb-4">
+        <div className="flex flex-wrap gap-2 sm:gap-3 items-center mb-4 min-w-0">
           <input
             type="date"
             value={startPie}

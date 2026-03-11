@@ -21,7 +21,7 @@ const Home = () => {
   return (
     <section className="flex flex-col md:flex-row items-center justify-between min-h-screen bg-white">
       {/* Left Section */}
-      <div className="flex flex-col justify-center px-12 md:px-20 py-10 w-full md:w-1/2 space-y-6">
+      <div className="flex flex-col justify-center px-4 sm:px-8 md:px-20 py-8 sm:py-10 w-full md:w-1/2 space-y-4 sm:space-y-6">
         <img
           src={LogowithText}
           alt="CrimeLens Logo"
@@ -48,16 +48,16 @@ const Home = () => {
           </p>
         </div>
 
-        <div className="flex flex-row gap-4 pt-12">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-8 sm:pt-12 w-full sm:w-auto">
           <GreenButton
             label="Proceed as a Public User"
             width={350}
-            onClick={NavigateDashboard} // ✅ added
+            onClick={NavigateDashboard}
           />
           <WhiteButton
             label="Login"
             width={100}
-            onClick={NavigateLogin} // ✅ added
+            onClick={NavigateLogin}
           />
         </div>
 

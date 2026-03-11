@@ -23,12 +23,12 @@ function RecordsTable({
 
   return (
     <div className="w-full bg-white rounded-lg shadow-md overflow-hidden">
-      <div className="overflow-y-auto max-h-[500px] rounded-b-lg">
-        <table className="min-w-full text-left border-collapse">
-          <thead className="sticky top-0 bg-[#237E54] text-white text-sm">
+      <div className="overflow-x-auto overflow-y-auto max-h-[500px] rounded-b-lg">
+        <table className="min-w-full text-left border-collapse text-xs sm:text-sm">
+          <thead className="sticky top-0 bg-[#237E54] text-white text-sm whitespace-nowrap">
             <tr>
               {/* Checkbox for select all */}
-              <th className="px-4 py-3 border-b">
+              <th className="px-2 sm:px-4 py-3 border-b">
                 {onSelectAll && (
                   <input
                     type="checkbox"
@@ -38,7 +38,7 @@ function RecordsTable({
                 )}
               </th>
               {headers.map((header) => (
-                <th key={header} className="px-4 py-3 font-medium border-b">
+                <th key={header} className="px-2 sm:px-4 py-3 font-medium border-b">
                   {header}
                 </th>
               ))}
@@ -58,7 +58,7 @@ function RecordsTable({
                         record.agentId % 2 === 0 ? "bg-white" : "bg-gray-50"
                       }`}
                     >
-                      <td className="px-4 py-3 border-b">
+                      <td className="px-2 sm:px-4 py-3 border-b whitespace-nowrap">
                         {onCheckboxChange && (
                           <input
                             type="checkbox"
@@ -69,12 +69,12 @@ function RecordsTable({
                           />
                         )}
                       </td>
-                      <td className="px-4 py-3 border-b">{record.agentId}</td>
-                      <td className="px-4 py-3 border-b">{record.branchId}</td>
-                      <td className="px-4 py-3 border-b">{record.username}</td>
-                      <td className="px-4 py-3 border-b">{record.password}</td>
-                      <td className="px-4 py-3 border-b">{record.branchContact ?? "-"}</td>
-                      <td className="px-4 py-3 border-b">
+                      <td className="px-2 sm:px-4 py-3 border-b whitespace-nowrap">{record.agentId}</td>
+                      <td className="px-2 sm:px-4 py-3 border-b whitespace-nowrap">{record.branchId}</td>
+                      <td className="px-2 sm:px-4 py-3 border-b whitespace-nowrap">{record.username}</td>
+                      <td className="px-2 sm:px-4 py-3 border-b whitespace-nowrap">{record.password}</td>
+                      <td className="px-2 sm:px-4 py-3 border-b whitespace-nowrap">{record.branchContact ?? "-"}</td>
+                      <td className="px-2 sm:px-4 py-3 border-b whitespace-nowrap">
                         {new Date(record.createdAt).toLocaleDateString()}
                       </td>
                     </tr>
@@ -89,7 +89,7 @@ function RecordsTable({
                       record.id % 2 === 0 ? "bg-white" : "bg-gray-50"
                     }`}
                   >
-                    <td className="px-4 py-3 border-b">
+                    <td className="px-2 sm:px-4 py-3 border-b whitespace-nowrap">
                       {onCheckboxChange && (
                         <input
                           type="checkbox"
@@ -100,12 +100,12 @@ function RecordsTable({
                         />
                       )}
                     </td>
-                    <td className="px-4 py-3 border-b">{record.id}</td>
-                    <td className="px-4 py-3 border-b">{record.zoneName}</td>
-                    <td className="px-4 py-3 border-b">{record.registeredBranchId ?? "-"}</td>
-                    <td className="px-4 py-3 border-b">{record.submitterCnic ?? "-"}</td>
-                    <td className="px-4 py-3 border-b">{record.crimeTypeName}</td>
-                    <td className="px-4 py-3 border-b">
+                    <td className="px-2 sm:px-4 py-3 border-b whitespace-nowrap">{record.id}</td>
+                    <td className="px-2 sm:px-4 py-3 border-b whitespace-nowrap">{record.zoneName}</td>
+                    <td className="px-2 sm:px-4 py-3 border-b whitespace-nowrap">{record.registeredBranchId ?? "-"}</td>
+                    <td className="px-2 sm:px-4 py-3 border-b whitespace-nowrap">{record.submitterCnic ?? "-"}</td>
+                    <td className="px-2 sm:px-4 py-3 border-b whitespace-nowrap">{record.crimeTypeName}</td>
+                    <td className="px-2 sm:px-4 py-3 border-b whitespace-nowrap">
                       {new Date(record.incidentDate).toLocaleDateString()}
                     </td>
                   </tr>

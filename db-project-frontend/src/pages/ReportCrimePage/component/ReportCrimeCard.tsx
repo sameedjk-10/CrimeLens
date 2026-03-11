@@ -120,12 +120,12 @@ export default function ReportCrimeCard() {
     value ? "text-gray-700" : "text-[#ababab]";
 
   return (
-    <div className="bg-white rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.08)] p-6 w-full border-2 border-[#e8e8e8] font-outfit">
+    <div className="bg-white rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.08)] p-4 sm:p-6 w-full border-2 border-[#e8e8e8] font-outfit">
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
         {/* PERSONAL INFO */}
         <div>
           <h3 className="font-semibold text-[#7d7d7d] mb-4">Personal Info:</h3>
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {/* Full Name */}
             <div className="flex flex-col">
               <label className="font-medium text-gray-700">
@@ -244,7 +244,7 @@ export default function ReportCrimeCard() {
         {/* CRIME INFO */}
         <div>
           <h3 className="font-semibold text-[#7d7d7d] mb-4">Crime Info:</h3>
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {/* Crime Type */}
             <div className="flex flex-col">
               <label className="font-medium text-gray-700">

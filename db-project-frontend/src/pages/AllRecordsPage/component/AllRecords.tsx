@@ -269,52 +269,52 @@ export default function AllRecords({ version }: AllRecordsProps) {
   };
 
   return (
-    <section className="flex flex-row h-screen w-full">
-      <div className="flex flex-col gap-y-4 pl-76 p-4 w-full overflow-y-auto">
-        <div className="bg-[#fefefe] p-4 rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.15)] flex flex-col gap-y-4 h-screen">
-          <div className="flex flex-row justify-between items-start w-full">
-            <div className="flex flex-col gap-y-2">
+    <section className="flex flex-row min-h-screen w-full">
+      <div className="flex flex-col gap-y-4 p-4 w-full overflow-y-auto">
+        <div className="bg-[#fefefe] p-4 rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.15)] flex flex-col gap-y-4 min-h-screen">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 w-full">
+            <div className="flex flex-col gap-y-2 min-w-0">
               {version === "admin" ? (
                 <>
-                  <div className="font-outfit font-semibold text-4xl text-black">
+                  <div className="font-outfit font-semibold text-2xl sm:text-4xl text-black">
                     All Agents Records
                   </div>
-                  <div className="font-outfit text-md text-[#A0A0A0]">
+                  <div className="font-outfit text-sm sm:text-md text-[#A0A0A0]">
                     A complete list of all agents and their credentials stored in the system database.
                   </div>
                 </>
               ) : (
                 <>
-                  <div className="font-outfit font-semibold text-4xl text-black">
+                  <div className="font-outfit font-semibold text-2xl sm:text-4xl text-black">
                     All Crime Records
                   </div>
-                  <div className="font-outfit text-md text-[#A0A0A0]">
+                  <div className="font-outfit text-sm sm:text-md text-[#A0A0A0]">
                     A complete list of all crime reports stored in the system database.
                   </div>
                 </>
               )}
             </div>
 
-            <div className="mt-1">
+            <div className="shrink-0">
               <GreenButton label="Download CSV" width={200} height={40} rounded="full" onClick={() => downloadCSV(version, records)}/>
             </div>
           </div>
 
           {/* 🔍 SEARCH BAR + BULK ACTION BUTTONS */}
-          <div className="flex justify-between items-center gap-x-4 pr-4">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
             <AllRecordsSearch version={version} onSearchChange={handleSearch} />
 
             {selectedRecords.length > 0 && (
-              <div className="bg-white p-4 rounded-xl shadow-[0_0_5px_rgba(0,0,0,0.15)] mb-4 flex items-center gap-x-3">
+              <div className="bg-white p-4 rounded-xl shadow-[0_0_5px_rgba(0,0,0,0.15)] mb-4 flex flex-wrap items-center gap-3">
                 <button
                   onClick={handleBulkDelete}
-                  className="bg-[#b80404] cursor-pointer text-white px-4 py-2 w-[125px] rounded-[5px] font-outfit text-sm hover:bg-red-900"
+                  className="bg-[#b80404] cursor-pointer text-white px-4 py-2 min-w-[100px] sm:w-[125px] rounded-[5px] font-outfit text-sm hover:bg-red-900"
                 >
                   Delete
                 </button>
                 <button
                   onClick={handleBulkUpdate}
-                  className="bg-[#237E54] cursor-pointer text-white px-4 py-2 w-[125px] rounded-[5px] font-outfit text-sm hover:bg-[#1d6b48]"
+                  className="bg-[#237E54] cursor-pointer text-white px-4 py-2 min-w-[100px] sm:w-[125px] rounded-[5px] font-outfit text-sm hover:bg-[#1d6b48]"
                 >
                   Update
                 </button>

@@ -239,21 +239,21 @@ const Dashboard = () => {
   }, []);
 
   return (
-    <section className="flex flex-row h-screen w-full">
-      <div className="flex flex-col gap-y-4 pl-76 p-4 w-full overflow-y-auto">
+    <section className="flex flex-row min-h-screen w-full">
+      <div className="flex flex-col gap-y-4 p-4 w-full overflow-y-auto">
         {/* STATS SECTION */}
         <div className="bg-[#fefefe] p-4 rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.15)] flex flex-col gap-y-4">
-          <div className="flex flex-row justify-between items-start w-full">
-            <div className="flex flex-col gap-y-1 ml-2">
-              <div className="font-outfit font-semibold text-4xl text-black">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 w-full">
+            <div className="flex flex-col gap-y-1">
+              <div className="font-outfit font-semibold text-2xl sm:text-4xl text-black">
                 Dashboard
               </div>
-              <div className="font-outfit text-md text-[#A0A0A0]">
+              <div className="font-outfit text-sm sm:text-md text-[#A0A0A0]">
                 Monitor live updates on crime density, red zones, and incident patterns across the city.
               </div>
             </div>
 
-            <div className="flex items-start mt-2">
+            <div className="flex items-start">
               <GreenButton
                 label="View all Statistics"
                 width={260}
@@ -264,7 +264,7 @@ const Dashboard = () => {
           </div>
 
           {/* STATS CARDS ROW */}
-          <div className="flex gap-x-4 ml-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <StatsCard
               title="Total Zones"
               value={loading ? "..." : totalZones}
@@ -318,24 +318,24 @@ const Dashboard = () => {
 
         {/* CRIME MAP SECTION */}
         <div
-          className="p-4 rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.5)] h-110 relative"
+          className="p-4 rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.5)] min-h-[280px] sm:min-h-[320px] lg:h-[440px] relative"
           style={{
             backgroundImage: `url(${MapBackground})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
         >
-          <div className="flex flex-row justify-between items-start w-full mb-4">
-            <div className="flex flex-col gap-y-1 ml-2">
-              <div className="font-outfit font-semibold text-3xl text-white">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 w-full mb-4">
+            <div className="flex flex-col gap-y-1">
+              <div className="font-outfit font-semibold text-xl sm:text-3xl text-white">
                 City Crime Map
               </div>
-              <div className="font-outfit text-md text-[#efecec]">
+              <div className="font-outfit text-sm sm:text-md text-[#efecec]">
                 Real-time visualization of crime activity across the city, updated directly from police databases.
               </div>
             </div>
 
-            <div className="flex items-start mt-2 mr-2">
+            <div className="flex items-start shrink-0">
               <ArrowButton
                 size={48}
                 bgColor="bg-white"

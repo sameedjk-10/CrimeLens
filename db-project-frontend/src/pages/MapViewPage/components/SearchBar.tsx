@@ -112,31 +112,42 @@ const SearchBar: React.FC = () => {
   return (
     <div
       ref={searchBarRef}
-      className="absolute top-4 left-1/2 transform -translate-x-1/2 z-[1000]"
+      className="absolute top-2 left-2 right-2 sm:left-1/2 sm:right-auto sm:transform sm:-translate-x-1/2 z-[1000] max-w-full sm:max-w-[1100px] sm:w-[1100px]"
       onClick={(e) => e.stopPropagation()}
       onMouseDown={(e) => e.stopPropagation()}
       onTouchStart={(e) => e.stopPropagation()}
     >
-      <div className="flex font-medium text-[14px] w-[1100px] bg-[rgba(255,255,255,0.9)] shadow-lg rounded-full overflow-hidden p-2">
+      <div className="flex flex-col sm:flex-row font-medium text-[14px] w-full bg-[rgba(255,255,255,0.95)] shadow-lg rounded-2xl sm:rounded-full overflow-hidden p-2 sm:p-2 gap-2 sm:gap-0">
         {/* Mode Selector */}
-        <div className="flex-none">
-          <select
-            className="w-30 text-[17px] text-center h-full px-2 bg-linear-to-r from-[#145332] to-[#237E54] text-white font-medium rounded-full focus:outline-none hover:bg-[#0F805C] border border-grey-300"
-            value={mode}
-            onChange={(e) => switchMode(e.target.value as "basic" | "radius")}
-          >
-            <option value="basic">Basic</option>
-            <option value="radius">Radius</option>
-          </select>
-        </div>
+<div className="flex-none relative w-full sm:w-40 shrink-0">
+  <select
+    className="appearance-none w-full text-[17px] text-center h-full px-4 py-2 
+    bg-linear-to-r from-[#145332] to-[#237E54] text-white font-medium 
+    rounded-full focus:outline-none border border-gray-300"
+    value={mode}
+    onChange={(e) => switchMode(e.target.value as "basic" | "radius")}
+  >
+    <option className="bg-[#145332] text-white" value="basic">
+      Basic
+    </option>
+    <option className="bg-[#145332] text-white" value="radius">
+      Radius
+    </option>
+  </select>
+
+  {/* Custom Arrow */}
+  <div className="pointer-events-none text-[22px] absolute inset-y-0 right-4  flex items-center text-white">
+    ▾
+  </div>
+</div>
 
         {/* Filters */}
-        <div className="flex-1 flex items-center justify-center mt-2 mb-2 px-4 gap-2 bg-[rgba(255,255,255,0)]">
+        <div className="flex-1 flex flex-wrap items-center justify-center py-1 sm:mt-2 sm:mb-2 px-2 sm:px-4 gap-2 bg-[rgba(255,255,255,0)] min-w-0">
           {mode === "basic" ? (
             <>
-              <span>Show:</span>
+              <span className="shrink-0">Show:</span>
               <select
-                className="pl-2 mx-1 h-8 w-25 rounded-full shadow-[0px_0px_5px_rgba(0,0,0,0.3)] border-none focus:outline-none pr-4"
+                className="pl-2 mx-0.5 h-8 min-w-0 max-w-full rounded-full shadow-[0px_0px_5px_rgba(0,0,0,0.3)] border-none focus:outline-none pr-4 text-sm"
                 value={filters.crimeType}
                 onChange={(e) => setFilters((prev) => ({ ...prev, crimeType: e.target.value }))}
               >
@@ -144,9 +155,10 @@ const SearchBar: React.FC = () => {
                   <option key={c}>{c}</option>
                 ))}
               </select>
-              <span>Crimes in:</span>
+              <span className="shrink-0 hidden lg:inline">Crimes in:</span>
+              <span className="shrink-0 lg:hidden">Zone:</span>
               <select
-                className="pl-2 mx-1 h-8 w-26 rounded-full shadow-[0px_0px_5px_rgba(0,0,0,0.3)] border-none focus:outline-none pr-4"
+                className="pl-2 mx-0.5 h-8 min-w-0 max-w-[140px] sm:max-w-none rounded-full shadow-[0px_0px_5px_rgba(0,0,0,0.3)] border-none focus:outline-none pr-4 text-sm"
                 value={filters.zoneId}
                 onChange={(e) =>
                   setFilters((prev) => ({ ...prev, zoneId: e.target.value }))
@@ -158,10 +170,10 @@ const SearchBar: React.FC = () => {
                   </option>
                 ))}
               </select>
-              <span>From:</span>
+              <span className="shrink-0">From:</span>
               <input
                 type="date"
-                className="p-2 mx-1 w-32 h-8 rounded-full shadow-[0px_0px_5px_rgba(0,0,0,0.3)] border-none focus:outline-none"
+                className="p-1.5 sm:p-2 mx-0.5 w-28 sm:w-32 h-8 rounded-full shadow-[0px_0px_5px_rgba(0,0,0,0.3)] border-none focus:outline-none text-sm min-w-0"
                 value={filters.dateRange.start}
                 onChange={(e) =>
                   setFilters((prev) => ({
@@ -170,10 +182,10 @@ const SearchBar: React.FC = () => {
                   }))
                 }
               />
-              <span>to</span>
+              <span className="shrink-0">to</span>
               <input
                 type="date"
-                className="p-2 w-32 ml-1 h-8 rounded-full shadow-[0px_0px_5px_rgba(0,0,0,0.3)] border-none focus:outline-none"
+                className="p-1.5 sm:p-2 w-28 sm:w-32 ml-0.5 h-8 rounded-full shadow-[0px_0px_5px_rgba(0,0,0,0.3)] border-none focus:outline-none text-sm min-w-0"
                 value={filters.dateRange.end}
                 onChange={(e) =>
                   setFilters((prev) => ({
@@ -185,19 +197,19 @@ const SearchBar: React.FC = () => {
             </>
           ) : (
             <>
-              <span>Show crimes within</span>
+              <span className="shrink-0 text-xs sm:text-sm">Within</span>
               <input
                 type="number"
-                className="p-2 text-center h-8 rounded-full shadow-[0px_0px_5px_rgba(0,0,0,0.3)] border-none focus:outline-none w-20"
+                className="p-1.5 sm:p-2 text-center h-8 rounded-full shadow-[0px_0px_5px_rgba(0,0,0,0.3)] border-none focus:outline-none w-16 sm:w-20 text-sm"
                 value={radiusValue}
                 onChange={(e) => setRadiusValue(Number(e.target.value))}
               />
-              <span>meters of</span>
-              <div className="flex gap-1">
+              <span className="shrink-0 text-xs sm:text-sm">m of</span>
+              <div className="flex gap-1 flex-wrap">
                 <input
                   type="number"
                   placeholder="lat"
-                  className="p-2 h-8 rounded-full shadow-[0px_0px_5px_rgba(0,0,0,0.3)] border-none focus:outline-none w-24"
+                  className="p-1.5 sm:p-2 h-8 rounded-full shadow-[0px_0px_5px_rgba(0,0,0,0.3)] border-none focus:outline-none w-20 sm:w-24 text-sm min-w-0"
                   value={radiusCenter?.lat ?? ""}
                   onChange={(e) =>
                     setRadiusCenter((prev) => ({
@@ -206,11 +218,11 @@ const SearchBar: React.FC = () => {
                     }))
                   }
                 />
-                <span>,</span>
+                <span className="shrink-0">,</span>
                 <input
                   type="number"
                   placeholder="lng"
-                  className="p-2 h-8 rounded-full shadow-[0px_0px_5px_rgba(0,0,0,0.3)] border-none focus:outline-none w-24"
+                  className="p-1.5 sm:p-2 h-8 rounded-full shadow-[0px_0px_5px_rgba(0,0,0,0.3)] border-none focus:outline-none w-20 sm:w-24 text-sm min-w-0"
                   value={radiusCenter?.lng ?? ""}
                   onChange={(e) =>
                     setRadiusCenter((prev) => ({
@@ -225,7 +237,7 @@ const SearchBar: React.FC = () => {
         </div>
 
         {/* Buttons */}
-        <div className="flex-none flex">
+        <div className="flex-none flex shrink-0">
           <button
             className="px-6 py-2 rounded-l-full text-[15px] font-medium text-white bg-linear-to-r from-[#145332] to-[#1B6842] border border-r-[#679981] hover:from-[#145332] hover:to-[#145332] cursor-pointer"
             onClick={handleSearch}

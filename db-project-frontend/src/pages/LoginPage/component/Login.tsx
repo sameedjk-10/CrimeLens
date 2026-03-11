@@ -23,13 +23,13 @@ const Login = () => {
 
   return (
     <section
-      className="flex items-center justify-center min-h-screen bg-cover bg-center"
+      className="flex items-center justify-center min-h-screen bg-cover bg-center p-4"
       style={{ backgroundImage: `url(${MainBackground})` }}
     >
       {/* White Card Container */}
-      <div className="bg-white rounded-3xl shadow-xl flex flex-col items-center justify-center px-8 py-8 w-11/12 max-w-md space-y-6 md:space-y-8">
+      <div className="bg-white rounded-3xl shadow-xl flex flex-col items-center justify-center px-4 sm:px-8 py-6 sm:py-8 w-full max-w-md space-y-5 sm:space-y-6 md:space-y-8">
         {/* Logo */}
-        <img src={LogowithText} alt="CrimeLens" className="w-40 md:w-48 mb-8" />
+        <img src={LogowithText} alt="CrimeLens" className="w-36 sm:w-40 md:w-48 mb-6 sm:mb-8" />
 
         {/* White Outline Buttons */}
         <div className="flex flex-col w-full space-y-4 gap-y-4">

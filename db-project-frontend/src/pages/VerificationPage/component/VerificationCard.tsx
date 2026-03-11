@@ -169,7 +169,7 @@ export default function VerificationCard(props: VerificationCardProps) {
         <>
           <h3 className="font-semibold text-gray-700 mb-2">Agent Info:</h3>
 
-          <div className="grid grid-cols-2 gap-y-3 text-sm text-gray-800">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 text-sm text-gray-800">
             <p>
               <span className="font-semibold">Branch ID:</span> {props.branchId}
             </p>
@@ -193,7 +193,7 @@ export default function VerificationCard(props: VerificationCardProps) {
         <>
           {/* Police Version */}
           <h3 className="font-semibold text-[#7d7d7d]">Personal Info:</h3>
-          <div className="grid grid-cols-2 gap-y-3 text-sm text-gray-800">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 text-sm text-gray-800">
             <p>
               <span className="font-semibold">Full Name:</span> {props.fullName}
             </p>
@@ -208,7 +208,7 @@ export default function VerificationCard(props: VerificationCardProps) {
           <hr className="my-4 border-t-2 border-[#d9d9d9]" />
 
           <h3 className="font-semibold text-[#7d7d7d]">Crime Info:</h3>
-          <div className="grid grid-cols-2 gap-y-3 text-sm text-gray-800">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 text-sm text-gray-800">
             <p>
               <span className="font-semibold">Title:</span>{" "}
               {props.title || "--"}
@@ -243,14 +243,14 @@ export default function VerificationCard(props: VerificationCardProps) {
       )}
 
       {/* Footer Buttons */}
-      <div className="border-t-2 border-[#d9d9d9] mt-4 pt-6 flex justify-between items-center">
+      <div className="border-t-2 border-[#d9d9d9] mt-4 pt-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <WhiteButton
           label="Contact for Verification"
           width={300}
           height={40}
           onClick={handleContactCopy}
         />
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setShowRejectConfirm(true)}
             disabled={loading}
@@ -285,8 +285,8 @@ export default function VerificationCard(props: VerificationCardProps) {
 
       {/* Reject confirm modal (for main card Reject button) */}
       {showRejectConfirm && (
-        <div className="fixed inset-0 bg-black/30 flex justify-center items-center z-40">
-          <div className="bg-white p-6 rounded-xl shadow-lg w-[380px] animate-fadeIn">
+        <div className="fixed inset-0 bg-black/30 flex justify-center items-center z-40 p-4">
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-lg w-full max-w-[380px] animate-fadeIn">
             <h3 className="text-xl font-semibold mb-4 text-gray-700 flex justify-center">
               Are you sure you want to reject?
             </h3>

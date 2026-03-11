@@ -52,29 +52,28 @@ export default function AllRecords({ version }: AllRecordsProps) {
   };
 
   return (
-    <section className="flex flex-row h-screen w-full">
-      <div className="flex flex-col gap-y-4 pl-76 p-4 w-full overflow-y-auto">
+    <section className="flex flex-row min-h-screen w-full">
+      <div className="flex flex-col gap-y-4 p-4 w-full overflow-y-auto">
         {/* Top section with title */}
         <div className="bg-[#fefefe] p-4 rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.15)] flex flex-col gap-y-4">
-          <div className="flex flex-row justify-between items-start w-full">
-            {/* Left Text Section */}
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start w-full">
             <div className="flex flex-col gap-y-2">
               {version === "admin" ? (
                 <>
-                  <div className="font-outfit font-semibold text-4xl text-black">
+                  <div className="font-outfit font-semibold text-2xl sm:text-4xl text-black">
                     Verify New Agent
                   </div>
-                  <div className="font-outfit text-md text-[#A0A0A0]">
+                  <div className="font-outfit text-sm sm:text-md text-[#A0A0A0]">
                     Review and authorize a new agent registration requests
                     submitted by police branches.
                   </div>
                 </>
               ) : (
                 <>
-                  <div className="font-outfit font-semibold text-4xl text-black">
+                  <div className="font-outfit font-semibold text-2xl sm:text-4xl text-black">
                     Verify Report
                   </div>
-                  <div className="font-outfit text-md text-[#A0A0A0]">
+                  <div className="font-outfit text-sm sm:text-md text-[#A0A0A0]">
                     Review newly submitted crime reports and verify their
                     authenticity before approval.
                   </div>
@@ -85,7 +84,7 @@ export default function AllRecords({ version }: AllRecordsProps) {
         </div>
 
         {/* Records Section */}
-        <div className="p-6 rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.15)] flex justify-stretch">
+        <div className="p-4 sm:p-6 rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.15)] flex justify-stretch">
           {loading ? (
             <div className="w-full flex items-center justify-center py-12">
               <p className="text-lg text-gray-600 font-outfit">Loading records...</p>

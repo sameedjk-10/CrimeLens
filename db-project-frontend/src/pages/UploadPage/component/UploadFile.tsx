@@ -39,9 +39,8 @@ const UploadFile: React.FC<UploadFileProps> = ({
     version,
 }) => {
     return (
-        <div className="flex h-screen">
-           
-            <div className="flex-1 ml-72 p-8 relative">
+        <div className="flex flex-col md:flex-row min-h-screen">
+            <div className="flex-1 w-full p-4 sm:p-6 md:p-8 relative min-w-0">
                 {/* Loader Overlay */}
                 {isUploading && (
                     <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50">
@@ -56,15 +55,15 @@ const UploadFile: React.FC<UploadFileProps> = ({
                 )}
 
                 {/* Upload Card */}
-                <div className="bg-white rounded-2xl shadow-md p-8 mt-8 max-w-xl mx-auto">
-                    <h2 className="text-2xl font-semibold mb-4">Bulk CSV Upload</h2>
+                <div className="bg-white rounded-2xl shadow-md p-4 sm:p-8 mt-4 sm:mt-8 max-w-xl mx-auto w-full">
+                    <h2 className="text-xl sm:text-2xl font-semibold mb-4">Bulk CSV Upload</h2>
                     <p className="text-gray-500 mb-6">
                         Upload a CSV file to insert multiple crime records at once.
                     </p>
 
                     {/* Drag & Drop Area */}
                     <div
-                        className={`border-2 border-dashed rounded-xl p-12 text-center cursor-pointer mb-2 ${isDragging ? "border-green-500 bg-green-50" : "border-gray-300"
+                        className={`border-2 border-dashed rounded-xl p-6 sm:p-12 text-center cursor-pointer mb-2 ${isDragging ? "border-green-500 bg-green-50" : "border-gray-300"
                             }`}
                         onDragOver={onDragOver}
                         onDragLeave={onDragLeave}
@@ -100,15 +99,15 @@ const UploadFile: React.FC<UploadFileProps> = ({
                         <div className="flex justify-center mt-2">
                             <GreenButton
                                 label="Start Processing File"
-                                width={600}
-                                onClick={onUpload} // triggers UploadPage handler
+                                width={undefined}
+                                onClick={onUpload}
                             />
                         </div>
                     )}
 
                     {/* Result Summary */}
                     {resultStats && (
-                        <div className="grid grid-cols-2 gap-4 mb-4">
+                        <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-4">
                             <div className="bg-green-50 rounded-xl p-4 text-center">
                                 <p className="text-gray-400 text-sm">Total Records</p>
                                 <p className="font-semibold text-lg">{resultStats.total}</p>
@@ -130,11 +129,11 @@ const UploadFile: React.FC<UploadFileProps> = ({
 
                     {/* Upload Another Button */}
                     {resultStats && (
-                        <div className="mt-8 flex justify-center mt-2">
+                        <div className="mt-6 sm:mt-8 flex justify-center">
                             <WhiteButton
                                 label="Upload Another File"
-                                width={600}
-                                onClick={onUploadAnother} // triggers UploadPage handler
+                                width={undefined}
+                                onClick={onUploadAnother}
                             />
                         </div>
                     )}
