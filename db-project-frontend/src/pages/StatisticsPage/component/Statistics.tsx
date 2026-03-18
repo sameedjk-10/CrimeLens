@@ -5,7 +5,7 @@ import BackButton from "../../../components/BackButton";
 import StatsCharts from "./StatsCharts";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { API_BASE_URL } from "../../../config/constants";
+import {API_BASE_URL} from "../../../config/constants";
 
 // ---------------------------
 // Types

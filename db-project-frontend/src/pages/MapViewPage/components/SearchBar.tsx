@@ -2,7 +2,7 @@
 
 import React, { useState, useContext, useEffect, useRef } from "react";
 import { MapContext } from "./MapContext";
-import { API_BASE_URL } from "../../../config/constants";
+import {API_BASE_URL} from "../../../config/constants";
 
 const SearchBar: React.FC = () => {
   const {

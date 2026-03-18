@@ -6,7 +6,7 @@ import PasswordHideIcon from "../../../assets/PasswodHideIcon.svg";
 import InstructionIcon from "../../../assets/InstructionIcon.svg";
 import { useNavigate } from "react-router-dom";
 import BackButton from "../../../components/BackButton";
-import { API_BASE_URL } from "../../../config/constants";
+import {API_BASE_URL} from "../../../config/constants";
 
 const LoginCreate = () => {
   // Password visibility states
