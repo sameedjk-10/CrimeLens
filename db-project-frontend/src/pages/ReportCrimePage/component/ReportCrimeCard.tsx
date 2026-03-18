@@ -1,5 +1,6 @@
 import { useState } from "react";
 import GreenButton from "../../../components/GreenButton";
+import { API_BASE_URL } from "../../../config/constants";
 
 export default function ReportCrimeCard() {
   const [, setError] = useState("");
@@ -77,7 +78,7 @@ export default function ReportCrimeCard() {
       console.log("Submitting crime report...");
 
       const response = await fetch(
-        "${API_BASE_URL}/user/report-crime",
+        `${API_BASE_URL}/user/report-crime`,
         {
           method: "POST",
           headers: {

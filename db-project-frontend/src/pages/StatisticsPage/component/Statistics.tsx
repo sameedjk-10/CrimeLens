@@ -39,7 +39,7 @@ const Statistics = () => {
   // ---------------------------
   const fetchSummary = async () => {
     try {
-      const res = await axios.get("${API_BASE_URL}/stats/summary");
+      const res = await axios.get(`${API_BASE_URL}/stats/summary`);
       setSummary(res.data);
     } catch (err) {
       console.error("Failed to fetch summary:", err);

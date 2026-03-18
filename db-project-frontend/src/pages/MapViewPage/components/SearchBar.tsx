@@ -30,7 +30,7 @@ const SearchBar: React.FC = () => {
   useEffect(() => {
     const fetchCrimeTypes = async () => {
       try {
-        const res = await fetch("${API_BASE_URL}/crimes/types");
+        const res = await fetch(`${API_BASE_URL}/crimes/types`);
         const data = await res.json();
         setCrimeTypes(["All", ...data.map((ct: any) => ct.name)]);
       } catch (err) {
@@ -40,7 +40,7 @@ const SearchBar: React.FC = () => {
 
     const fetchZones = async () => {
       try {
-        const res = await fetch("${API_BASE_URL}/zones"); // returns [{ id, name }]
+        const res = await fetch(`${API_BASE_URL}/zones`); // returns [{ id, name }]
         const data = await res.json();
         setZones([{ id: "", name: "All Zones" }, ...data]);
       } catch (err) {

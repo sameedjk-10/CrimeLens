@@ -141,7 +141,7 @@ const Dashboard = () => {
 
         {/* CRIME MAP SECTION */}
         <div
-          className="p-4 rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.5)] min-h-[280px] sm:min-h-[320px] lg:h-[440px] relative"
+          className="p-4 rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.5)] min-h-[280px] sm:min-h-80 lg:h-[440px] relative"
           style={{
             backgroundImage: `url(${MapBackground})`,
             backgroundSize: "cover",

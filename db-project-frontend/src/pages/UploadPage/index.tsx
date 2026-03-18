@@ -89,7 +89,7 @@ const UploadPage: React.FC<{ }> = ({ }) => {
     formData.append("file", selectedFile);
 
     try {
-      const response = await axios.post("${API_BASE_URL}/admin/upload-crimes", formData, {
+      const response = await axios.post(`${API_BASE_URL}/admin/upload-crimes`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 

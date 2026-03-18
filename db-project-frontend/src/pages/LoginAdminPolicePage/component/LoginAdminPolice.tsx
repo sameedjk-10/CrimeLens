@@ -8,6 +8,7 @@ import PasswordHideIcon from "../../../assets/PasswodHideIcon.svg";
 import BackButton from "../../../components/BackButton";
 import { useDispatch } from "react-redux";
 import { setRole } from "../../../store/features/current_role";
+import { API_BASE_URL } from "../../../config/constants";
 
 
 const LoginAdminPolice = () => {
@@ -37,7 +38,7 @@ const LoginAdminPolice = () => {
     console.log("frontend")
   
     try {
-      const response = await fetch("${API_BASE_URL}/auth/login", {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password, verify_role }),

@@ -69,7 +69,7 @@ const LoginCreate = () => {
       console.log("Submitting agent request...", formData);
 
       const response = await fetch(
-        "${API_BASE_URL}/agent/request",
+        `${API_BASE_URL}/agent/request`,
         {
           method: "POST",
           headers: {
