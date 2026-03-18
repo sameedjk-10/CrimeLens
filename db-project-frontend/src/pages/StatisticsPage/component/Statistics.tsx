@@ -5,6 +5,7 @@ import BackButton from "../../../components/BackButton";
 import StatsCharts from "./StatsCharts";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { API_BASE_URL } from "../../../config/constants";
 
 // ---------------------------
 // Types
@@ -38,7 +39,7 @@ const Statistics = () => {
   // ---------------------------
   const fetchSummary = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/stats/summary");
+      const res = await axios.get("${API_BASE_URL}/stats/summary");
       setSummary(res.data);
     } catch (err) {
       console.error("Failed to fetch summary:", err);

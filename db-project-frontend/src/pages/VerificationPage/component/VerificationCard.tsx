@@ -80,11 +80,11 @@ export default function VerificationCard(props: VerificationCardProps) {
 
       if (props.version === "admin") {
         // @ts-ignore
-        endpoint = `http://localhost:5000/api/agent/verify/${props.requestId}`;
+        endpoint = `${API_BASE_URL}/agent/verify/${props.requestId}`;
         body = { roleId: 2 }; // Default to police officer role
       } else {
         // @ts-ignore
-        endpoint = `http://localhost:5000/api/user/approve/${props.submissionId}`;
+        endpoint = `${API_BASE_URL}/user/approve/${props.submissionId}`;
         body = {
           address: updatedValues.address || "",
           latitude: Number(updatedValues.latitude),
@@ -130,10 +130,10 @@ export default function VerificationCard(props: VerificationCardProps) {
 
       if (props.version === "admin") {
         // @ts-ignore
-        endpoint = `http://localhost:5000/api/agent/reject/${props.requestId}`;
+        endpoint = `${API_BASE_URL}/agent/reject/${props.requestId}`;
       } else {
         // @ts-ignore
-        endpoint = `http://localhost:5000/api/user/reject/${props.submissionId}`;
+        endpoint = `${API_BASE_URL}/user/reject/${props.submissionId}`;
       }
 
       const response = await fetch(endpoint, {

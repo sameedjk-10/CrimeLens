@@ -6,6 +6,7 @@ import PasswordHideIcon from "../../../assets/PasswodHideIcon.svg";
 import InstructionIcon from "../../../assets/InstructionIcon.svg";
 import { useNavigate } from "react-router-dom";
 import BackButton from "../../../components/BackButton";
+import { API_BASE_URL } from "../../../config/constants";
 
 const LoginCreate = () => {
   // Password visibility states
@@ -68,7 +69,7 @@ const LoginCreate = () => {
       console.log("Submitting agent request...", formData);
 
       const response = await fetch(
-        "http://localhost:5000/api/agent/request",
+        "${API_BASE_URL}/agent/request",
         {
           method: "POST",
           headers: {

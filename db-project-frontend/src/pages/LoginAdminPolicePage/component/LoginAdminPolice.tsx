@@ -9,6 +9,7 @@ import BackButton from "../../../components/BackButton";
 import { useDispatch } from "react-redux";
 import { setRole } from "../../../store/features/current_role";
 
+
 const LoginAdminPolice = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -21,7 +22,6 @@ const LoginAdminPolice = () => {
   const dispatch = useDispatch();
   const location = useLocation();
   const verify_role = location.state.role;
-
 
   const NavigateLogin = () => {
     navigate("/login");
@@ -37,7 +37,7 @@ const LoginAdminPolice = () => {
     console.log("frontend")
   
     try {
-      const response = await fetch("http://localhost:5000/api/auth/login", {
+      const response = await fetch("${API_BASE_URL}/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password, verify_role }),
@@ -63,7 +63,6 @@ const LoginAdminPolice = () => {
       setError("Server error. Try again later.");
     }
   };
-  
 
   return (
     <section

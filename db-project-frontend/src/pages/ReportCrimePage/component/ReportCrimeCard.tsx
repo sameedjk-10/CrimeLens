@@ -77,7 +77,7 @@ export default function ReportCrimeCard() {
       console.log("Submitting crime report...");
 
       const response = await fetch(
-        "http://localhost:5000/api/user/report-crime",
+        "${API_BASE_URL}/user/report-crime",
         {
           method: "POST",
           headers: {
@@ -186,23 +186,7 @@ export default function ReportCrimeCard() {
               />
             </div>
 
-            {/* Zone */}
-            {/* <div className="flex flex-col">
-              <label className="font-medium text-gray-700">
-                Zone #: <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="number"
-                name="zone"
-                placeholder="Type here..."
-                value={formData.zone}
-                onChange={handleChange}
-                required
-                className={`border border-[#d9d9d9] rounded-md px-3 py-2 text-sm placeholder:text-[#ababab] focus:outline-none focus:ring-2 focus:ring-green-500 ${getInputTextColor(
-                  formData.zone
-                )}`}
-              />
-            </div> */}
+            
 
             {/* Zone */}
             <div className="flex flex-col">

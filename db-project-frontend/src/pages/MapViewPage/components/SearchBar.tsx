@@ -2,6 +2,7 @@
 
 import React, { useState, useContext, useEffect, useRef } from "react";
 import { MapContext } from "./MapContext";
+import { API_BASE_URL } from "../../../config/constants";
 
 const SearchBar: React.FC = () => {
   const {
@@ -29,7 +30,7 @@ const SearchBar: React.FC = () => {
   useEffect(() => {
     const fetchCrimeTypes = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/crimes/types");
+        const res = await fetch("${API_BASE_URL}/crimes/types");
         const data = await res.json();
         setCrimeTypes(["All", ...data.map((ct: any) => ct.name)]);
       } catch (err) {
@@ -39,7 +40,7 @@ const SearchBar: React.FC = () => {
 
     const fetchZones = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/zones"); // returns [{ id, name }]
+        const res = await fetch("${API_BASE_URL}/zones"); // returns [{ id, name }]
         const data = await res.json();
         setZones([{ id: "", name: "All Zones" }, ...data]);
       } catch (err) {

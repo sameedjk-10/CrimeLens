@@ -24,9 +24,9 @@ export default function AllRecords({ version }: AllRecordsProps) {
       let endpoint = "";
 
       if (version === "admin") {
-        endpoint = "http://localhost:5000/api/agent/pending";
+        endpoint = "${API_BASE_URL}/agent/pending";
       } else {
-        endpoint = "http://localhost:5000/api/user/pending";
+        endpoint = "${API_BASE_URL}/user/pending";
       }
 
       const response = await fetch(endpoint);
@@ -190,9 +190,9 @@ export default function AllRecords({ version }: AllRecordsProps) {
 //       let endpoint = "";
 
 //       if (version === "admin") {
-//         endpoint = "http://localhost:5000/api/agent/pending";
+//         endpoint = "${API_BASE_URL}/agent/pending";
 //       } else {
-//         endpoint = "http://localhost:5000/api/user/pending";
+//         endpoint = "${API_BASE_URL}/user/pending";
 //       }
 
 //       const response = await fetch(endpoint);

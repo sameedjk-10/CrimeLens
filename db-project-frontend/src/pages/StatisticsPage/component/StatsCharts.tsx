@@ -113,7 +113,7 @@ const StatsCharts = () => {
   // ---------------------------
   const fetchCrimeTypes = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/stats/crime-type-distribution");
+      const res = await axios.get("${API_BASE_URL}/stats/crime-type-distribution");
       // extract crime types
       const types: CrimeType[] = res.data.map((item: any) => ({
         id: item.crimeTypeId,
@@ -130,7 +130,7 @@ const StatsCharts = () => {
   // ---------------------------
   const fetchLineData = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/stats/crime-trend", {
+      const res = await axios.get("${API_BASE_URL}/stats/crime-trend", {
         params: { crimeTypeId: selectedCrimeType, start: startLine, end: endLine },
       });
       const formatted: LineDataItem[] = res.data.map((item: any) => ({
@@ -145,7 +145,7 @@ const StatsCharts = () => {
 
   const fetchBarData = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/stats/zone-crime-count", {
+      const res = await axios.get("${API_BASE_URL}/stats/zone-crime-count", {
         params: { start: startBar, end: endBar },
       });
       const formatted: BarDataItem[] = res.data.map((item: any) => ({
@@ -160,7 +160,7 @@ const StatsCharts = () => {
 
   const fetchPieData = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/stats/crime-type-distribution", {
+      const res = await axios.get("${API_BASE_URL}/stats/crime-type-distribution", {
         params: { start: startPie, end: endPie },
       });
       const formatted: PieDataItem[] = res.data.map((item: any) => ({

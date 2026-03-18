@@ -4,6 +4,7 @@ import GreenButton from "../../../components/GreenButton";
 import AllRecordsSearch from "./AllRecordsSearch";
 import DetailsPopup from "./DetailsPopup"
 import { downloadCSV } from "./downloadCSV";
+import { API_BASE_URL } from "../../../config/constants";
 
 interface AllRecordsProps {
   version: "admin" | "police" | "user" | null;
@@ -60,7 +61,7 @@ export default function AllRecords({ version }: AllRecordsProps) {
         let res, data;
 
         if (version === "police") {
-          res = await fetch(`http://localhost:5000/api/crimes/all`);
+          res = await fetch(`${API_BASE_URL}/crimes/all`);
           if (!res.ok) throw new Error("Network response was not ok");
           data = await res.json();
           if (!mounted) return;
@@ -72,7 +73,7 @@ export default function AllRecords({ version }: AllRecordsProps) {
             console.error("Error fetching crimes:", data.message);
           }
         } else if (version === "admin") {
-          res = await fetch(`http://localhost:5000/api/agent/all`);
+          res = await fetch(`${API_BASE_URL}/agent/all`);
           if (!res.ok) throw new Error("Network response was not ok");
           data = await res.json();
           if (!mounted) return;
@@ -153,8 +154,8 @@ export default function AllRecords({ version }: AllRecordsProps) {
         selectedRecords.map((id) => {
           const url =
             version === "admin"
-              ? `http://localhost:5000/api/agent/delete/${id}`
-              : `http://localhost:5000/api/crimes/delete/${id}`;
+              ? `${API_BASE_URL}/agent/delete/${id}`
+              : `${API_BASE_URL}/crimes/delete/${id}`;
           return fetch(url, { method: "DELETE" });
         })
       );
@@ -192,7 +193,7 @@ export default function AllRecords({ version }: AllRecordsProps) {
       setIsUpdateModalOpen(true);
     } else {
       try {
-        const res = await fetch(`http://localhost:5000/api/crimes/get-crime/${recordId}`);
+        const res = await fetch(`${API_BASE_URL}/crimes/get-crime/${recordId}`);
         const data = await res.json();
         if (!data.success) {
           alert("Failed to load crime details.");
@@ -223,7 +224,7 @@ export default function AllRecords({ version }: AllRecordsProps) {
     try {
       if (version === "admin" && selectedAgent) {
         const res = await fetch(
-          `http://localhost:5000/api/agent/update/${selectedAgent.agentId}`,
+          `${API_BASE_URL}/agent/update/${selectedAgent.agentId}`,
           {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
@@ -243,7 +244,7 @@ export default function AllRecords({ version }: AllRecordsProps) {
         setSelectedRecords([]);
         setSelectedAgent(null);
       } else if (version === "police" && fullCrime) {
-        const res = await fetch(`http://localhost:5000/api/crimes/update/${fullCrime.id}`, {
+        const res = await fetch(`${API_BASE_URL}/crimes/update/${fullCrime.id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(updatedData),
