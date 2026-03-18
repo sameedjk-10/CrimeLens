@@ -15,6 +15,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import { API_BASE_URL } from "../../../config/constants";
 
 const COLORS = [
   "#1E90FF", "#FF6347", "#32CD32", "#FFD700", "#8A2BE2",

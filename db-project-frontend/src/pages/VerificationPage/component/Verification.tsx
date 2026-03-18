@@ -1,6 +1,7 @@
 ////VerificationPage/components/Verification.tsx
 import { useState, useEffect } from "react";
 import VerificationCard from "./VerificationCard";
+import { API_BASE_URL } from "../../../config/constants";
 
 interface AllRecordsProps {
   version: "admin" | "police" | "user" | null;
