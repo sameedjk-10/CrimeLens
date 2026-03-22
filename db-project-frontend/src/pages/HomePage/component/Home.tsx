@@ -75,7 +75,7 @@ const Home = () => {
 
       {/* Right Section - Desktop only */}
       <div
-        className="hidden md:flex w-full md:w-1/2 h-[400px] md:h-screen items-center justify-center p-8 rounded-3xl"
+        className="hidden md:flex w-full md:w-1/2 h-[350px] md:h-screen items-center justify-center p-8 rounded-3xl"
         style={{
           backgroundImage: `url(${MainBackground})`,
           backgroundSize: "cover",
