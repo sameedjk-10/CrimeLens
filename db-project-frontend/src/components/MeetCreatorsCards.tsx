@@ -12,25 +12,21 @@ const MeetCreatorsCard = () => {
         backgroundPosition: "center",
       }}
     >
-      {/* Overlay for dark tint */}
+      {/* Overlay */}
       <div className="absolute inset-0 bg-linear-to-b from-black/70 via-black/25 to-transparent rounded-2xl"></div>
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col justify-between p-4 h-[200px] gap-y-2 text-white ">
-        <img src={WhiteLogo} alt="Logo" className="w-6 h-6 ml-1" />
+      <div className="relative z-10 flex flex-col justify-between p-4 h-[160px] gap-y-1 text-white">
+        <img src={WhiteLogo} alt="Logo" className="w-5 h-5 ml-1" />
 
-        <div className="ml-1 mt-1">
-          <h2 className="text-md font-medium leading-tight">
-            Meet the 
-          </h2>
-          <h3 className="text-3xl font-semibold leading-tight">
-            Creators
-          </h3>
-          <p className="text-xs mt-2 text-[#ffffff]">Know more about us.</p>
+        <div className="ml-1">
+          <h2 className="text-sm font-medium leading-tight">Meet the</h2>
+          <h3 className="text-2xl font-semibold leading-tight">Creators</h3>
+          <p className="text-xs mt-1 text-[#ffffff]">Know more about us.</p>
         </div>
 
-        <div className="mt-1">
-          <WhiteButton label="See Now" width={207} height={45} />
+        <div>
+          <WhiteButton label="See Now" width={207} height={36} />
         </div>
       </div>
     </div>

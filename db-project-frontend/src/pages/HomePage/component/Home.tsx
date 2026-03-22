@@ -3,20 +3,18 @@ import LogowithText from "../../../assets/LogowithText.svg";
 import MainBackground from "../../../assets/MainBackground.png";
 import GreenButton from "../../../components/GreenButton";
 import WhiteButton from "../../../components/WhiteButton";
-
-
-
+import MeetCreatorsCard from "../../../components/MeetCreatorsCards";
 
 const Home = () => {
   const navigate = useNavigate();
 
   const NavigateLogin = () => {
-    navigate('/login');
-  }
+    navigate("/login");
+  };
 
   const NavigateDashboard = () => {
-    navigate('/dashboard')
-  }
+    navigate("/dashboard");
+  };
 
   return (
     <section className="flex flex-col md:flex-row items-center justify-between min-h-screen bg-white">
@@ -40,36 +38,43 @@ const Home = () => {
           </h3>
 
           <p className="text-gray-800 text-sm md:text-base font-outfit font-medium leading-relaxed max-w-md pt-8">
-            CrimeLens provides real-time crime analytics and insights across your city.
-            Explore interactive maps, live statistics, and verified
+            CrimeLens provides real-time crime analytics and insights across
+            your city. Explore interactive maps, live statistics, and verified
             police reports to stay informed, aware, and proactive. Track ongoing
             incidents, understand local safety trends, and make smarter
             decisions — all in one dynamic dashboard.
           </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-8 sm:pt-12 w-full sm:w-auto">
+        <div className="flex flex-col sm:flex-row gap-3 pt-8 sm:pt-12 w-full sm:w-auto">
           <GreenButton
             label="Proceed as a Public User"
             width={350}
             onClick={NavigateDashboard}
           />
-          <WhiteButton
-            label="Login"
-            width={100}
-            onClick={NavigateLogin}
-          />
+          <div className="w-full sm:w-auto">
+            <WhiteButton
+              label="Login"
+              width={100}
+              fullWidth
+              onClick={NavigateLogin}
+            />
+          </div>
         </div>
-
       </div>
 
       {/* Right Section */}
-      <div className="w-full md:w-1/2 h-[400px] md:h-screen flex items-center justify-center p-8">
-        <img
-          src={MainBackground}
-          alt="Background"
-          className="rounded-3xl shadow-lg object-cover w-full h-full"
-        />
+      {/* Meet Creators Card - Mobile only */}
+      <div className="w-full flex items-center justify-center p-8 md:hidden">
+        <MeetCreatorsCard />
+      </div>
+
+      {/* Right Section - Desktop only */}
+      <div
+        className="relatve hidden md:flex w-full md:w-1/2 h-[400px] md:h-screen items-center justify-center p-8"
+        style={{ backgroundImage: "url(src/assets/MainBackground.png)" }}
+      >
+        
       </div>
     </section>
   );
