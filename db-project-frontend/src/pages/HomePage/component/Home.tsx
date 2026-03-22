@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import LogowithText from "../../../assets/LogowithText.svg";
-import MainBackground from "../../../assets/MainBackground.png";
 import GreenButton from "../../../components/GreenButton";
 import WhiteButton from "../../../components/WhiteButton";
 import MeetCreatorsCard from "../../../components/MeetCreatorsCards";
@@ -74,7 +73,7 @@ const Home = () => {
         className="relatve hidden md:flex w-full md:w-1/2 h-[400px] md:h-screen items-center justify-center p-8"
         style={{ backgroundImage: "url(src/assets/MainBackground.png)" }}
       >
-        
+
       </div>
     </section>
   );
