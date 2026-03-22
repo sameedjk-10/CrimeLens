@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import LogowithText from "../../../assets/LogowithText.svg";
+import MainBackground from "../../../assets/MainBackground.png";
 import GreenButton from "../../../components/GreenButton";
 import WhiteButton from "../../../components/WhiteButton";
 import MeetCreatorsCard from "../../../components/MeetCreatorsCards";
@@ -13,6 +14,10 @@ const Home = () => {
 
   const NavigateDashboard = () => {
     navigate("/dashboard");
+  };
+
+  const NavigateMeetCreators = () => {
+    navigate("/meet-developers");
   };
 
   return (
@@ -70,10 +75,19 @@ const Home = () => {
 
       {/* Right Section - Desktop only */}
       <div
-        className="relatve hidden md:flex w-full md:w-1/2 h-[400px] md:h-screen items-center justify-center p-8"
-        style={{ backgroundImage: "url(src/assets/MainBackground.png)" }}
+        className="hidden md:flex w-full md:w-1/2 h-[400px] md:h-screen items-center justify-center p-8 rounded-3xl"
+        style={{
+          backgroundImage: `url(${MainBackground})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
       >
-
+        <WhiteButton
+          label="Meet the Creators"
+          width={100}
+          fullWidth
+          onClick={NavigateMeetCreators}
+        />
       </div>
     </section>
   );

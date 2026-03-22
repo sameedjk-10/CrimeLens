@@ -7,7 +7,7 @@ import LoginAdminPage from "../pages/LoginAdminPolicePage";
 import LoginPage from "../pages/LoginPage";
 import VerificationPage from "../pages/VerificationPage";
 import MapViewPage from "../pages/MapViewPage";
-import MeetCreatorsCard from "../components/MeetCreatorsCards";
+import MeetDevelopersPage from "../pages/MeetDevelopersPage";
 import StatisticsPage from "../pages/StatisticsPage";
 import ReportCrimePage from "../pages/ReportCrimePage";
 
@@ -48,7 +48,7 @@ export const PublicRoutes = () => {
     },
     {
         path: "/meet-developers",
-        element: <MeetCreatorsCard/>
+        element: <MeetDevelopersPage/>
     },
     {
         path: "/report-crime",
