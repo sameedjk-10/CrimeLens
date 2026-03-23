@@ -1,6 +1,10 @@
 // MapViewPage/components/MapContainer.tsx
 import React from "react";
-import { MapContainer as LeafletMap, TileLayer, ZoomControl } from "react-leaflet";
+import {
+  MapContainer as LeafletMap,
+  TileLayer,
+  ZoomControl,
+} from "react-leaflet";
 import { useNavigate } from "react-router-dom";
 import MapClickHandler from "./MapClickHandler";
 import RadiusVisual from "./RadiusVisual";
@@ -12,7 +16,10 @@ interface MapContainerProps {
   embedded?: boolean;
 }
 
-const MapContainer: React.FC<MapContainerProps> = ({children, embedded = false }: MapContainerProps) => {
+const MapContainer: React.FC<MapContainerProps> = ({
+  children,
+  embedded = false,
+}: MapContainerProps) => {
   const navigate = useNavigate();
 
   const handleBack = () => {
@@ -24,7 +31,20 @@ const MapContainer: React.FC<MapContainerProps> = ({children, embedded = false }
       {!embedded && (
         <button
           onClick={handleBack}
-          className="absolute top-2 left-2 sm:top-7 sm:left-4 z-1000 bg-white hover:bg-gray-100 text-[#237E54] font-semibold py-1.5 px-3 sm:py-2 sm:px-4 rounded-full shadow-sm transition-colors duration-200 flex items-center gap-1.5 sm:gap-2 cursor-pointer text-sm sm:text-base"
+          className="
+  absolute 
+  bottom-4 left-4          /* default (sm & md) → bottom-left */
+  lg:top-7 lg:left-4       /* lg+ → top-left */
+  lg:bottom-auto           /* reset bottom */
+  z-1000 
+  bg-white hover:bg-gray-100 
+  text-[#237E54] font-semibold 
+  py-1.5 px-3 sm:py-2 sm:px-4 
+  rounded-full shadow-sm 
+  transition-colors duration-200 
+  flex items-center gap-1.5 sm:gap-2 
+  cursor-pointer text-sm sm:text-base
+"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -54,8 +74,8 @@ const MapContainer: React.FC<MapContainerProps> = ({children, embedded = false }
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution="&copy; OpenStreetMap contributors"
         />
-        <MapClickHandler />     {/* listens for clicks */}
-        <RadiusVisual />        {/* shows marker + circle */}
+        <MapClickHandler /> {/* listens for clicks */}
+        <RadiusVisual /> {/* shows marker + circle */}
         <ZonePolygon />
         <LayerToggle />
         {/* Render markers, clusters, layers */}

@@ -30,19 +30,21 @@ const Dashboard = () => {
         setTotalZones(data.length);
 
         // Extract totalSeverity from all zones
-        const severities = data.map(z => z.totalSeverity);
+        const severities = data.map((z) => z.totalSeverity);
         const maxSeverity = Math.max(...severities);
         const minSeverity = Math.min(...severities);
 
         // Thresholds: Dangerous > 66%, Moderate 33-66%, Safe < 33%
-        const dangerousThreshold = minSeverity + (maxSeverity - minSeverity) * 0.66;
-        const moderateThreshold = minSeverity + (maxSeverity - minSeverity) * 0.33;
+        const dangerousThreshold =
+          minSeverity + (maxSeverity - minSeverity) * 0.66;
+        const moderateThreshold =
+          minSeverity + (maxSeverity - minSeverity) * 0.33;
 
         let dangerous = 0;
         let moderate = 0;
         let safe = 0;
 
-        data.forEach(zone => {
+        data.forEach((zone) => {
           if (zone.totalSeverity >= dangerousThreshold) dangerous++;
           else if (zone.totalSeverity >= moderateThreshold) moderate++;
           else safe++;
@@ -72,7 +74,8 @@ const Dashboard = () => {
                 Dashboard
               </div>
               <div className="font-outfit text-sm sm:text-md text-[#A0A0A0]">
-                Monitor live updates on crime density, red zones, and incident patterns across the city.
+                Monitor live updates on crime density, red zones, and incident
+                patterns across the city.
               </div>
             </div>
 
@@ -141,7 +144,7 @@ const Dashboard = () => {
 
         {/* CRIME MAP SECTION */}
         <div
-          className="p-4 rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.5)] min-h-[280px] sm:min-h-80 lg:h-[440px] relative"
+          className="p-4 rounded-2xl shadow-[0_0_5px_rgba(0,0,0,0.5)] min-h-80 sm:min-h-80 lg:h-[420px] relative flex flex-col"
           style={{
             backgroundImage: `url(${MapBackground})`,
             backgroundSize: "cover",
@@ -154,7 +157,8 @@ const Dashboard = () => {
                 City Crime Map
               </div>
               <div className="font-outfit text-sm sm:text-md text-[#efecec]">
-                Real-time visualization of crime activity across the city, updated directly from police databases.
+                Real-time visualization of crime activity across the city,
+                updated directly from police databases.
               </div>
             </div>
 
@@ -170,8 +174,8 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="w-full h-[calc(100%-85px)] rounded-xl overflow-hidden">
-            <MapEmbed />
+          <div className="w-full h-[200px] sm:h-[260px] lg:h-[calc(100%-85px)] rounded-xl overflow-hidden">
+            <MapEmbed />  
           </div>
         </div>
       </div>
